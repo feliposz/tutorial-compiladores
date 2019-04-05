@@ -1,0 +1,9 @@
+# Pré-requisitos
+
+Não é necessário nenhum conhecimento teórico sobre compiladores, já que estamos seguindo uma abordagem prática. Mas é claro, que a teoria pode ser de grande ajuda.
+
+Presume-se que o leitor tenha conhecimentos básicos de programação, e conheça as principais estruturas de controle. Conhecimentos de algorítmos e estruturas de dados não são necessários mas podem ajudar muito na compreensão do texto.
+
+Creio que o conhecimento de pelo menos duas linguagens de programação é necessário, mas talvez você consiga se virar sabendo só uma. Em especial C, C++, Java, Pascal, Perl ou outra semelhante. É possível, no entanto, acompanhar o tutorial sem conhecer nenhuma delas, já que eu procurei estruturar os programas e comentá-los de forma que sejam claros o suficiente mesmo para programadores de outras linguagens. O código do tutorial foi adaptado (por outras pessoas) para diversas linguagens. Até mesmo BASIC. Sinta-se livre para implementar os exemplos na sua linguagem favorita e eu seria muito grato se alguém me mandasse exemplos em outras linguagens para que fossem publicados aqui.
+
+O conhecimento de linguagem Assembly, em especial para processadores 80x86, pode ser muito útil, mas não é essencial. Um conhecimento básico de arquitetura de computadores (processador, memória, registradores, etc) pode ser suficiente. Mas não espere conseguir criar um compilador para código nativo sem saber programar Assembly para pelo menos uma máquina, mesmo que seja uma máquina imaginária. É claro que é possível criar tradutores (de Pascal para C, de Java para C++, de Python para Perl, etc) ou interpretadores, sem conhecer assembly, mas isto foge do escopo deste tutorial.
