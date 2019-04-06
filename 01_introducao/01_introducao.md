@@ -1,0 +1,200 @@
+# 1 - Introdução
+
+Esta série de artigos é um tutorial sobre a teoria e prática do desenvolvimento de analisadores sintáticos (parsers) e compiladores. Antes de chegarmos ao fim, serão cobertos todos os aspectos da construção de compiladores, uma nova linguagem de programação será projetada, e um compilador funcional será construído.
+
+>**NOTA DE TRADUÇÃO:** Isto não é totalmente verdadeiro, o tutorial foi interrompido na parte 16 e eu (o tradutor) não tenho esperanças de que o autor venha a terminá-lo tão cedo. De qualquer forma, a parte que está completa e disponível é de excelente qualidade e serve como um formidável ponto de partida para quem está começando e louco para ver um compilador funcionando, ainda que não 100% completo.
+
+Apesar de eu não ser um cientista da computação formado (meu Ph.D. é em uma área diferente, Física), eu me interesso por compiladores há muitos anos. Eu comprei e tentei compreender o conteúdo de virtualmente todos os livros já escritos sobre o assunto. Eu não me importo em lhe dizer que foi um processo demorado. Livros sobre compiladores são escritos para cientistas da computação de alto nível, e são bem difíceis para o resto de nós. Mas com o tempo, parte do conteúdo começou a fazer sentido. O que realmente fez a coisa acontecer foi quando eu comecei a pesquisar por mim mesmo e a tentar as coisas no meu próprio computador. Agora eu pretendo compartilhar com você o que eu aprendi. No final deste tutorial você não será de modo algum um cientista da computação, nem vai conhecer todo o esoterismo da teoria dos compiladores. Eu pretendo ignorar completamente os aspectos mais teóricos do assunto. O que você VAI conhecer são todos os aspectos práticos que alguém deve saber para construir um sistema funcional.
+
+Esta é uma série do tipo "aprenda fazendo". No decorrer da série eu vou fazer alguns experimentos em um computador. Você deveria tentar também, seguindo os experimentos que eu faço, e fazendo alguns por conta própria. Eu vou usar um compilador C (compatível com o padrão ANSI C) em um computador PC (80x86). Eu vou periodicamente inserir exemplos escritos em C. Você deverá compilar e executar no seu próprio computador usando o compilador da sua preferência. Se você não tiver um compilador C instalado, creio que você não vai acompanhar de forma satisfatória o que está acontecendo. Se você não tem um compilador ou um ambiente de desenvolvimento para linguagem C (preferivelmente compatível com o padrão ANSI, como todo compilador C moderno) eu recomendo seriamente que você arrume um. Afinal de contas, um compilador C pode ser útil para várias outras coisas. Há muitos compiladores C disponíveis gratuitamente na Internet. Eu recomendo que você procure por alguma versão do GCC que seja adequada ao seu sistema. 
+
+>**NOTA DE TRADUÇÃO:** Este tutorial foi criado originalmente baseado no compilador Turbo Pascal da Borland. Eu decidi adaptá-lo à linguagem C pois ela é muito mais usada hoje em dia do que Pascal e porque eu particularmente gosto mais de C. No entanto, mesmo para aqueles que não conhecem a linguagem C, o conteúdo do texto e o estilo de programação são claros o suficiente, para que o leitor possa aplicar os conhecimentos em outra linguagem.
+
+Alguns artigos sobre compiladores mostram exemplos, ou mostram (como é o caso do Small C) um produto completo, que você pode então copiar e usar sem entender muito bem o funcionamento dele. Eu espero fazer muito mais do que isso. Eu espero ensinar como as coisas são feitas, de forma que você possa fazer as coisas por si mesmo e não somente reproduzir aquilo que eu fiz, mas também melhorá-lo.
+
+Isto é admissivelmente um empreendimento ambicioso, e não será conseguido em uma única página. Eu espero fazê-lo no decorrer de uma série de artigos. Cada artigo deverá cobrir um único aspecto da teoria de compiladores, e possivelmente ser útil por si só. Se tudo o que lhe interessa em um determinado momento é um único aspecto, então você só precisa procurar em um único artigo. Cada artigo será disponibilizado assim que completo (mas sempre sujeito a revisões), assim você deve esperar pelo último antes de considerar que já acabou. Por favor, seja paciente.
+
+Os livros e textos normais sobre compiladores cobrem uma teoria muito vasta que não será coberta totalmente neste tutorial. A sequência típica é:
+
+- Um capítulo introdutório descrevendo o que é um compilador.
+- Um capítulo ou dois sobre equações sintáticas, usando Backus-Naur Form (BNF).
+- Um capítulo ou dois sobre análise léxica (lexical scanning), com ênfase em autômatos finitos determinísticos e não-determinísticos.
+- Diversos capítulos sobre teoria da análise sintática (parsing), começando com analisadores "top-down" com descendência recursiva, e terminando com analisadores LALR.
+- Um capítulo sobre linguagens intermediarias, com ênfase em P-code (pseudocódigo) e outras representações polonesas reversas similares.
+- Muitos capítulos sobre modos alternativos de tratar de sub-rotinas e passagem de parâmetros, declaração de tipos, etc.
+- Um capítulo próximo do fim sobre geração de código, normalmente para uma CPU imaginária com um conjunto de instruções simples. A maioria dos leitores (e também, boa parte dos estudantes universitários) nunca chegam até aqui.
+- Um ou dois capítulos finais sobre otimização. Este capítulo frequentemente passa sem ser lido, também.
+
+Eu vou tomar uma abordagem bem diferente neste tutorial. Para iniciar, eu não vou ficar me preocupando com opções. Eu vou lhe dar UMA forma que funciona. Se você deseja estudar as outras opções, ótimo... eu encorajo você a fazer isso! Mas vou me manter naquilo que eu entendo. Eu também vou pular a maior parte da teoria que faz as pessoas dormirem. Mas não me entenda mal: Eu não ignoro a teoria, e ela tem uma importância vital quando você tem que lidar com as partes complexas de uma dada linguagem. Mas eu prefiro colocar as coisas importantes em primeiro lugar. Nós vamos lidar aqui com os 95% das técnicas de compilação que não requerem um monte de teoria.
+
+Eu também só vou falar a respeito de uma única abordagem para a análise sintática: descendência recursiva top-down, que é a ÚNICA técnica apropriada para construir um compilador manualmente. As outras abordagens só são úteis se você tem ferramentas como LEX e YACC, e também não liga muito pra quanto espaço de memória o produto final vai usar.
+
+Eu também vou emprestar um pouco da sabedoria do trabalho de Ron Cain, o autor da versão original do Small C. Enquanto a maioria dos outros autores tem historicamente usado uma linguagem intermediária (como P-code) e dividido o compilador em 2 partes (um "front end" que produz P-code, e um "back end" que produz o código objeto executável processando o P-code), Ron nos mostrou que não é tão complicado fazer um compilador produzir diretamente código objeto executável, na forma de comandos em linguagem Assembly. O código NÃO vai ser o código mais otimizado do mundo... produzir código otimizado é um trabalho bem mais árduo. Mas mesmo assim funciona, e funciona razoavelmente bem. Tanto que, pra não deixar você com a impressão de que o nosso produto final vai ser inútil, eu pretendo mostrar a você como "melhorar" o compilador com alguma otimização.
+
+Finalmente, eu vou usar alguns truques que eu acho que são muito úteis para ajudar a entender o que está acontecendo sem complicar muito as coisas. Um deles é o uso de Tokens (você vai entender isso melhor depois) de um único caractere, sem espaços intermediários, para o projeto inicial. Eu acredito que se eu consigo fazer um analisador que reconhece e trata bem de I-T-L, eu posso fazê-lo fazer o mesmo com IF-THEN-ELSE. E sim, eu posso! Na segunda "lição", eu vou mostrar como é fácil estender um analisador sintático simples para tratar de tokens de qualquer tamanho. Outro truque: eu ignoro completamente entrada/saída de arquivos. Se eu posso ler o código-fonte do teclado (entrada padrão) e colocar a saída na tela (saída padrão), eu também consigo fazer isso com arquivos em disco. A experiência provou que uma vez que um tradutor esteja funcionando corretamente, é uma tarefa simples redirecionar sua entrada e saída para arquivos. O último truque é que eu não faço nenhum esforço para tentar fazer correção/recuperação de erros. O programa que vamos fazer vai RECONHECER erros e não vai TRAVAR, mas vai simplesmente parar no primeiro erro... como a maioria dos compiladores/interpretadores simplistas fazem. Há outros truques que eu vou usar mais pra frente. Muitos deles não serão encontrados na maioria dos livros sobre compiladores, mas eles funcionam.
+
+A respeito de estilo e eficiência. Como você vai ver, eu procuro escrever programas em partes pequenas e fáceis de entender. A maioria das rotinas com as quais vamos trabalhar não vai ter mais do que 15 ou 20 linhas. Eu sou um devoto fervoroso da filosofia KISS (Keep It Simple, Sidney - ou o mais comum - Keep It Simple, Stupid: Mantenha simples, estúpido!). Eu tento não fazer nada muito complicado quando algo simples serve. Ineficiente? Talvez, mas você vai gostar do resultado. Como Brian Kernighan já disse, PRIMEIRO faça executar, DEPOIS faça executar mais rápido. Se mais tarde você quiser voltar e melhorar o código em um dos nossos programas você vai pode fazer isso, uma vez que o código vai ser bem compreensível. Se você fizer isso porém, eu recomendo que você espere até o programa estar pronto e fazendo o que você quer que ele faça.
+
+Eu também tenho uma tendência de deixar pra fazer depois um módulo, até que eu descubra que eu realmente preciso dele. Tentar antecipar cada possível contingência futura pode deixar você maluco, e normalmente você antecipa errado de qualquer forma. Nestes tempos modernos de ambientes integrados (IDE) e compiladores velozes, não vale a pena hesitar em mudar um módulo quando você sente que precisa de um mais poderoso. Até então, eu vou escrever apenas o que eu preciso.
+
+Um aviso final: Um dos princípios que nós vamos seguir aqui é que não vamos perder tempo com P-code (código intermediário ou pseudo-código) ou CPUs imaginárias, mas vamos começar desde o primeiro dia produzindo código funcional e executável, pelo menos na forma de um programa fonte em linguagem Assembly. Porém, talvez você não goste muito da minha escolha de linguagem Assembly. Eu vou usar assembly para máquinas 80x86, mas usando apenas registradores de 16-bits e nossa plataforma alvo será um sistema MS-DOS ou compatível. Se você usar outro Assembly ou outra plataforma eu espero que a tradução seja simples e se possível óbvia (admitindo que você conheça um pouco de programação assembly).
+
+>**NOTA DE TRADUÇÃO:** No original o Assembly usado era para processadores 68000 da Motorola. Eu preferi tentar passar os nossos exemplos para Assembly 80x86 por ser muito mais comum (e por ser o único que eu conheço :).
+
+## O "Berço"
+
+Todo programa precisa de uma parte de suporte... rotinas de entrada e saída, de mensagens de erro, etc. Os programas que vamos desenvolver aqui não serão exceções. Eu tentei manter esta parte o menor possível, de forma que possamos nos concentrar na parte importante sem ficarmos perdidos. O código dado abaixo representa o mínimo que nós precisamos para ter alguma coisa feita. Ele consiste em algumas rotinas de E/S, uma rotina de tratamento de erros e uma rotina principal (main) vazia, o esqueleto do programa. Eu vou chamar esse código de nosso "berço". Conforme desenvolvemos outras rotinas nós vamos adicioná-las ao berço e adicionar as chamadas a estas rotinas conforme precisamos. Faça uma cópia do "berço" e salve-a em outro lugar, pois nós vamos usá-la mais de uma vez.
+
+Há mais de uma forma para se organizar as atividades de análise de um analisador. Em sistemas Unix, os autores tendem a usar as funções `getchar()` e `ungetc()`. Eu tive muito boa sorte com a abordagem apresentada aqui, que é usar um único caractere "antecipado" (lookahead character) global. Parte da rotina de inicialização (a única parte, por enquanto!) serve pra preparar o analisador, lendo um caractere inicial da entrada (input stream). Nenhuma outra técnica especial é necessária... cada chamada sucessiva a `nextChar()` vai ler o próximo caractere da entrada.
+
+>**NOTA DE TRADUÇÃO:** Eu procurei manter o código o mais próximo possível da versão Pascal original. Porém toda linguagem de programação tem suas particularidades e obviamente mudanças tiveram que ser feitas. De qualquer forma eu espero ter feito um trabalho que no mínimo funcione e seja fácil de entender. Note que eu nem precisei colocar muitos comentários pois o funcionamento das funções é simples e óbvio e seus nomes já são *autoexplicativos*. Pra manter uma semelhança maior com o código original, preferi manter os nomes das funções em inglês e inalterados na maioria dos casos (e pra você se acostumar com os termos em inglês também).
+
+~~~c
+/*
+The Cradle - O Berço
+
+O código abaixo foi escrito por Felipo Soranz e é uma adaptação
+do código original em Pascal escrito por Jack W. Crenshaw em sua
+série "Let's Build a Compiler".
+
+Este código é de livre distribuição e uso.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <ctype.h>
+
+char look; /* O caracter lido "antecipadamente" (lookahead) */
+
+/* protótipos */
+void init();
+void nextChar();
+void error(char *fmt, ...);
+void fatal(char *fmt, ...);
+void expected(char *fmt, ...);
+void match(char c);
+char getName();
+char getNum();
+void emit(char *fmt, ...);
+
+/* PROGRAMA PRINCIPAL */
+int main()
+{
+    init();
+
+    return 0;
+}
+
+/* inicialização do compilador */
+void init()
+{
+    nextChar();
+}
+
+/* lê próximo caracter da entrada */
+void nextChar()
+{
+    look = getchar();
+}
+
+/* exibe uma mensagem de erro formatada */
+void error(char *fmt, ...)
+{
+    va_list args;
+
+    fputs("Error: ", stderr);
+
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+
+    fputc('\n', stderr);
+}
+
+/* exibe uma mensagem de erro formatada e sai */
+void fatal(char *fmt, ...)
+{
+    va_list args;
+
+    fputs("Error: ", stderr);
+
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+
+    fputc('\n', stderr);
+
+    exit(1);
+}
+
+/* alerta sobre alguma entrada esperada */
+void expected(char *fmt, ...)
+{
+    va_list args;
+
+    fputs("Error: ", stderr);
+
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+
+    fputs(" expected!\n", stderr);
+
+    exit(1);
+}
+
+/* verifica se entrada combina com o esperado */
+void match(char c)
+{
+    if (look != c)
+        expected("'%c'", c);
+    nextChar();
+}
+
+/* recebe o nome de um identificador */
+char getName()
+{
+    char name;
+
+    if (!isalpha(look))
+        expected("Name");
+    name = toupper(look);
+    nextChar();
+
+    return name;
+}
+
+/* recebe um número inteiro */
+char getNum()
+{
+    char num;
+
+    if (!isdigit(look))
+        expected("Integer");
+    num = look;
+    nextChar();
+
+    return num;
+}
+
+/* emite uma instrução seguida por uma nova linha */
+void emit(char *fmt, ...)
+{
+    va_list args;
+
+    putchar('\t');
+
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+
+    putchar('\n');
+}
+~~~
+
+
+Faça download do código-fonte: [cap01-craddle.c](cap01-craddle.c) (Original em Pascal: [orig01-craddle.pas](orig01-craddle.pas))
+
+Por enquanto é só isso. Compile o código acima. Tenha certeza que ele é compilado e executado corretamente. Então continue com a próxima lição, que é sobre [análise de expressões](../02_analise_expressoes/02_analise_expressoes.md).
+

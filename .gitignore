@@ -1,0 +1,6 @@
+.vscode
+*.o
+*.obj
+*.exe
+01_introducao/cap01-craddle
+01_introducao/orig01-craddle
