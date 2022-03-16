@@ -20,7 +20,7 @@ Livro excelente escrito por Robert Nystrom. O livro mostra a implementação de 
 
 >**Curiosidade:** Robert trabalha atualmente para a Google na linguagem [Dart](http://dart.dev/).
 
-Livro disponível gratuitamente em: https://craftinginterpreters.com/
+Livro disponível gratuitamente em: <https://craftinginterpreters.com/>
 
 **Compiladores: Princípios, Técnicas e Ferramentas** 
 
@@ -36,20 +36,20 @@ Páginas: 648
 
 Autor: Niklaus Wirth (O criador das linguagem Pascal, Modula, Oberon, etc.)
 
-Disponível gratuitamente em PDF para download em: http://www.ethoberon.ethz.ch/books.html 
+Disponível gratuitamente em PDF para download em: <http://www.ethoberon.ethz.ch/books.html> 
 
  
 **Compiler Construction (Wikibook)**
 
 Autor: Colaborativo (wiki)
 
-Disponível gratuitamente em: http://en.wikibooks.org/wiki/Compiler_Construction
+Disponível gratuitamente em: <http://en.wikibooks.org/wiki/Compiler_Construction>
 
  
 **Structure and Interpretation of Computer Programs**
 
-Disponível gratuitamente em: http://mitpress.mit.edu/sicp/full-text/book/book.html )
+Disponível gratuitamente em: <http://mitpress.mit.edu/sicp/full-text/book/book.html>
 
-Possui também uma série de palestras em vídeo disponíveis online que seguem mais ou menos a estrutura do livro: (http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-001-structure-and-interpretation-of-computer-programs-spring-2005/video-lectures/ ).
+Possui também uma série de palestras em vídeo disponíveis online que seguem mais ou menos a estrutura do livro: <http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-001-structure-and-interpretation-of-computer-programs-spring-2005/video-lectures/>.
 
 Os autores além de introduzirem a programação funcional, também implementam um interpretador Scheme completo em poucas linhas de código Scheme.
