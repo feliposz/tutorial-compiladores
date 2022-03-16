@@ -15,15 +15,17 @@ Em sequência, iremos começar mais uma vez com um "berço" novo, e vamos fazer 
 
 Eu também não quero ficar me prendendo a lidar com comandos que não sejam condições, como comandos de atribuição nos quais estivemos trabalhando. Já foi demonstrado que podemos tratar deles, então não há por que ficar carregando isto como bagagem em excesso pelo resto do exercício. Então, o que eu farei ao invés disso é usar um comando anônimo, "outro", para ficar no lugar dos comandos que não são de controle e servir como um suporte para eles. Temos que gerar algum tipo de código para eles (lembre-se, estamos novamente compilando, não interpretando), então eu vou simplesmente mostrar o caracter da entrada.
 
-Começando com uma nova cópia do "berço", vamos definir a rotina:
+Começando com [uma nova cópia do "berço"](src/cap01-craddle.c), vamos definir a rotina:
 
 ~~~c
 /* reconhece e traduz um comando qualquer */
 void other()
 {
-    emit("# %c", getName());
+    emit("; %c", getName());
 }
 ~~~
+
+O caracter ";" indica um comentário de linha em assembly.
 
 Agora inclua uma chamada no programa principal:
 
@@ -60,11 +62,11 @@ void program()
     block();
     if (look != 'e')
         expected("End");
-    emit("HLT");
+    emit("; END");
 }
 ~~~
 
-Note que eu estou emitindo um "HLT". Podemos considerá-lo como uma instrução que interrompe a execução do programa, e faz sentido também, afinal estamos compilando um programa completo.
+Note que eu estou emitindo um "; END". Podemos considerá-lo como uma instrução que interrompe a execução do programa, e faz sentido também, afinal estamos compilando um programa completo.
 
 O código de "block" é:
 
@@ -85,7 +87,7 @@ Uma preparação
 
 Antes de começar a definir diversas estruturas de controle, precisamos preparar mais algumas coisas. Antes de mais nada, um aviso: Eu não vou usar as mesmas sintaxes das construções que você está acostumado a encontrar em Pascal ou C. Por exemplo, a sintaxe Pascal para um IF é:
 
-~~~pascal
+~~~
     IF <condição> THEN <comando>
 ~~~
 
@@ -93,7 +95,7 @@ Antes de começar a definir diversas estruturas de controle, precisamos preparar
 
 A versão em C:
 
-~~~c
+~~~
     if ( <condição> ) <comando>
 ~~~
 
@@ -234,27 +236,43 @@ Note a referência à rotina `condition()`. Eventualmente, vamos escrever uma ro
 /* analisa e traduz uma condição */
 void condition()
 {
-    emit("# condition");
+    emit("; condition");
 }
 ~~~
 
 Insira esta rotina e execute o programa. Teste algo assim:
 
 ~~~
-    aibece
+    AiBeCe
+~~~
+
+>**NOTA DE TRADUÇÃO:** Recomendo usar letras maiúsculas para os identificador, para não confundir com as diversas "palavras-chaves" de uma letra usadas a seguir. Se preferir, altere a função `getName()` para indicar um erro se for usado um identificador em minúscula, conforme abaixo:
+
+~~~c
+char getName()
+{
+    char name;
+
+    if (!isupper(look))
+        expected("Name");
+    name = look;
+    nextChar();
+
+    return name;
+}
 ~~~
 
 Como você pode ver, o analisador reconhece a construção corretamente e insere o código nos lugares corretos. Agora tente alguns IFs aninhados, como:
 
 ~~~
-    aibicedefe
+    AiBiCeDeFe
 ~~~
 
 Esta começando a parecer real, não?
 
 Agora que já temos uma idéia geral (e as ferramentas de notação, e também as rotinas `newLabel()` e `postLabel()`), é uma moleza estender o analisador para incluir outras construções. A primeira (e também uma das mais complicadas) é adicionar a cláusula ELSE ao IF. A BNF é:
 
-~~~ebnf
+~~~
     IF <condition> <block> [ ELSE <block> ] ENDIF
 ~~~
 
@@ -262,7 +280,7 @@ Agora que já temos uma idéia geral (e as ferramentas de notação, e também a
 
 A saída correspondente deve ser:
 
-~~~asm
+~~~
         <condition>
         JZ L1
         <block>
@@ -320,13 +338,13 @@ Aí está. Um analisador/tradutor completo de um IF em 20 linhas de código. Alt
 Faça o teste agora, com alguma coisa assim:
 
 ~~~
-    aiblcede
+    AiBlCeDe
 ~~~
 
 Funcionou? Agora, pra ter certeza de que está tudo correto com o caso sem ELSE, teste:
 
 ~~~
-    aibece
+    AiBeCe
 ~~~
 
 Agora tente alguns IFs aninhados. Teste tudo o que quiser, incluindo alguns comandos mal formados. Apenas lembre-se que "e" não é um comando válido e sim um terminador.
@@ -386,7 +404,7 @@ void doWhile()
 }
 ~~~
 
->**NOTA DE TRADUÇÃO:** Por favor, não confundam `doWhile` com o comando {[do ... while(<cond>);]} da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
+>**NOTA DE TRADUÇÃO:** Por favor, não confundam `doWhile` com o comando `do ... while(<cond>);` da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
 
 Como temos um comando novo, temos que adicionar a chamada à rotina `block()`:
 
@@ -620,14 +638,14 @@ Como não temos expressões para este analisador, eu usei o mesmo truque de `con
 ~~~c
 void expression()
 {
-    emit("# EXPR");
+    emit("; EXPR");
 }
 ~~~
 
 Faça um teste. Mais uma vez, não esqueça de adicionar a chamada em `block()`. Como não temos nenhuma entrada para esta versão de `expression()`, uma entrada típica deveria parecer-se com:
 
 ~~~
-    afi=bece
+    AfI=BeCe
 ~~~
 
 Bem, isto gera um monte de código, não gera? Mas pelo menos é o código correto.
@@ -804,7 +822,7 @@ void program()
     block(-1);
     if (look != 'e')
         expected("End");
-    emit("HLT");
+    emit("; END");
 }
 ~~~
 

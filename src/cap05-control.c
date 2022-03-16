@@ -125,9 +125,9 @@ char getName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isupper(look))
         expected("Name");
-    name = toupper(look);
+    name = look;
     nextChar();
 
     return name;
@@ -175,19 +175,19 @@ int postLabel(int lbl)
 /* analisa e traduz uma condição */
 void condition()
 {
-    emit("# condition");
+    emit("; condition");
 }
 
 /* analisa e traduz uma expressão */
 void expression()
 {
-    emit("# expression");
+    emit("; expression");
 }
 
 /* reconhece e traduz um comando qualquer */
 void other()
 {
-    emit("# %c", getName());
+    emit("; %c", getName());
 }
 
 /* analisa e traduz um comando IF */
@@ -369,5 +369,5 @@ void program()
     block(-1);
     if (look != 'e')
         expected("End");
-    emit("HLT");
+    emit("; END");
 }
