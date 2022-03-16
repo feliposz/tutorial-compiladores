@@ -1,5 +1,5 @@
 /*
-Análise de expressões
+Mais expressões: Variáveis, funções, tokens multi-caracter, espaços...
 
 O código abaixo foi escrito por Felipo Soranz e é uma adaptação
 do código original em Pascal escrito por Jack W. Crenshaw em sua
@@ -13,6 +13,9 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
+#define MAXNAME 30
+#define MAXNUM 5
+
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* protótipos */
@@ -21,10 +24,13 @@ void nextChar();
 void error(char *fmt, ...);
 void fatal(char *fmt, ...);
 void expected(char *fmt, ...);
+void skipWhite();
 void match(char c);
-char getName();
-char getNum();
+void getName(char *name);
+void getNum(char *num);
 void emit(char *fmt, ...);
+void ident();
+void assignment();
 void factor();
 void term();
 void expression();
@@ -38,7 +44,9 @@ int isAddOp(char c);
 int main()
 {
     init();
-    expression();
+    assignment();
+    if (look != '\n')
+        expected("NewLine");
 
     return 0;
 }
@@ -47,6 +55,7 @@ int main()
 void init()
 {
     nextChar();
+    skipWhite();
 }
 
 /* lê próximo caracter da entrada */
@@ -101,38 +110,52 @@ void expected(char *fmt, ...)
     exit(1);
 }
 
+/* pula caracteres de espaço */
+void skipWhite()
+{
+    while (look == ' ' || look == '\t')
+        nextChar();
+}
+
 /* verifica se entrada combina com o esperado */
 void match(char c)
 {
     if (look != c)
         expected("'%c'", c);
     nextChar();
+    skipWhite();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+void getName(char *name)
 {
-    char name;
-
+    int i;
     if (!isalpha(look))
         expected("Name");
-    name = toupper(look);
-    nextChar();
-
-    return name;
+    for (i = 0; isalnum(look); i++) {
+        if (i >= MAXNAME)
+            fatal("Identifier too long!");
+        name[i] = toupper(look);
+        nextChar();
+    }
+    name[i] = '\0';
+    skipWhite();
 }
 
 /* recebe um número inteiro */
-char getNum()
+void getNum(char *num)
 {
-    char num;
-
+    int i;
     if (!isdigit(look))
         expected("Integer");
-    num = look;
-    nextChar();
-
-    return num;
+    for (i = 0; isdigit(look); i++) {
+        if (i >= MAXNUM)
+            fatal("Integer too long!");
+        num[i] = look;
+        nextChar();
+    }
+    num[i] = '\0';
+    skipWhite();
 }
 
 /* emite uma instrução seguida por uma nova linha */
@@ -149,15 +172,43 @@ void emit(char *fmt, ...)
     putchar('\n');
 }
 
+/* analisa e traduz um identificador */
+void ident()
+{
+    char name[MAXNAME+1];
+    getName(name);
+    if (look == '(') {
+        match('(');
+        match(')');
+        emit("CALL %s", name);
+    } else
+        emit("MOV AX, [%s]", name);
+}
+
+/* analisa e traduz um comando de atribuição */
+void assignment()
+{
+    char name[MAXNAME+1];
+    getName(name);
+    match('=');
+    expression();
+    emit("MOV [%s], AX", name);
+}
+
 /* analisa e traduz um fator */
 void factor()
 {
+    char num[MAXNUM+1];
     if (look == '(') {
         match('(');
         expression();
         match(')');
-    } else
-        emit("MOV AX, %c", getNum());
+    } else if(isalpha(look)) {
+        ident();
+    } else {
+        getNum(num);
+        emit("MOV AX, %s", num);
+    }
 }
 
 /* reconhece e traduz uma multiplicação */
@@ -192,9 +243,6 @@ void term()
                 break;
             case '/':
                 divide();
-                break;
-            default:
-                expected("MulOp");
                 break;
         }
     }
@@ -234,9 +282,6 @@ void expression()
                 break;
             case '-':
                 subtract();
-                break;
-            default:
-                expected("AddOp");
                 break;
         }
     }

@@ -1,5 +1,5 @@
 /*
-Análise de expressões
+Mais expressões: Variáveis, funções, tokens de um caracter
 
 O código abaixo foi escrito por Felipo Soranz e é uma adaptação
 do código original em Pascal escrito por Jack W. Crenshaw em sua
@@ -25,6 +25,8 @@ void match(char c);
 char getName();
 char getNum();
 void emit(char *fmt, ...);
+void ident();
+void assignment();
 void factor();
 void term();
 void expression();
@@ -38,7 +40,9 @@ int isAddOp(char c);
 int main()
 {
     init();
-    expression();
+    assignment();
+    if (look != '\n')
+        expected("NewLine");
 
     return 0;
 }
@@ -149,6 +153,29 @@ void emit(char *fmt, ...)
     putchar('\n');
 }
 
+/* analisa e traduz um identificador */
+void ident()
+{
+    char name;
+    name = getName();
+    if (look == '(') {
+        match('(');
+        match(')');
+        emit("CALL %c", name);
+    } else
+        emit("MOV AX, [%c]", name);
+}
+
+/* analisa e traduz um comando de atribuição */
+void assignment()
+{
+    char name;
+    name = getName();
+    match('=');
+    expression();
+    emit("MOV [%c], AX", name);
+}
+
 /* analisa e traduz um fator */
 void factor()
 {
@@ -156,7 +183,9 @@ void factor()
         match('(');
         expression();
         match(')');
-    } else
+    } else if(isalpha(look))
+        ident();
+    else
         emit("MOV AX, %c", getNum());
 }
 
@@ -192,9 +221,6 @@ void term()
                 break;
             case '/':
                 divide();
-                break;
-            default:
-                expected("MulOp");
                 break;
         }
     }
@@ -234,9 +260,6 @@ void expression()
                 break;
             case '-':
                 subtract();
-                break;
-            default:
-                expected("AddOp");
                 break;
         }
     }

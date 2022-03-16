@@ -1,4 +1,4 @@
-# Vamos construir um compilador
+# Índice
 
 Esta série é uma tradução e adaptação do tutorial `Let's Build A Compiler` de Jack W. Crenshaw.
 
@@ -20,9 +20,9 @@ Espero que você goste do tutorial.
 
 ## Tutorial
 
-- [1 Introdução](01_introducao/01_introducao.md)
-- [2 Análise de Expressões](02_analise_expressoes/02_analise_expressoes.md)
-- [3 Mais expressões]()
+- [1 Introdução](01_introducao)
+- [2 Análise de Expressões](02_analise_expressoes)
+- [3 Mais expressões](03_mais_expressoes)
 - [4 Interpretadores]()
 - [5 Estruturas de Controle]()
 - [6 Expressões Booleanas]()

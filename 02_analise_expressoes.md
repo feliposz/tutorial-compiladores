@@ -462,6 +462,12 @@ Apenas para constar, eu implementei este conceito, apenas para ter certeza que i
 
 Então, você deve notar que gerar código melhor não é tão difícil, mas adiciona complexidade ao nosso tradutor... complexidade que nós não queremos neste ponto. Por esta razão, EU RECOMENDO que continuemos ignorando problemas de eficiência pelo resto desta série, com a certeza que podemos melhorar de fato a qualidade do código sem jogar fora o que fizemos.
 
-Na [próxima lição](03_mais_expressoes.md), vou mostrar como lidar com variáveis e chamadas de função nas expressões. Também vou mostrar como é fácil lidar com tokens de vários caracteres e espaços separadores.
+O código completo até aqui:
+
+~~~c
+{% include_relative src/cap02-expr.c %}
+~~~
+
+Na [próxima lição](03_mais_expressoes), vou mostrar como lidar com variáveis e chamadas de função nas expressões. Também vou mostrar como é fácil lidar com tokens de vários caracteres e espaços separadores.
 
 Faça download do código-fonte: [cap02-expr.c](src/cap02-expr.c)
