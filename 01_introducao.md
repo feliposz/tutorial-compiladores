@@ -1,5 +1,8 @@
 # 1 - Introdução
 
+- Autor: Jack W. Crenshaw, Ph.D. (24/07/1988)
+- Tradução e adaptação: Felipo Soranz (13/05/2002)
+
 Esta série de artigos é um tutorial sobre a teoria e prática do desenvolvimento de analisadores sintáticos (parsers) e compiladores. Antes de chegarmos ao fim, serão cobertos todos os aspectos da construção de compiladores, uma nova linguagem de programação será projetada, e um compilador funcional será construído.
 
 >**NOTA DE TRADUÇÃO:** Isto não é totalmente verdadeiro, o tutorial foi interrompido na parte 16 e eu (o tradutor) não tenho esperanças de que o autor venha a terminá-lo tão cedo. De qualquer forma, a parte que está completa e disponível é de excelente qualidade e serve como um formidável ponto de partida para quem está começando e louco para ver um compilador funcionando, ainda que não 100% completo.
@@ -57,3 +60,4 @@ Faça download do código-fonte: [cap01-craddle.c](src/cap01-craddle.c) (Origin
 
 Por enquanto é só isso. Compile o código acima. Tenha certeza que ele é compilado e executado corretamente. Então continue com a próxima lição, que é sobre [análise de expressões](02_analise_expressoes).
 
+{% include footer.md %}

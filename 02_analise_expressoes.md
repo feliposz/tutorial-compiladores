@@ -1,6 +1,9 @@
 # 2 - Análise de Expressões
 
-Se você já leu a introdução desta série, você já estará por dentro do que estamos fazendo. Você provavelmente deve ter compilado o "berço" em seu compilador C favorito e executado ele com sucesso. Portanto, você deve estar pronto para começar.
+- Autor: Jack W. Crenshaw, Ph.D. (24/07/1988)
+- Tradução e adaptação: Felipo Soranz (14/05/2002)
+
+Se você já leu a [introdução](01_introducao) desta série, você já estará por dentro do que estamos fazendo. Você provavelmente deve ter compilado o "berço" em seu compilador C favorito e executado ele com sucesso. Portanto, você deve estar pronto para começar.
 
 O objetivo deste artigo é aprender como analisar e traduzir expressões matemáticas. O que nós gostaríamos de ver como saída é uma série de comandos em linguagem assembly que execute as ações desejadas. Para propósitos de definição, uma expressão é o lado direito de uma equação, como em:
 
@@ -471,3 +474,5 @@ O código completo até aqui:
 Na [próxima lição](03_mais_expressoes), vou mostrar como lidar com variáveis e chamadas de função nas expressões. Também vou mostrar como é fácil lidar com tokens de vários caracteres e espaços separadores.
 
 Faça download do código-fonte: [cap02-expr.c](src/cap02-expr.c)
+
+{% include footer.md %}

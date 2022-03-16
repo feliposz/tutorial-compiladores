@@ -1,6 +1,9 @@
 # 3 - Mais expressões
 
-No último capítulo, examinamos as técnicas usadas para analisar e traduzir uma expressão matemática genérica. Terminamos com um analisador simples que pode tratar de uma expressão arbitrariamente complexa, com duas restrições:
+- Autor: Jack W. Crenshaw, Ph.D. (04/08/1988)
+- Tradução e adaptação: Felipo Soranz (15/05/2002)
+
+No [último capítulo](02_analise_expressoes), examinamos as técnicas usadas para analisar e traduzir uma expressão matemática genérica. Terminamos com um analisador simples que pode tratar de uma expressão arbitrariamente complexa, com duas restrições:
 
 - Nenhuma variável era permitida, apenas fatores numéricos
 - Os fatores numéricos estavam limitados a dígitos simples
@@ -19,7 +22,7 @@ Lembre-se que em nosso analisador, como ele está agora, há dois tipos de fator
 
     <factor> ::= <number> | '(' <expression> ')'
 
-O sinal "|" quer dizer "ou", o que claramente significa que ambas as formas são formas válidas para um fator. Lembre-se também que não tivemos problemas em diferenciar qual é qual... o caracter "lookahead" é um "(" em um caso, e um dígito no outro.
+O sinal `|` quer dizer "ou", o que claramente significa que ambas as formas são formas válidas para um fator. Lembre-se também que não tivemos problemas em diferenciar qual é qual... o caracter "lookahead" é um "(" em um caso, e um dígito no outro.
 
 Provavelmente não vai ser uma surpresa tão grande saber que uma variável é apenas outro tipo de fator. Então, nós vamos estender a regra BNF acima para que fique assim:
 
@@ -361,3 +364,5 @@ Como nós fizemos uma série de mudanças desta vez, vou reproduzir o código in
 Faça download do código-fonte: [cap03-single.c](src/cap03-single.c) [cap03-multi.c](src/cap03-multi.c)
 
 Agora o analisador está completo. Ele tem todas as características que se pode colocar em um "compilador de uma só linha". Salve-o num lugar seguro. Da próxima vez vamos passar para um novo assunto, mas ainda vamos falar sobre expressões por um bom tempo. No [próximo capítulo](04_interpretadores) eu pretendo falar um pouco sobre interpretadores ao invés de compiladores, e mostrar como a estrutura de um analisador muda um pouco conforme mudamos o tipo de ação a ser tomada. O conhecimento que adquirirmos ali nos será muito útil futuramente, mesmo que você não tenha interesse em interpretadores. Até a próxima!
+
+{% include footer.md %}

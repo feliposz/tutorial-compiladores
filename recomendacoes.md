@@ -1,6 +1,26 @@
 # Recomendações
 
+## Let's Build A Compiler
+
+Outras versões deste tutorial (todas em inglês):
+
+- [Original](https://compilers.iecc.com/crenshaw/)
+- [Delphi/Lazarus + Assembly x86](http://www.pp4s.co.uk/main/tu-trans-comp-jc-intro.html)
+- [Haskell](https://g-ford.github.io/cradle/)
+- [C + Assembly x86](https://github.com/lotabout/Let-s-build-a-compiler)
+
 ## Livros/artigos indicados
+
+**Crafting Interpreters**
+
+Livro excelente escrito por Robert Nystrom. O livro mostra a implementação de dois interpretadores para uma linguagem fictícia orientada a objetos chamada Lox:
+
+- A primeira implementação é feita em Java e foca em um interpretador de nível mais alto, para apresentar os conceitos básicos de análise léxica, sintática, intepretação da árvore sintática, etc.
+- A segunda é feita em C, focando em uma maquina virtual eficiente e aprofundando mais os conceitos, inclusive com a implementação de um Garbage Collector.
+
+>**Curiosidade:** Robert trabalha atualmente para a Google na linguagem [Dart](http://dart.dev/).
+
+Livro disponível gratuitamente em: https://craftinginterpreters.com/
 
 **Compiladores: Princípios, Técnicas e Ferramentas** 
 
@@ -33,26 +53,3 @@ Disponível gratuitamente em: http://mitpress.mit.edu/sicp/full-text/book/book.h
 Possui também uma série de palestras em vídeo disponíveis online que seguem mais ou menos a estrutura do livro: (http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-001-structure-and-interpretation-of-computer-programs-spring-2005/video-lectures/ ).
 
 Os autores além de introduzirem a programação funcional, também implementam um interpretador Scheme completo em poucas linhas de código Scheme.
- 
-
-## Links
- 
-
-**Go-to statement considered harmful**
-
-Link: http://www.cs.utexas.edu/users/EWD/ewd02xx/EWD215.PDF
-
-Este é um verdadeiro clássico. Edsger Dijkstra explica porque várias linguagens atuais não implementam a palavra-chave goto. Entretanto, algumas linguagens, como Java, implementam o recurso de "loop nomeados", onde é possível usar break ou continue para um loop específico, não apenas o mais próximo. É interessante fazer uma análise sobre regras de declaração e inicialização de variáveis dentro de estrutura de dados.
-
- 
-
-## Software
- 
-
-**Boost Spirit**
-
-Link: http://spirit.sourceforge.net
-
-Este é um link dedicado a programadores C++. Esta framework da biblioteca Boost (considerada por muitos uma "extensão não-oficial" da STL) permite a geração de parsers usando uma forma de Backus-Naur adaptada a linguagem C++.
-
- 
