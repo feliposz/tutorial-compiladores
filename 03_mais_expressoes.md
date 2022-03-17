@@ -20,13 +20,17 @@ Nenhum compilador pode ser considerado aceitável sem estar pronto para tratar d
 
 Lembre-se que em nosso analisador, como ele está agora, há dois tipos de fatores permitidos: constantes inteiras e expressões entre parênteses. Em notação BNF fica assim:
 
+~~~ebnf
     <factor> ::= <number> | '(' <expression> ')'
+~~~
 
 O sinal `|` quer dizer "ou", o que claramente significa que ambas as formas são formas válidas para um fator. Lembre-se também que não tivemos problemas em diferenciar qual é qual... o caracter "lookahead" é um "(" em um caso, e um dígito no outro.
 
 Provavelmente não vai ser uma surpresa tão grande saber que uma variável é apenas outro tipo de fator. Então, nós vamos estender a regra BNF acima para que fique assim:
 
+~~~ebnf
     <factor> ::= <number> | '(' <expression> ')' | <variable>
+~~~
 
 Novamente, não há ambiguidades: se o caracter lookahead é uma letra, temos uma variável; se é um dígito, temos um número. Antes, quando traduzíamos o número, nós apenas fizemos o código ler o valor, como um dado imediato, em AX. Agora faremos o mesmo, mas desta fez vamos carregar uma variável.
 

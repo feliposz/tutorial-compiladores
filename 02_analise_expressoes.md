@@ -146,7 +146,9 @@ Não deu certo, deu? E por que deveria? Nós acabamos de dizer ao nosso analisad
 
 No mundo real, uma expressão pode consistir de um ou mais termos, separados por operadores de soma ("+" ou "-"). Em BNF, isto é escrito:
 
+~~~ebnf
     <expression> ::= <term> [<addop> <term>]*
+~~~
 
 Nós podemos acomodar esta definição de uma expressão com a adição de um simples laço de repetição na rotina `expression`:
 
@@ -250,7 +252,9 @@ Nos primeiros dias da tecnologia de compiladores, as pessoas usaram algumas téc
 
 Mais geralmente, podemos redefinir um termo como um PRODUTO de FATORES, isto é:
 
+~~~ebnf
     <term> ::= <factor> [ <mulop> <factor> ]*
+~~~
 
 O que é um fator? Por enquanto, é o que um termo costumava ser... um dígito simples.
 
@@ -357,7 +361,9 @@ Os parênteses forçam a adição antes da multiplicação. Mais importante que 
 
 A chave para incorporar parênteses em nosso analisador é perceber que não importa quão complicada uma expressão entre parênteses possa ser, para o resto do mundo ela não passa de um simples fator! Ou seja, uma das formas de um fator é:
 
+~~~ebnf
     <factor> ::= ( <expression> )
+~~~
 
 É aqui que a recursão entra em ação. Uma expressão pode conter um fator, que pode conter outra expressão, que pode conter um fator, e assim por diante, infinitamente.
 
