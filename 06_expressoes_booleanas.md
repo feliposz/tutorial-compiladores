@@ -32,8 +32,8 @@ Na verdade, já que estamos falando disso, eu gostaria de dar uma pequena melhor
 
 ~~~ebnf
     <expression>    ::= <term> [<addop> <term>]*
-    <term>          ::= <signed factor> [<mulop> <factor>]*
-    <signed factor> ::= [<addop>] <factor>
+    <term>          ::= <signed-factor> [<mulop> <factor>]*
+    <signed-factor> ::= [<addop>] <factor>
     <factor>        ::= <integer> | <variable> | "(" <expression> ")"
 ~~~
 
@@ -185,15 +185,15 @@ O que não faz muito sentido.
 Em todo caso, eu decidi separar os operadores em níveis diferentes, porém não em tantos quanto em C.
 
 ~~~ebnf
-    <b-expression> ::= <b-term> [<orop> <b-term>]*
-    <b-term>       ::= <not-factor> [AND <not-factor>]*
-    <not-factor>   ::= [NOT] <b-factor>
-    <b-factor>     ::= <b-literal> | <b-variable> | <relation>
-    <relation>     ::= <expression> [<relop> <expression]
-    <expression>   ::= <term> [<addop> <term>]*
-    <term>         ::= <signed factor> [<mulop> factor]*
-    <signed factor>::= [<addop>] <factor>
-    <factor>       ::= <integer> | <variable> | ( <b-expression> )
+    <b-expression>  ::= <b-term> [<orop> <b-term>]*
+    <b-term>        ::= <not-factor> [AND <not-factor>]*
+    <not-factor>    ::= [NOT] <b-factor>
+    <b-factor>      ::= <b-literal> | <b-variable> | <relation>
+    <relation>      ::= <expression> [<relop> <expression]
+    <expression>    ::= <term> [<addop> <term>]*
+    <term>          ::= <signed-factor> [<mulop> factor]*
+    <signed-factor> ::= [<addop>] <factor>
+    <factor>        ::= <integer> | <variable> | ( <b-expression> )
 ~~~
 
 Esta gramática resulta no mesmo conjunto de 7 níveis anterior. Realmente, é quase a mesma gramática... eu apenas removi a opção de expressões booleanas (b-expressions) com parênteses como um possível fator booleano (b-factor), e adicionei a relação (relation) como uma forma válida de b-factor.
@@ -267,7 +267,7 @@ Depois, é claro, temos que expandir a definição de uma expressão booleana. N
     <b-expression> ::= <b-term> [<orop> <b-term>]*
 ~~~
 
-Eu prefiro a versão Pascal para os operadores OU, OR e XOR. Mas como estamos mantendo a abordagem de tokens de um único caracter, vou usar `|` e `~` respectivamente. A próxima versão de `boolExpression()` é quase uma cópia da rotina aritmética de `expression()`:
+Eu prefiro a versão Pascal para os operadores OR e XOR. Mas como estamos mantendo a abordagem de tokens de um único caracter, vou usar `|` e `~` respectivamente. A próxima versão de `boolExpression()` é quase uma cópia da rotina aritmética de `expression()`:
 
 ~~~c
 /* analisa e traduz um termo Booleano */
@@ -579,18 +579,15 @@ void factor()
 /* analisa e traduz um fator com sinal opcional */
 void signedFactor()
 {
-    if (look == '+')
+    int minusSign = (look == '-');
+    if (isAddOp(look))
+    {
         nextChar();
-    if (look == '-') {
-        nextChar();
-        if (isdigit(look))
-            emit("MOV AX, -%c", getNum());
-        else {
-            factor();
-            emit("NEG AX");
-        }
-    } else
-            factor();
+        skipWhite();
+    }
+    factor();
+    if (minusSign)
+        emit("NEG AX");
 }
 
 /* reconhece e traduz uma multiplicação */
@@ -794,7 +791,7 @@ Com esta mudança, é possível agora escrever programas razoavelmente realísti
 
 Este capítulo acabou sendo longo demais, e contém algumas coisas bem "pesadas", então eu decidi deixar este próximo passo para depois, quando você vai ter mais tempo para entender o que fizemos e esteja pronto para começar outra vez. 
 
-Eis o código completo do nosso compilador até aqui:
+Eis o [código completo](src/cap06-bool2.c) do nosso compilador até aqui:
 
 ~~~c
 {% include_relative src/cap06-bool2.c %}

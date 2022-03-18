@@ -36,7 +36,7 @@ int isBoolean(char c);
 int getBoolean();
 
 int newLabel();
-int postLabel(int lbl);
+void postLabel(int lbl);
 
 void boolFactor();
 void notFactor();
@@ -241,7 +241,7 @@ int newLabel()
 }
 
 /* emite um rótulo */
-int postLabel(int lbl)
+void postLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
@@ -457,18 +457,15 @@ void factor()
 /* analisa e traduz um fator com sinal opcional */
 void signedFactor()
 {
-    if (look == '+')
+    int minusSign = (look == '-');
+    if (isAddOp(look))
+    {
         nextChar();
-    if (look == '-') {
-        nextChar();
-        if (isdigit(look))
-            emit("MOV AX, -%c", getNum());
-        else {
-            factor();
-            emit("NEG AX");
-        }
-    } else
-            factor();
+        skipWhite();
+    }
+    factor();
+    if (minusSign)
+        emit("NEG AX");
 }
 
 /* reconhece e traduz uma multiplicação */
