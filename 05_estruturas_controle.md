@@ -25,7 +25,7 @@ void other()
 }
 ~~~
 
-O caracter ";" indica um comentário de linha em assembly.
+> O caracter ";" indica um comentário de linha em assembly.
 
 Agora inclua uma chamada no programa principal:
 

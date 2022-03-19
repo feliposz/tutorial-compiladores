@@ -403,7 +403,7 @@ Eu digo que você vai ter um programa melhor e mais amigável se você levar um 
 Começando a Fantasiar
 ---------------------
 
-Certo, neste ponto temos um excelente analisador léxico que vai separar a entrada em tokens. POdemos usá-lo como ele está e ter um compilador usável. Mas há outros aspectos de análise léxica que precisamos cobrir.
+Certo, neste ponto temos um excelente analisador léxico que vai separar a entrada em tokens. Podemos usá-lo como ele está e ter um compilador usável. Mas há outros aspectos de análise léxica que precisamos cobrir.
 
 A principal consideração é eficiência. Lembre-se que quando estávamos tratando de um único caracter como token, todo teste era uma comparação de um único caracter, `look`, com uma constante de caracter. Também usamos bastante o comando "switch".
 

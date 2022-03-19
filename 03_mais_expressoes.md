@@ -168,7 +168,7 @@ Note novamente que o código combina com a BNF, e também que a checagem de erro
 
 Note a simetria entre a atribuição do valor de AX a uma variável e o seu respectivo carregamento.
 
-Agora, troque a chamada a expression(), no programa principal, por uma chamada a `assignment`. É tudo que precisa ser feito.
+Agora, troque a chamada a `expression()`, no programa principal, por uma chamada a `assignment()`. É tudo que precisa ser feito.
 
 Caramba! Nós estamos realmente compilando comandos de atribuição. Se este fosse o único tipo de comando em uma linguagem, tudo o que teríamos que fazer é colocar isto em um laço de repetição e nós teríamos um compilador praticamente completo!
 
@@ -176,13 +176,13 @@ Bom, é claro que não é o único tipo. Há também outros itens como comandos 
 
 ## Tokens de mais de um caracter
 
-Nesta série toda, eu procuro restringir tudo o que fazemos para usar tokens de um único caracter, durante todo o tempo assegurando-lhe que não seria difícil estendê-los para tokens de múltiplos caracteres. Eu não sei se você acreditou em mim ou não... eu na verdade não culparia você se você tivesse sido um pouco cético. Eu vou continuar usando esta abordagem nas próximas partes, por que isso ajuda a manter a complexidade de lado, mas no momento, eu gostaria de melhorar esta parte do analisador, apenas pra lhe provar quão fácil realmente é. No processo, nós também vamos permitir espaços em branco como separadores. Antes de você fazer as próximas mudanças, **grave a versão atual do analisador com outro nome**. Eu tenho outros usos pra ele no próximo capítulo e nós vamos continuar trabalhando com a versão de um único caracter.
+Nesta série toda, eu procuro restringir tudo o que fazemos para usar tokens de um único caracter, durante todo o tempo assegurando-lhe que não seria difícil estendê-los para tokens de múltiplos caracteres. Eu não sei se você acreditou em mim ou não... eu na verdade não culparia você se você tivesse sido um pouco cético. Eu vou continuar usando esta abordagem nas próximas partes, por que isso ajuda a manter a complexidade de lado, mas no momento, eu gostaria de melhorar esta parte do analisador, apenas pra lhe provar quão fácil realmente é. No processo, nós também vamos permitir espaços em branco como separadores. Antes de você fazer as próximas mudanças, **grave a versão atual do analisador com [outro nome](src/cap03-single.c)**. Eu tenho outros usos pra ele no próximo capítulo e nós vamos continuar trabalhando com a versão de um único caracter.
 
 A maioria dos compiladores separa o tratamento da entrada em um módulo separado chamado analisador léxico (lexical scanner). A idéia é que o analisador léxico trate de toda a entrada, caracter por caracter, e retorne apenas as unidades separadas (tokens). Talvez futuramente nós queiramos fazer algo assim também, mas no momento não é necessário. Nós podemos lidar com tokens multi-caracter com apenas algumas modificações locais em `getName` e `getNum` e pequenas alterações em outras partes.
 
-A definição usual de um identificador é que o primeiro caracter deve ser uma letra, mas o resto pode ser alfanumérico (letras ou números). Para tratar disso vamos usar a função isalnum().
+A definição usual de um identificador é que o primeiro caracter deve ser uma letra, mas o resto pode ser alfanumérico (letras ou números). Para tratar disso vamos usar a função `isalnum()`.
 
-Altere a função getName() da seguinte forma:
+Altere a função `getName()` da seguinte forma:
 
 ~~~c
 /* recebe o nome de um identificador */
@@ -190,7 +190,7 @@ void getName(char *name)
 {
     int i;
     if (!isalpha(look))
-    expected("Name");
+        expected("Name");
     for (i = 0; isalnum(look); i++) {
         if (i >= MAXNAME)
             fatal("Identifier too long!");

@@ -461,7 +461,6 @@ void signedFactor()
     if (isAddOp(look))
     {
         nextChar();
-        skipWhite();
     }
     factor();
     if (minusSign)

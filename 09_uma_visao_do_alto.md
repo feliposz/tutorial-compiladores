@@ -183,7 +183,7 @@ A BNF para declarações em pascal é:
 
 (Note que eu estou usando uma definição mais liberal usada pelo Turbo Pascal. Na definição padrão de Pascal, cada parte deve ter uma ordem específica uma em relação à outra.)
 
-Como de costume, vamos permitir que um simples caracter represente cada um destes tipos de declaração. A nova forma de "declarations" é:
+Como de costume, vamos permitir que um simples caracter represente cada um destes tipos de declaração. A nova forma de `declarations()` é:
 
 ~~~c
 /* analisa e traduz declarações pascal */
@@ -242,7 +242,7 @@ void function()
 }
 ~~~
 
-Agora teste o compilador com algumas entradas representativas. É possível misturar declarações da forma que você preferir, desde que o último caracter seja um "." para indicara o  fim do programa. Certamente, nenhuma das declarações declara alguma coisa de verdade, então você não precisa (e não pode) usar outros caracteres além daqueles que indicam uma palavra-chave.
+Agora teste o compilador com algumas entradas representativas. É possível misturar declarações da forma que você preferir, desde que o último caracter seja um "." para indicar o fim do programa. Certamente, nenhuma das declarações declara alguma coisa de verdade, então você não precisa (e não pode) usar outros caracteres além daqueles que indicam uma palavra-chave.
 
 Podemos inserir a parte dos comandos de forma similar. A BNF é assim:
 
@@ -251,7 +251,7 @@ Podemos inserir a parte dos comandos de forma similar. A BNF é assim:
     <compound_statement> ::= BEGIN <statement> [ ';' <statement> ]* END
 ~~~
 
-Note que os comandos podem começar com qualquer identificador exceto END. Então a primeira forma de "statements" é:
+Note que os comandos podem começar com qualquer identificador exceto END. Então a primeira forma de `statements()` é:
 
 ~~~c
 /* analisa e traduz um bloco de comandos pascal */
@@ -276,7 +276,7 @@ Neste ponto você já deve ter começado a pegar o jeito. Começamos com um trad
 
 Você pode notar que mesmo estando adicionando rotinas, a saída do programa não mudou. É como deveria ser. Neste nível superior não há código que deva ser emitido. Os reconhecedores estão funcionando apenas como meros reconhecedores e só! Eles aceitam sentenças de entrada, indicam as que estão erradas, e canalizam a entrada correta para os lugares corretos, portanto elas estão fazendo seu trabalho. Se começarmos a perseguir isto mais um pouco, o código vai aparecer em breve.
 
-O próximo passo em nossa expansão deveria ser provavelmente na rotina "statement". A definição de pascal é:
+O próximo passo em nossa expansão deveria ser provavelmente na rotina `statement()`. A definição de pascal é:
 
 ~~~ebnf
     <statement> ::= <simple-statement> | <structured-statement>
@@ -329,7 +329,7 @@ Um programa em C tem menos estrutura que seu sósia em Pascal. No nível do topo
     <global-declaration> ::= <data-declaration> | <function>
 ~~~
 
-Em Small C, as funções só podem ter o tipo padrão "int", que não é declarado. Isto faz com que a entrada seja fácil de analisar: o primeiro token é "int", "char", ou o nome de uma função. Em Small C, os comandos do pré-processador são sempre processados pelo próprio compilador, e a sintaxe torna-se:
+Em Small C, as funções só podem ter o tipo padrão `int`, que não é declarado. Isto faz com que a entrada seja fácil de analisar: o primeiro token é `int`, `char`, ou o nome de uma função. Em Small C, os comandos do pré-processador são sempre processados pelo próprio compilador, e a sintaxe torna-se:
 
 ~~~ebnf
     <global-declaration> ::= '#' <preprocessor-command>  |
@@ -361,7 +361,7 @@ void program()
 
 Note que eu tive que usar `EOF` par indicar o fim do código. C não tem uma palavra-chave como `end` ou `.` para indicar o fim. REPARE porém que agora `look` deve ser declarada como `int` e não mais como `char`.
 
-Com a linguagem C completa, as coisas não são nem um pouco fáceis. O problema começa pois em C, as funções também podem ter tipos. Então quando o compilador vê a palavra chave "int", ele ainda não sabe se deve esperar uma declaração de dados ou uma definição de função. As coisas ficam mais complicadas pois o próximo token pode não ser um nome... pode ser um "*" ou "(", ou uma combinações dos dois.
+Com a linguagem C completa, as coisas não são nem um pouco fáceis. O problema começa pois em C, as funções também podem ter tipos. Então quando o compilador vê a palavra chave `int`, ele ainda não sabe se deve esperar uma declaração de dados ou uma definição de função. As coisas ficam mais complicadas pois o próximo token pode não ser um nome... pode ser um "*" ou "(", ou uma combinações dos dois.
 
 Mais especificamente, a BNF para C completa começa com:
 
@@ -404,13 +404,13 @@ Para o primeiro "round", apenas crie as 3 rotinas que por enquanto não fazem na
 
 O programa funciona? Bem, seria difícil dizer que não, já que não estamos pedindo que ele faça nada. Foi dito que um compilador vai aceitar virtualmente qualquer entrada sem reclamar. Isto é certamente verdadeiro para ESTE compilador, já que de fato a única coisa que ele faz é ler caracteres até encontrar um fim de arquivo (`EOF`).
 
-Agora, vamos fazer "getclass" fazer algo de valor. Declare a variável global:
+Agora, vamos fazer `getclass()` fazer algo de valor. Declare a variável global:
 
 ~~~c
 char currentClass; /* classe atual lida por getClass */
 ~~~
 
-E agora altere "getclass":
+E agora altere `getclass()`:
 
 ~~~c
 /* recebe uma classe de armazenamento C */
