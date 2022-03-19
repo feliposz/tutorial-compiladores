@@ -1,0 +1,846 @@
+
+=================
+Testes de Sucesso
+=================
+
+
+TEST: cap01-craddle  0<nul 
+
+TEST: echo 0  | cap02-expr
+	MOV AX, 0
+
+TEST: echo -1  | cap02-expr
+	XOR AX, AX
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+TEST: echo 2+3  | cap02-expr
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	ADD AX, BX
+
+TEST: echo 4-5  | cap02-expr
+	MOV AX, 4
+	PUSH AX
+	MOV AX, 5
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+TEST: echo 6*7  | cap02-expr
+	MOV AX, 6
+	PUSH AX
+	MOV AX, 7
+	POP BX
+	IMUL BX
+
+TEST: echo 8/9  | cap02-expr
+	MOV AX, 8
+	PUSH AX
+	MOV AX, 9
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+
+TEST: echo 2+3*4  | cap02-expr
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	IMUL BX
+	POP BX
+	ADD AX, BX
+
+TEST: echo 1+2-3*4/5  | cap02-expr
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 5
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+TEST: echo 2*(3+4)  | cap02-expr
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	ADD AX, BX
+	POP BX
+	IMUL BX
+
+TEST: echo 1+(2-(3+(4-5)))  | cap02-expr
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	MOV AX, 5
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	ADD AX, BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	ADD AX, BX
+
+TEST: echo (1+2)/((3+4)+(5-6))  | cap02-expr
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 6
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	ADD AX, BX
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+
+TEST: echo -(3-2)  | cap02-expr
+	XOR AX, AX
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+TEST: echo d=b*b-4*a*c  | cap03-single
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	MOV AX, [A]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, [C]
+	POP BX
+	IMUL BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [D], AX
+
+TEST: echo x=f()+g()  | cap03-single
+	CALL F
+	PUSH AX
+	CALL G
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+
+TEST: echo nota=(prova1+prova2*2)/3  | cap03-multi
+	MOV AX, [PROVA1]
+	PUSH AX
+	MOV AX, [PROVA2]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	IMUL BX
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	MOV [NOTA], AX
+
+TEST: echo nota = (prova1 + prova2 * 2) / 3  | cap03-multi
+	MOV AX, [PROVA1]
+	PUSH AX
+	MOV AX, [PROVA2]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	IMUL BX
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	MOV [NOTA], AX
+
+TEST: echo x = 2 * y + 3  | cap03-multi
+	MOV AX, 2
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+
+TEST: echo x = x + 3 - 2 - (5 - 4)  | cap03-multi
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [X], AX
+
+TEST: echo delta  =  (b * b  )  -(  4*a*c   )  | cap03-multi
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	MOV AX, [A]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, [C]
+	POP BX
+	IMUL BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [DELTA], AX
+
+TEST: echo resultado = funcao () + outra(  )  | cap03-multi
+	CALL FUNCAO
+	PUSH AX
+	CALL OUTRA
+	POP BX
+	ADD AX, BX
+	MOV [RESULTADO], AX
+
+TEST: echo a=1b=2c=3d=b*b-4*a*c!d.  | cap04-interp
+D -> -8
+
+TEST: echo iee  | cap05-control
+	; condition
+	JZ L0
+L0:
+	; END
+
+TEST: echo AiBeCe  | cap05-control
+	; A
+	; condition
+	JZ L0
+	; B
+L0:
+	; C
+	; END
+
+TEST: echo AiBiCeDeFe  | cap05-control
+	; A
+	; condition
+	JZ L0
+	; B
+	; condition
+	JZ L1
+	; C
+L1:
+	; D
+L0:
+	; F
+	; END
+
+TEST: echo AiBlCeDe  | cap05-control
+	; A
+	; condition
+	JZ L0
+	; B
+	JMP L1
+L0:
+	; C
+L1:
+	; D
+	; END
+
+TEST: echo wXee  | cap05-control
+L0:
+	; condition
+	JZ L1
+	; X
+	JMP L0
+L1:
+	; END
+
+TEST: echo pXee  | cap05-control
+L0:
+	; X
+	JMP L0
+L1:
+	; END
+
+TEST: echo rXue  | cap05-control
+L0:
+	; X
+	; condition
+	JZ L0
+L1:
+	; END
+
+TEST: echo fI=ee  | cap05-control
+	; expression
+	DEC AX
+	MOV [I], AX
+	; expression
+	PUSH AX
+L0:
+	MOV AX, [I]
+	INC AX
+	MOV [I], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L1
+	JMP L0
+L1:
+	POP AX
+	; END
+
+TEST: echo AfI=BeCe  | cap05-control
+	; A
+	; expression
+	DEC AX
+	MOV [I], AX
+	; expression
+	PUSH AX
+L0:
+	MOV AX, [I]
+	INC AX
+	MOV [I], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L1
+	; B
+	JMP L0
+L1:
+	POP AX
+	; C
+	; END
+
+TEST: echo dee  | cap05-control
+	; expression
+	MOV CX, AX
+L0:
+	PUSH CX
+	POP CX
+	LOOP L0
+	PUSH CX
+L1:
+	POP CX
+	; END
+
+TEST: echo pABCbDEFee  | cap05-control
+L0:
+	; A
+	; B
+	; C
+	JMP L1
+	; D
+	; E
+	; F
+	JMP L0
+L1:
+	; END
+
+TEST: echo pwXepYbZeiAlberCfI=Deuee  | cap05-control
+L0:
+L2:
+	; condition
+	JZ L3
+	; X
+	JMP L2
+L3:
+L4:
+	; Y
+	JMP L5
+	; Z
+	JMP L4
+L5:
+	; condition
+	JZ L6
+	; A
+	JMP L7
+L6:
+	JMP L1
+L7:
+L8:
+	; C
+	; expression
+	DEC AX
+	MOV [I], AX
+	; expression
+	PUSH AX
+L10:
+	MOV AX, [I]
+	INC AX
+	MOV [I], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L11
+	; D
+	JMP L10
+L11:
+	POP AX
+	; condition
+	JZ L8
+L9:
+	JMP L0
+L1:
+	; END
+
+TEST: echo a*(-b)  | cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NEG AX
+	POP BX
+	IMUL BX
+
+TEST: echo a-(-b)  | cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+TEST: echo a^&!b  | cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NOT AX
+	POP BX
+	AND AX, BX
+
+TEST: echo T  | cap06-bool1
+	MOV AX, -1
+
+TEST: echo F  | cap06-bool1
+	MOV AX, 0
+
+TEST: echo !T  | cap06-bool1
+	MOV AX, -1
+	NOT AX
+
+TEST: echo T^&F  | cap06-bool1
+	MOV AX, -1
+	PUSH AX
+	MOV AX, 0
+	POP BX
+	AND AX, BX
+
+TEST: echo T^|F  | cap06-bool1
+	MOV AX, -1
+	PUSH AX
+	MOV AX, 0
+	POP BX
+	OR AX, BX
+
+TEST: echo T^~F  | cap06-bool1
+	MOV AX, -1
+	PUSH AX
+	MOV AX, 0
+	POP BX
+	XOR AX, BX
+
+TEST: echo 1^>2  | cap06-bool1
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	CMP BX, AX
+	JG L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+
+TEST: echo 3^<4  | cap06-bool1
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	CMP BX, AX
+	JL L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+
+TEST: echo 5=6  | cap06-bool1
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 6
+	POP BX
+	CMP BX, AX
+	JE L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+
+TEST: echo 5#6  | cap06-bool1
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 6
+	POP BX
+	CMP BX, AX
+	JNE L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+
+TEST: echo x()  | cap06-bool1
+	CALL X
+
+TEST: echo ((x()+1)^>(5*y()))^|(a#b^&c^<d)  | cap06-bool1
+	CALL X
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 5
+	PUSH AX
+	CALL Y
+	POP BX
+	IMUL BX
+	POP BX
+	CMP BX, AX
+	JG L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	PUSH AX
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	CMP BX, AX
+	JNE L2
+	MOV AX, 0
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	PUSH AX
+	MOV AX, [C]
+	PUSH AX
+	MOV AX, [D]
+	POP BX
+	CMP BX, AX
+	JL L4
+	MOV AX, 0
+	JMP L5
+L4:
+	MOV AX, -1
+L5:
+	POP BX
+	AND AX, BX
+	POP BX
+	OR AX, BX
+
+TEST: echo iA=BX=1lX=2ee  | cap06-bool2
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	CMP BX, AX
+	JE L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, 1
+	MOV [X], AX
+	JMP L3
+L2:
+	MOV AX, 2
+	MOV [X], AX
+L3:
+	; END
+
+TEST: echo X=1fA=1t9Y=2eZ=3e  | cap06-bool2
+	MOV AX, 1
+	MOV [X], AX
+	MOV AX, 1
+	DEC AX
+	MOV [A], AX
+	MOV AX, 9
+	PUSH AX
+L0:
+	MOV AX, [A]
+	INC AX
+	MOV [A], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L1
+	MOV AX, 2
+	MOV [Y], AX
+	JMP L0
+L1:
+	POP AX
+	MOV AX, 3
+	MOV [Z], AX
+	; END
+
+TEST: echo 1 23 456 a bc def = # . : ; ! ? + - * / if else endif end  | cap07-lex-enum
+Number: 1
+Number: 23
+Number: 456
+Ident: A
+Ident: BC
+Ident: DEF
+Operator: =
+Operator: #
+Operator: .
+Operator: :
+Operator: ;
+Operator: !
+Operator: ?
+Operator: +
+Operator: -
+Operator: *
+Operator: /
+Keyword: IF
+Keyword: ELSE
+Keyword: ENDIF
+Keyword: END
+
+TEST: echo 1 23 456 a bc def = # . : ; ! ? + - * / if else endif end  | cap07-lex-char
+Number: 1
+Number: 23
+Number: 456
+Ident: A
+Ident: BC
+Ident: DEF
+Operator: =
+Operator: #
+Operator: .
+Operator: :
+Operator: ;
+Operator: !
+Operator: ?
+Operator: +
+Operator: -
+Operator: *
+Operator: /
+Keyword: IF
+Keyword: ELSE
+Keyword: ENDIF
+Keyword: END
+
+TEST: echo ia=1lb=2ee   | cap07-subset
+	; condition
+	JZ L0
+	MOV AX, 1
+	MOV [A], AX
+	JMP L1
+L0:
+	MOV AX, 2
+	MOV [B], AX
+L1:
+	; END
+
+TEST: echo if a = 1 else b = 2 endif end   | cap07-lex-subset
+	; condition
+	JZ L0
+	MOV AX, 1
+	MOV [A], AX
+	JMP L1
+L0:
+	MOV AX, 2
+	MOV [B], AX
+L1:
+	; END
+
+TEST: echo pXbe.  | cap09-top-pascal
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:
+exit_prog:
+	MOV AX,4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
+	INT 21h       ; chamada de sistema DOS
+PROG ends
+	end X
+
+TEST: echo pXlcltcvtpvfvlbXYZe.  | cap09-top-pascal
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:
+exit_prog:
+	MOV AX,4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
+	INT 21h       ; chamada de sistema DOS
+PROG ends
+	end X
+
+TEST: echo,  | cap09-top-c
+
+TEST: echo iI,J;g(){}uU;iS;f(){}cC,D;  | cap09-top-c
+Class: a, Sign: s, Type: i, Data: I
+Class: a, Sign: s, Type: i, Data: J
+Class: a, Sign: s, Type: i, Function: G
+Class: a, Sign: u, Type: i, Data: U
+Class: a, Sign: s, Type: i, Data: S
+Class: a, Sign: s, Type: i, Function: F
+Class: a, Sign: s, Type: c, Data: C
+Class: a, Sign: s, Type: c, Data: D
+
+TEST: echo auiX,Y;xiZ;  | cap09-top-c
+Class: a, Sign: u, Type: i, Data: X
+Class: a, Sign: u, Type: i, Data: Y
+Class: x, Sign: s, Type: i, Data: Z
+
+=================
+Testes de Falha
+=================
+
+
+TEST: cap02-expr  0<nul 
+Error: Integer expected!
+
+TEST: echo x  | cap02-expr
+Error: Integer expected!
+
+TEST: echo 1+  | cap02-expr
+	MOV AX, 1
+	PUSH AX
+Error: Integer expected!
+
+TEST: echo *1  | cap02-expr
+Error: Integer expected!
+
+TEST: echo 1+2 3+4  | cap03-single
+Error: Name expected!
+
+TEST: echo x=f(  | cap03-single
+Error: ')' expected!
+
+TEST: cap03-multi  0<nul 
+Error: Name expected!
+
+TEST: cap04-interp  0<nul 
+Error: Name expected!
+
+TEST: cap05-control  0<nul 
+Error: Name expected!
+
+TEST: cap06-bool1  0<nul 
+Error: Integer expected!
+
+TEST: echo a*-b  | cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+Error: Integer expected!
+
+TEST: echo a--b  | cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+TEST: cap06-bool2  0<nul 
+Error: Name expected!
+
+TEST: cap07-lex-subset  0<nul 
+Error: Name expected!
+
+TEST: cap07-subset  0<nul 
+Error: Name expected!
+
+TEST: cap09-top-pascal  0<nul 
+Error: 'p' expected!
