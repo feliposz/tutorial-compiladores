@@ -1,5 +1,5 @@
 /*
-Tiny 0.1 - Tokens de um caracter
+Tiny 1.0
 
 O código abaixo foi escrito por Felipo Soranz e é uma adaptação
 do código original em Pascal escrito por Jack W. Crenshaw em sua
@@ -12,17 +12,48 @@ Este código é de livre distribuição e uso.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <string.h>
 
-#define VARTBL_SZ 26
-char vartbl[VARTBL_SZ]; /* tabela de símbolos */
+#define SYMTBL_SZ 1000
+char *symbolTable[SYMTBL_SZ]; /* tabela de símbolos */
+int symbolCount; /* número de entradas na tabela de símbolos */
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 int labelCount; /* Contador usado pelo gerador de rótulos */
+
+#define MAXTOKEN 16
+#define KWLIST_SZ 11
+
+/* lista de palavras-chave */
+char *kwlist[KWLIST_SZ] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
+                           "READ", "WRITE", "VAR", "BEGIN", "END", "PROGRAM"};
+
+/* a ordem deve obedecer a lista de palavras-chave */
+char *kwcode = "ileweRWvbep";
+
+char token; /* código do token atual */
+char value[MAXTOKEN+1]; /* texto do token atual */
 
 /* lê próximo caracter da entrada */
 void nextChar()
 {
     look = getchar();
+}
+
+/* pula caracteres de espaço */
+void skipWhite()
+{
+    while (look == ' ' || look == '\t')
+        nextChar();
+}
+
+/* captura caracteres de nova linha */
+void newLine()
+{
+    while (look == '\n') {
+        nextChar();
+        skipWhite();
+    }
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -74,22 +105,28 @@ void expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void match(char c)
 {
+    newLine();
     if (look != c)
         expected("'%c'", c);
     nextChar();
+    skipWhite();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+void getName()
 {
-    char name;
+    int i;
 
+    newLine();
     if (!isalpha(look))
         expected("Name");
-    name = toupper(look);
-    nextChar();
-
-    return name;
+    for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
+        value[i] = toupper(look);
+        nextChar();
+    }
+    value[i] = '\0';
+    token = 'x';
+    skipWhite();
 }
 
 /* recebe um número inteiro */
@@ -99,6 +136,7 @@ int getNum()
 
     num = 0;
 
+    newLine();
     if (!isdigit(look))
         expected("Integer");
 
@@ -107,8 +145,42 @@ int getNum()
         num += look - '0';
         nextChar();
     }
+    skipWhite();
 
     return num;
+}
+
+/* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
+int lookup(char *s, char *list[], int size)
+{
+    int i;
+
+    for (i = 0; i < size; i++) {
+        if (strcmp(list[i], s) == 0)
+            return i;
+    }
+
+    return -1;
+}
+
+/* analisador léxico */
+void scan()
+{
+    int kw;
+
+    getName();
+    kw = lookup(value, kwlist, KWLIST_SZ);
+    if (kw == -1)
+        token = 'x';
+    else
+        token = kwcode[kw];
+}
+
+/* verifica se a string combina com o esperado */
+void matchString(char *s)
+{
+    if (strcmp(value, s) != 0)
+        expected(s);
 }
 
 /* emite uma instrução seguida por uma nova linha */
@@ -150,15 +222,37 @@ int isRelOp(char c)
 }
 
 /* avisa a respeito de um identificador desconhecido */
-void undefined(char name)
+void undefined(char *name)
 {
-    fatal("Error: Undefined identifier %c\n", name);
+    fatal("Error: Undefined identifier %s\n", name);
 }
 
 /* verifica se símbolo está na tabela */
-int inTable(char name)
+int inTable(char *name)
 {
-    return (vartbl[name - 'A'] != ' ');
+    return (lookup(name, symbolTable, symbolCount) >= 0);
+}
+
+/* adiciona uma nova entrada à tabela de símbolos */
+void addSymbol(char *name)
+{
+    char *newSymbol;
+
+    if (inTable(name)) {
+        fatal("Duplicated variable name: %s", name);
+    }
+
+    if (symbolCount >= SYMTBL_SZ) {
+        fatal("Symbol table full!");
+    }
+
+    newSymbol = (char *) malloc(sizeof(char) * (strlen(name) + 1));
+    if (newSymbol == NULL)
+        fatal("Out of memory!");
+
+    strcpy(newSymbol, name);
+
+    symbolTable[symbolCount++] = newSymbol;
 }
 
 /* gera um novo rótulo único */
@@ -179,6 +273,7 @@ void header()
     emit(".model small");
     emit(".stack");
     emit(".code");
+    printf("extrn READ:near, WRITE:near\n");
     printf("PROG segment byte public\n");
     emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
@@ -220,19 +315,19 @@ void asmLoadConst(int i)
 }
 
 /* carrega uma variável no registrador primário */
-void asmLoadVar(char name)
+void asmLoadVar(char *name)
 {
     if (!inTable(name))
         undefined(name);
-    emit("MOV AX, WORD PTR %c", name);
+    emit("MOV AX, WORD PTR %s", name);
 }
 
 /* armazena registrador primário em variável */
-void asmStore(char name)
+void asmStore(char *name)
 {
     if (!inTable(name))
         undefined(name);
-    emit("MOV WORD PTR %c, AX", name);
+    emit("MOV WORD PTR %s, AX", name);
 }
 
 /* coloca registrador primário na pilha */
@@ -320,6 +415,8 @@ void asmRelOp(char op)
         case '#': jump = "JNE"; break;
         case '<': jump = "JL"; break;
         case '>': jump = "JG"; break;
+        case 'L': jump = "JLE"; break;
+        case 'G': jump = "JGE"; break;
     }
 
     emit("%s L%d", jump, l1);
@@ -342,45 +439,60 @@ void asmJmpfalse(int label)
     emit("JZ L%d", label);
 }
 
+/* lê um valor a partir da entrada e armazena-o no registrador primário */
+void asmRead()
+{
+    emit("CALL READ");
+}
+
+/* mostra valor do registrador primário */
+void asmWrite()
+{
+    emit("CALL WRITE");
+}
+
 /* alocação de memória para uma variável global */
-void allocVar(char name)
+void allocVar(char *name)
 {
     int value = 0, signal = 1;
 
-    if (inTable(name))
-        fatal("Duplicate variable name: %c", name);
-    else
-        vartbl[name - 'A'] = 'v';
+    addSymbol(name);
 
+    newLine();
     if (look == '=') {
         match('=');
+        newLine();
         if (look == '-') {
-            match('-');
-            signal = -1;
+                match('-');
+                signal = -1;
         }
         value = signal * getNum();
     }    
 
-    printf("%c:\tdw %d\n", name, value);
+    printf("%s:\tdw %d\n", name, value);
 }
 
 /* analisa uma lista de declaração de variáveis */
 void declaration()
 {
-    match('v');
+    newLine();
     for (;;) {
-        allocVar(getName());
+        getName();
+        allocVar(value);
+        newLine();
         if (look != ',')
             break;
         match(',');
+        newLine();
     }
 }
 
 /* analisa e traduz declarações globais */
 void topDeclarations()
 {
-    while (look != 'b') {
-        switch (look) {
+    scan();
+    while (token != 'b') {
+        switch (token) {
             case 'v':
                 declaration();
                 break;
@@ -389,6 +501,7 @@ void topDeclarations()
                 expected("BEGIN");
                 break;
         }
+        scan();
     }
 }
 
@@ -397,13 +510,15 @@ void boolExpression(); /* declaração adianta */
 /* analisa e traduz um fator matemático */
 void factor()
 {
+    newLine();
     if (look == '(') {
         match('(');
         boolExpression();
         match(')');
-    } else if (isalpha(look))
-        asmLoadVar(getName());
-    else
+    } else if (isalpha(look)) {
+        getName();
+        asmLoadVar(value);
+    } else
         asmLoadConst(getNum());
 }
 
@@ -524,6 +639,18 @@ void relation()
     if (isRelOp(look)) {
         op = look;
         match(op); /* só para remover o operador do caminho */
+        if (op == '<') {
+            if (look == '>') { /* trata operador <> */
+                match('>');
+                op = '#';
+            } else if (look == '=') { /* trata operador <= */
+                match('=');
+                op = 'L';
+            }
+        } else if (op == '>' && look == '=') { /* trata operador >= */
+            match('=');
+            op = 'G';
+        }
         asmPush();
         expression();
         asmPopCompare();
@@ -590,9 +717,9 @@ void boolExpression()
 /* analisa e traduz um comando de atribuição */
 void assignment()
 {
-    char name;
+    char name[MAXTOKEN+1];
 
-    name = getName();
+    strcpy(name, value);
     match('=');
     boolExpression();
     asmStore(name);
@@ -605,21 +732,19 @@ void doIf()
 {
     int l1, l2;
 
-    match('i');
     boolExpression();
     l1 = newLabel();
     l2 = l1;
     asmJmpfalse(l1);
     block();
-    if (look == 'l') {
-        match('l');
+    if (token == 'l') {
         l2 = newLabel();
         asmJmp(l2);
         postLabel(l1);
         block();
     }
     postLabel(l2);
-    match('e');
+    matchString("ENDIF");
 }
 
 /* analisa e traduz um comando WHILE */
@@ -627,16 +752,46 @@ void doWhile()
 {
     int l1, l2;
 
-    match('w');
     l1 = newLabel();
     l2 = newLabel();
     postLabel(l1);
     boolExpression();
     asmJmpfalse(l2);
     block();
-    match('e');
+    matchString("ENDWHILE");
     asmJmp(l1);
     postLabel(l2);
+}
+
+/* processa um comando READ */
+void doRead()
+{
+    match('(');
+    for (;;) {
+        getName();
+        asmRead();
+        asmStore(value);
+        newLine();
+        if (look != ',')
+            break;
+        match(',');
+    }
+    match(')');
+}
+
+/* processa um comando WRITE */
+void doWrite()
+{
+    match('(');
+    for (;;) {
+        expression();
+        asmWrite();
+        newLine();
+        if (look != ',')
+            break;
+        match(',');
+    }
+    match(')');
 }
 
 /* analisa e traduz um bloco de comandos */
@@ -644,13 +799,20 @@ void block()
 {
     int follow = 0;
 
-    while (!follow) {
-        switch (look) {
+    do {
+        scan();
+        switch (token) {
             case 'i':
                 doIf();
                 break;
             case 'w':
                 doWhile();
+                break;
+            case 'R':
+                doRead();
+                break;
+            case 'W':
+                doWrite();
                 break;
             case 'e':
             case 'l':
@@ -660,23 +822,23 @@ void block()
                 assignment();
                 break;
         }
-    }
+    } while (!follow);
 }
 
 /* analisa e traduz o bloco principal */
 void mainBlock()
 {
-    match('b');
+    matchString("BEGIN");
     prolog();
     block();
-    match('e');
+    matchString("END");
     epilog();
 }
 
 /* analisa e traduz um programa completo */
 void program()
 {
-    match('p');
+    matchString("PROGRAM");
     header();
     topDeclarations();
     mainBlock();
@@ -686,12 +848,10 @@ void program()
 /* inicialização do compilador */
 void init()
 {
-    int i = 0;
-
-    for (i = 0; i < VARTBL_SZ; i++)
-        vartbl[i] = ' ';
+    symbolCount = 0;
 
     nextChar();
+    scan();
 }
 
 /* PROGRAMA PRINCIPAL */

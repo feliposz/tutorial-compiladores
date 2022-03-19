@@ -92,6 +92,19 @@ echo pvX,Y,ZbX=Z^^^>Ye.| cap10-tiny01
 echo pvXbX=0wX^^^<9X=X+1ee.| cap10-tiny01
 echo pvX,YbX=1iX=1Y=Y-1lY=Y+2ee.| cap10-tiny01
 
+echo Program Begin End .| cap10-tiny10
+echo Program Var x Var y Var z Begin End .| cap10-tiny10
+echo Program Var x,Y,z Var M , N Var O Begin End .| cap10-tiny10
+echo Program Var x = 1 , y = 2 , z = 3 Var M , N Var O = 9 Begin End .| cap10-tiny10
+echo Program Var x = - 1 , y = 23 , z = 456 Var M , N Var O = - 7890 Begin End .| cap10-tiny10
+echo Program Begin x y z End . | cap10-tiny10
+echo Program Var x = 1 , y = 2 , z Begin z = x - y + ( - x * y ) / 10 End .| cap10-tiny10
+echo Program Var x , y , z Begin x = z ^^^>= y End .| cap10-tiny10
+echo Program Var x Begin x = 0 While x ^^^<= 9 x = x + 1 EndWhile End .| cap10-tiny10
+echo Program Var x , y Begin x = 1 If x = 1 y = y - 1 Else y = y + 2 EndIf End .| cap10-tiny10
+echo Program Var alfa, beta Begin alfa = 1 If alfa ^^^<^^^> 1 beta = beta - 1 Else beta = beta + 2 EndIf End .| cap10-tiny10
+echo Program Var alfa, beta Begin Read(alfa, beta) If alfa ^^^>^^^= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End . | cap10-tiny10
+
 @echo,
 @echo =================
 @echo Testes de Falha
