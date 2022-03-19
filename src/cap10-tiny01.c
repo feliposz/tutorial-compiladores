@@ -337,7 +337,7 @@ void asmJmp(int label)
 }
 
 /* desvio se falso (0) */
-void asmJmpfalse(int label)
+void asmJmpFalse(int label)
 {
     emit("JZ L%d", label);
 }
@@ -563,7 +563,7 @@ void boolOr()
 }
 
 /* reconhece e traduz um "xor" */
-void boolxor()
+void boolXor()
 {
     match('~');
     boolTerm();
@@ -581,7 +581,7 @@ void boolExpression()
               boolOr();
               break;
           case '~':
-              boolxor();
+              boolXor();
               break;
         }
     }
@@ -609,7 +609,7 @@ void doIf()
     boolExpression();
     l1 = newLabel();
     l2 = l1;
-    asmJmpfalse(l1);
+    asmJmpFalse(l1);
     block();
     if (look == 'l') {
         match('l');
@@ -632,7 +632,7 @@ void doWhile()
     l2 = newLabel();
     postLabel(l1);
     boolExpression();
-    asmJmpfalse(l2);
+    asmJmpFalse(l2);
     block();
     match('e');
     asmJmp(l1);

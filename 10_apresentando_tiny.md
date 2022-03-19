@@ -63,9 +63,9 @@ A rotina `header()` apenas emite o código inicial necessário para o montador:
 /* cabeçalho inicial para o montador */
 void header()
 {
-    printf(".model small\n");
-    printf(".stack\n");
-    printf(".code\n");
+    emit(".model small");
+    emit(".stack");
+    emit(".code");
     printf("PROG segment byte public\n");
     emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
@@ -878,7 +878,7 @@ void boolOr()
 }
 
 /* reconhece e traduz um "xor" */
-void boolxor()
+void boolXor()
 {
     match('~');
     boolTerm();
@@ -896,7 +896,7 @@ void boolExpression()
               boolOr();
               break;
           case '~':
-              boolxor();
+              boolXor();
               break;
         }
     }
@@ -962,7 +962,7 @@ void asmJmp(int label)
 }
 
 /* desvio se falso (0) */
-void asmJmpfalse(int label)
+void asmJmpFalse(int label)
 {
     emit("JZ L%d", label);
 }
@@ -980,7 +980,7 @@ void doIf()
     boolExpression();
     l1 = newLabel();
     l2 = l1;
-    asmJmpfalse(l1);
+    asmJmpFalse(l1);
     block();
     if (look == 'l') {
         match('l');
@@ -1003,7 +1003,7 @@ void doWhile()
     l2 = newLabel();
     postLabel(l1);
     boolExpression();
-    asmJmpfalse(l2)
+    asmJmpFalse(l2)
     block();
     match('e');
     asmJmp(l1);
@@ -1052,7 +1052,9 @@ De fato, exceto pela limitação de um único caracter, temos uma versão comple
 
 Para referência, a listagem completa de TINY Versão 0.1 é mostrada abaixo:
 
-{% include_relative src/cap10-tiny10.c %}
+~~~c
+{% include_relative src/cap10-tiny01.c %}
+~~~
 
 Download do [compilador "Tiny 0.1"](src/cap10-tiny01.c).
 
@@ -1223,7 +1225,7 @@ void doIf()
     boolExpression();
     l1 = newLabel();
     l2 = l1;
-    asmJmpfalse(l1);
+    asmJmpFalse(l1);
     block();
     if (token == 'l') {
         l2 = newLabel();
@@ -1244,7 +1246,7 @@ void doWhile()
     l2 = newLabel();
     postLabel(l1);
     boolExpression();
-    asmJmpfalse(l2);
+    asmJmpFalse(l2);
     block();
     matchString("ENDWHILE");
     asmJmp(l1);
@@ -1663,7 +1665,9 @@ Até lá!
 
 Para referência, a listagem completa de **TINY Versão 1.0** é mostrada abaixo:
 
+~~~c
 {% include_relative src/cap10-tiny10.c %}
+~~~
 
 Download do [compilador "Tiny 1.0"](src/cap10-tiny10.c).
 
