@@ -81,6 +81,17 @@ echo,| cap09-top-c
 echo iI,J;g(){}uU;iS;f(){}cC,D;| cap09-top-c
 echo auiX,Y;xiZ;| cap09-top-c
 
+echo pbe.| cap10-tiny01
+echo pvXvYvZbe.| cap10-tiny01
+echo pvX,Y,ZvM,NvObe.| cap10-tiny01
+echo pvX=1,Y=2,Z=3vM,NvO=9be.| cap10-tiny01
+echo pvX=-1,Y=23,Z=456vM,NvO=-7890be.| cap10-tiny01
+echo pbXYZe.| cap10-tiny01
+echo pvX=1,Y=2,ZbZ=X-Y+(-X*Y)/10e.| cap10-tiny01
+echo pvX,Y,ZbX=Z^^^>Ye.| cap10-tiny01
+echo pvXbX=0wX^^^<9X=X+1ee.| cap10-tiny01
+echo pvX,YbX=1iX=1Y=Y-1lY=Y+2ee.| cap10-tiny01
+
 @echo,
 @echo =================
 @echo Testes de Falha
@@ -109,4 +120,12 @@ cap06-bool2 <nul
 cap07-lex-subset <nul
 cap07-subset <nul
 cap09-top-pascal <nul
+
+echo .| cap10-tiny01
+echo p| cap10-tiny01
+echo pb| cap10-tiny01
+echo pbe| cap10-tiny01
+echo pe.| cap10-tiny01
+echo pvavavabe.| cap10-tiny01
+
 @prompt

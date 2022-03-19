@@ -782,6 +782,270 @@ Class: a, Sign: u, Type: i, Data: X
 Class: a, Sign: u, Type: i, Data: Y
 Class: x, Sign: s, Type: i, Data: Z
 
+TEST: echo pbe.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pvXvYvZbe.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pvX,Y,ZvM,NvObe.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+M:	dw 0
+N:	dw 0
+O:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pvX=1,Y=2,Z=3vM,NvO=9be.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 1
+Y:	dw 2
+Z:	dw 3
+M:	dw 0
+N:	dw 0
+O:	dw 9
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pvX=-1,Y=23,Z=456vM,NvO=-7890be.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw -1
+Y:	dw 23
+Z:	dw 456
+M:	dw 0
+N:	dw 0
+O:	dw -7890
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pbXYZe.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+Error: '=' expected!
+
+TEST: echo pvX=1,Y=2,ZbZ=X-Y+(-X*Y)/10e.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 1
+Y:	dw 2
+Z:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, WORD PTR Y
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	MOV AX, WORD PTR X
+	NEG AX
+	PUSH AX
+	MOV AX, WORD PTR Y
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 10
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR Z, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pvX,Y,ZbX=Z^>Ye.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, WORD PTR Z
+	PUSH AX
+	MOV AX, WORD PTR Y
+	POP BX
+	CMP BX, AX
+	JG L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	MOV WORD PTR X, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pvXbX=0wX^<9X=X+1ee.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 0
+	MOV WORD PTR X, AX
+L0:
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 9
+	POP BX
+	CMP BX, AX
+	JL L2
+	XOR AX, AX
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	JZ L1
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR X, AX
+	JMP L0
+L1:
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo pvX,YbX=1iX=1Y=Y-1lY=Y+2ee.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 1
+	MOV WORD PTR X, AX
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, WORD PTR Y
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV WORD PTR Y, AX
+	JMP L3
+L2:
+	MOV AX, WORD PTR Y
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR Y, AX
+L3:
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
 =================
 Testes de Falha
 =================
@@ -844,3 +1108,61 @@ Error: Name expected!
 
 TEST: cap09-top-pascal  0<nul 
 Error: 'p' expected!
+
+TEST: echo .  | cap10-tiny01
+Error: 'p' expected!
+
+TEST: echo p  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+Error: Unrecognized keyword.
+Error: BEGIN expected!
+
+TEST: echo pb  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+Error: Name expected!
+
+TEST: echo pbe  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX,4C00h
+	INT 21h
+PROG ends
+	end MAIN
+Error: '.' expected!
+
+TEST: echo pe.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+Error: Unrecognized keyword.
+Error: BEGIN expected!
+
+TEST: echo pvavavabe.  | cap10-tiny01
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+A:	dw 0
+Error: Duplicate variable name: A

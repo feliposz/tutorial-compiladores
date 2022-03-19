@@ -13,3 +13,4 @@ gcc cap07-lex-subset.c -o cap07-lex-subset.exe
 gcc cap07-subset.c -o cap07-subset.exe
 gcc cap09-top-c.c -o cap09-top-c.exe
 gcc cap09-top-pascal.c -o cap09-top-pascal.exe
+gcc cap10-tiny01.c -o cap10-tiny01.exe
