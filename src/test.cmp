@@ -1147,19 +1147,6 @@ MAIN:
 PROG ends
 	end MAIN
 
-TEST: echo Program Begin x y z End .   | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-Error: '=' expected!
-
 TEST: echo Program Var x = 1 , y = 2 , z Begin z = x - y + ( - x * y ) / 10 End .  | cap10-tiny10
 	.model small
 	.stack
@@ -1369,6 +1356,391 @@ PROG ends
 	end MAIN
 
 TEST: echo Program Var alfa, beta Begin Read(alfa, beta) If alfa ^>^= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End .   | cap10-tiny10
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+ALFA:	dw 0
+BETA:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	CALL READ
+	MOV WORD PTR ALFA, AX
+	CALL READ
+	MOV WORD PTR BETA, AX
+	MOV AX, WORD PTR ALFA
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, WORD PTR BETA
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV WORD PTR BETA, AX
+	JMP L3
+L2:
+	MOV AX, WORD PTR BETA
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR BETA, AX
+L3:
+	MOV AX, WORD PTR ALFA
+	CALL WRITE
+	MOV AX, WORD PTR BETA
+	CALL WRITE
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo a bc def 1 23 456 + - * / = ^>= ^<= .  | cap11-lex
+Token: x Value: A
+Token: x Value: BC
+Token: x Value: DEF
+Token: # Value: 1
+Token: # Value: 23
+Token: # Value: 456
+Token: + Value: +
+Token: - Value: -
+Token: * Value: *
+Token: / Value: /
+Token: = Value: =
+Token: > Value: >
+Token: = Value: =
+Token: < Value: <
+Token: = Value: =
+Token: . Value: .
+
+TEST: echo Program Begin End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x Var y Var z Begin End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x,Y,z Var M , N Var O Begin End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+M:	dw 0
+N:	dw 0
+O:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x , y , z Var M , N Var O Begin End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+M:	dw 0
+N:	dw 0
+O:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x , y , z Var M , N Var O Begin End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+M:	dw 0
+N:	dw 0
+O:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x , y , z Begin z = x - y + ( - x * y ) / 10 End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, WORD PTR Y
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	XOR AX, AX
+	PUSH AX
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, WORD PTR Y
+	POP BX
+	IMUL BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	MOV AX, 10
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR Z, AX
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x , y , z Begin x = z ^>= y End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+Z:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, WORD PTR Z
+	PUSH AX
+	MOV AX, WORD PTR Y
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	MOV WORD PTR X, AX
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x Begin x = 0 While x ^<= 9 x = x + 1 EndWhile End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 0
+	MOV WORD PTR X, AX
+L0:
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 9
+	POP BX
+	CMP BX, AX
+	JLE L2
+	XOR AX, AX
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	JZ L1
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR X, AX
+	JMP L0
+L1:
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var x , y Begin x = 1 If x = 1 y = y - 1 Else y = y + 2 EndIf End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 1
+	MOV WORD PTR X, AX
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, WORD PTR Y
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV WORD PTR Y, AX
+	JMP L3
+L2:
+	MOV AX, WORD PTR Y
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR Y, AX
+L3:
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var alfa, beta Begin alfa = 1 If alfa ^<^> 1 beta = beta - 1 Else beta = beta + 2 EndIf End .  | cap11-tiny11
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+ALFA:	dw 0
+BETA:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 1
+	MOV WORD PTR ALFA, AX
+	MOV AX, WORD PTR ALFA
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JNE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, WORD PTR BETA
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV WORD PTR BETA, AX
+	JMP L3
+L2:
+	MOV AX, WORD PTR BETA
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR BETA, AX
+L3:
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo Program Var alfa, beta Begin Read(alfa, beta) If alfa ^>^= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End .   | cap11-tiny11
 	.model small
 	.stack
 	.code

@@ -15,3 +15,5 @@ gcc cap09-top-c.c -o cap09-top-c.exe
 gcc cap09-top-pascal.c -o cap09-top-pascal.exe
 gcc cap10-tiny01.c -o cap10-tiny01.exe
 gcc cap10-tiny10.c -o cap10-tiny10.exe
+gcc cap11-lex.c -o cap11-lex.exe
+gcc cap11-tiny11.c -o cap11-tiny11.exe

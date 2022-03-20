@@ -20,22 +20,22 @@ Espero que você goste do tutorial.
 
 ## Tutorial
 
-- [1 Introdução](01_introducao)
-- [2 Análise de Expressões](02_analise_expressoes)
-- [3 Mais expressões](03_mais_expressoes)
-- [4 Interpretadores](04_interpretadores)
-- [5 Estruturas de Controle](05_estruturas_controle)
-- [6 Expressões Booleanas](06_expressoes_booleanas)
-- [7 Análise Léxica](07_analise_lexica)
-- [8 Um pouco de filosofia](08_um_pouco_de_filosofia)
-- [9 Uma visão do alto](09_uma_visao_do_alto)
-- [10 Apresentando Tiny](10_apresentando_tiny)
-- [11 Análise Léxica Revista](11_analise_lexica_revisada)
-- [12 Miscelâneas](12_miscelaneas)
-- [13 Procedimentos](13_procedimentos)
-- [14 Tipos](14_tipos)
-- [15 De volta para o futuro](15_de_volta_para_o_futuro)
-- [16 Construção dos Módulos](16_construcao_dos_modulos)
+- [1 Introdução](01_introducao.md)
+- [2 Análise de Expressões](02_analise_expressoes.md)
+- [3 Mais expressões](03_mais_expressoes.md)
+- [4 Interpretadores](04_interpretadores.md)
+- [5 Estruturas de Controle](05_estruturas_controle.md)
+- [6 Expressões Booleanas](06_expressoes_booleanas.md)
+- [7 Análise Léxica](07_analise_lexica.md)
+- [8 Um pouco de filosofia](08_um_pouco_de_filosofia.md)
+- [9 Uma visão do alto](09_uma_visao_do_alto.md)
+- [10 Apresentando Tiny](10_apresentando_tiny.md)
+- [11 Análise Léxica Revista](11_analise_lexica_revista.md)
+- [12 Miscelâneas](12_miscelaneas.md)
+- [13 Procedimentos](13_procedimentos.md)
+- [14 Tipos](14_tipos.md)
+- [15 De volta para o futuro](15_de_volta_para_o_futuro.md)
+- [16 Construção dos Módulos](16_construcao_dos_modulos.md)
 
 ## Recomendações
 
