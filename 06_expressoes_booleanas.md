@@ -4,7 +4,7 @@ Parte 6: Expressões booleanas
 - Autor: Jack W. Crenshaw, Ph.D. (31/08/1988)
 - Tradução e adaptação: Felipo Soranz (18/05/2002)
 
-Na [quinta parte](05_estruturas_controle) desta série, demos uma olhada nas estruturas de controle, e desenvolvemos rotinas para analisar e traduzir estas rotinas em código objeto. Terminamos com um conjunto bom e rico de construções.
+Na [quinta parte](05_estruturas_controle.md) desta série, demos uma olhada nas estruturas de controle, e desenvolvemos rotinas para analisar e traduzir estas rotinas em código objeto. Terminamos com um conjunto bom e rico de construções.
 
 Da maneira como deixamos o analisador, porém, há uma grande brecha em nossas capacidade: não tratamos do problema das condições. Para preencher o vazio, eu introduzi uma rotina "fantasma" chamada `condition()`, que só servia como um marcador para alguma coisa real.
 
@@ -797,6 +797,6 @@ Eis o [código completo](src/cap06-bool2.c) do nosso compilador até aqui:
 {% include_relative src/cap06-bool2.c %}
 ~~~
 
-No [próximo capítulo](07_analise_lexica), vamos construir um analisador léxico e eliminar a barreira de um caracter de uma vez por todas. Nós vamos também escrever pela primeira vez nosso primeiro compilador completo, baseado no que fizemos nesta seção. Até lá!
+No [próximo capítulo](07_analise_lexica.md), vamos construir um analisador léxico e eliminar a barreira de um caracter de uma vez por todas. Nós vamos também escrever pela primeira vez nosso primeiro compilador completo, baseado no que fizemos nesta seção. Até lá!
 
 {% include footer.md %}

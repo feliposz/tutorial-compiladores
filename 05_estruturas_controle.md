@@ -138,7 +138,7 @@ Precisamos também de um comando para emitir o rótulo:
 
 ~~~c
 /* emite um rótulo */
-int postLabel(int lbl)
+void postLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
@@ -230,7 +230,7 @@ void block()
 }
 ~~~
 
-Note a referência à rotina `condition()`. Eventualmente, vamos escrever uma rotina que possa analisar e traduzir expressões condicionais booleanas. Mas isto é assunto pra um capítulo inteiro ([o próximo](06_expressoes_booleanas), na verdade). Por enquanto, vamos apenas fazer uma rotina que só emite algum texto. Escreva a seguinte rotina:
+Note a referência à rotina `condition()`. Eventualmente, vamos escrever uma rotina que possa analisar e traduzir expressões condicionais booleanas. Mas isto é assunto pra um capítulo inteiro ([o próximo](06_expressoes_booleanas.md), na verdade). Por enquanto, vamos apenas fazer uma rotina que só emite algum texto. Escreva a seguinte rotina:
 
 ~~~c
 /* analisa e traduz uma condição */

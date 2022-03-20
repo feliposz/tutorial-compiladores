@@ -21,18 +21,19 @@ int symbolCount; /* número de entradas na tabela de símbolos */
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 int labelCount; /* Contador usado pelo gerador de rótulos */
 
-#define MAXTOKEN 16
+
 #define KWLIST_SZ 11
 
 /* lista de palavras-chave */
 char *kwlist[KWLIST_SZ] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
                            "READ", "WRITE", "VAR", "BEGIN", "END", "PROGRAM"};
 
-/* a ordem deve obedecer a lista de palavras-chave */
+/* códigos de palavras-chave: a ordem deve obedecer a lista de palavras-chave */
 char *kwcode = "ileweRWvbep";
 
-char token; /* código do token atual */
+#define MAXTOKEN 16
 char value[MAXTOKEN+1]; /* texto do token atual */
+char token; /* código do token atual */
 
 /* lê próximo caracter da entrada */
 void nextChar()
@@ -100,6 +101,12 @@ void expected(char *fmt, ...)
     fputs(" expected!\n", stderr);
 
     exit(1);
+}
+
+/* avisa a respeito de um identificador desconhecido */
+void undefined(char *name)
+{
+    fatal("Error: Undefined identifier %s\n", name);
 }
 
 /* verifica se entrada combina com o esperado */
@@ -221,12 +228,6 @@ int isRelOp(char c)
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
 
-/* avisa a respeito de um identificador desconhecido */
-void undefined(char *name)
-{
-    fatal("Error: Undefined identifier %s\n", name);
-}
-
 /* verifica se símbolo está na tabela */
 int inTable(char *name)
 {
@@ -262,7 +263,7 @@ int newLabel()
 }
 
 /* emite um rótulo */
-int postLabel(int lbl)
+void postLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }

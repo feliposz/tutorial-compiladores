@@ -381,30 +381,30 @@ void doIf()
 
 Esta é a extensão das mudanças NECESSÁRIAS. Na listagem de TINY Versão 1.1 abaixo, eu também fiz algumas outras "melhorias" que não são na verdade necessárias. Deixe-me explicá-las brevemente:
 
-1) Removi as rotinas `program()` e `mainBlock()`, e combinei suas funções no programa principal. Elas não pareciam estar ajudando na compreensão... na verdade parecia que elas estavam complicando as coisas um pouco.
+1. Removi as rotinas `program()` e `mainBlock()`, e combinei suas funções no programa principal. Elas não pareciam estar ajudando na compreensão... na verdade parecia que elas estavam complicando as coisas um pouco.
 
-2) Removi as palavras-chave PROGRAM e BEGIN da lista. Elas ocorrem apenas em um lugar, então não é necessário procurar por elas.
+2. Removi as palavras-chave PROGRAM e BEGIN da lista. Elas ocorrem apenas em um lugar, então não é necessário procurar por elas.
 
-3) Tendo sido atacado por uma overdose de esperteza, eu me lembrei que TINY deveria ser um programa minimalista. Portanto, eu troquei o tratamento fantasioso do menos unário pelo mais simples que eu consegui. Um grande passo para trás na qualidade do código, mas uma grande simplificação do compilador. KISS é o lugar certo para usar a outra versão.
+3. Tendo sido atacado por uma overdose de esperteza, eu me lembrei que TINY deveria ser um programa minimalista. Portanto, eu troquei o tratamento fantasioso do menos unário pelo mais simples que eu consegui. Um grande passo para trás na qualidade do código, mas uma grande simplificação do compilador. KISS é o lugar certo para usar a outra versão.
 
-4) Adicionei algumas rotinas de checagem de erro como `checkTable()` e `checkDup()`, e troquei o código "em linha" por chamadas a elas. Isto faz uma limpeza em diversas rotinas.
+4. Adicionei algumas rotinas de checagem de erro como `checkTable()` e `checkDup()`, e troquei o código "em linha" por chamadas a elas. Isto faz uma limpeza em diversas rotinas.
 
-5) Retirei a checagem de erro da rotinas de geração de código `store()`, e coloquei-a no analisador, que é o lugar em que ela deve estar. Veja `assignment()`, por exemplo.
+5. Retirei a checagem de erro da rotinas de geração de código `store()`, e coloquei-a no analisador, que é o lugar em que ela deve estar. Veja `assignment()`, por exemplo.
 
-6) Adicionei uma nova tabela (`symbolType`) para os tipos dos identificadores. Isto será útil para mais tarde. Eu poderia ter criado uma estrutura `symbol` e combinar o nome e o tipo na mesma estrutura. Mas teríamos que construir uma função `lookup()` separada pra símbolos e outra para palavras-chave. Deixemos assim por enquanto.
+6. Adicionei uma nova tabela (`symbolType`) para os tipos dos identificadores. Isto será útil para mais tarde. Eu poderia ter criado uma estrutura `symbol` e combinar o nome e o tipo na mesma estrutura. Mas teríamos que construir uma função `lookup()` separada pra símbolos e outra para palavras-chave. Deixemos assim por enquanto.
 
-7) A rotina `addSymbol()` agora tem dois parâmetros, que faz com que as coisas fiquem mais modulares.
+7. A rotina `addSymbol()` agora tem dois parâmetros, que faz com que as coisas fiquem mais modulares.
 
-8) Repare na maneira que estou tratando operadores multi-caracter em `relation()`. É essencialmente a mesma. Apenas trocando `match()` por `nextToken()` onde apropriado.
+8. Repare na maneira que estou tratando operadores multi-caracter em `relation()`. É essencialmente a mesma. Apenas trocando `match()` por `nextToken()` onde apropriado.
 
-9) Corrigi o erro na rotina `doRead()`... a anterior não verificava se o nome da variável era válido.
+9. Corrigi o erro na rotina `doRead()`... a anterior não verificava se o nome da variável era válido.
 
-10) Removi o tratamento dos inicializadores na declaração de variáveis, pois isto não acrescenta muito à linguagem, já que não há como usar expressões completas. Além disso estou tentando manter TINY simples por enquanto e isto iria complicar um pouco o código. Se você acha que isto é dar um passo atrás, sinta-se livre para manter o tratamento de constantes numéricas.
+10. Removi o tratamento dos inicializadores na declaração de variáveis, pois isto não acrescenta muito à linguagem, já que não há como usar expressões completas. Além disso estou tentando manter TINY simples por enquanto e isto iria complicar um pouco o código. Se você acha que isto é dar um passo atrás, sinta-se livre para manter o tratamento de constantes numéricas.
 
 Conclusão
 ---------
 
-O compilador resultante para TINY é dado abaixo. Fora a remoção da palavra-chave PROGRAM, ele compila a mesma linguagem que antes. Só está um pouco mais "limpo", e mais importante, está consideravelmente mais robusto. Eu me sinto bem com ele.
+O compilador resultante para TINY é dado abaixo. Ele compila (praticamente) a mesma linguagem que antes. Só está um pouco mais "limpo", e mais importante, está consideravelmente mais robusto. Eu me sinto bem com ele.
 
 O [próximo capítulo](12_miscelaneas.md) vai ser outro desvio do nosso rumo: a discussão sobre ponto-e-vírgula e outras coisas que me fizeram bagunçar as coisas anteriormente. ENTÃO partiremos para procedimentos e tipos. Contine comigo. A adição destas características vai ser uma grande melhoria fazendo com que KISS saia da categoria de "linguagem de brinquedo". Estamos chegando muito perto de estar aptos a escrever um compilador sério.
 

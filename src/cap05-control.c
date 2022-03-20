@@ -28,7 +28,7 @@ char getNum();
 void emit(char *fmt, ...);
 
 int newLabel();
-int postLabel(int lbl);
+void postLabel(int lbl);
 
 void condition();
 void expression();
@@ -167,7 +167,7 @@ int newLabel()
 }
 
 /* emite um rótulo */
-int postLabel(int lbl)
+void postLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }

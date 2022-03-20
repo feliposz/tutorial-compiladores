@@ -4,17 +4,17 @@ Parte 10: Apresentando "Tiny"
 - Autor: Jack W. Crenshaw, Ph.D. (21/05/1989)
 - Tradução e adaptação: Felipo Soranz (23/05/2002)
 
-Na [última seção](09_uma_visao_do_alto), eu lhes mostrei a idéia geral para o desenvolvimento top-down de um compilador. Eu lhe mostrei os primeiros passos no processo para compiladores Pascal e C, mas eu parei muito antes de chegarmos a completá-los. A razão é simples: se vamos produzir um compilador real, funcional para alguma linguagem, eu prefiro que seja para KISS, a linguagem que eu venho definindo nesta série de tutoriais.
+Na [última seção](09_uma_visao_do_alto.md), eu lhes mostrei a idéia geral para o desenvolvimento top-down de um compilador. Eu lhe mostrei os primeiros passos no processo para compiladores Pascal e C, mas eu parei muito antes de chegarmos a completá-los. A razão é simples: se vamos produzir um compilador real, funcional para alguma linguagem, eu prefiro que seja para KISS, a linguagem que eu venho definindo nesta série de tutoriais.
 
 Nesta seção, nós vamos fazer exatemente isto, para um subconjunto de KISS que eu decidi chamar de TINY.
 
-O processo vai ser essencialmente aquele mostrado no [capítulo 9](09_uma_visao_do_alto), exceto por uma diferença notável. Naquele capítulo eu sugeri que você começasse com uma descrição BNF completa da linguagem. Isto é bom para algo como Pascal ou C, para as quais a definição da linguagem é sólida. No caso de TINY, porém, nós ainda não temos uma descrição completa... pois até agora estivemos definindo a linguagem conforme seguimos. Mas não há nada de errado com isso. Na verdade, é preferível, já que podemos adaptar ligeiramente a linguagem conforme avançamos, para manter a análise sintática fácil.
+O processo vai ser essencialmente aquele mostrado no [capítulo 9](09_uma_visao_do_alto.md), exceto por uma diferença notável. Naquele capítulo eu sugeri que você começasse com uma descrição BNF completa da linguagem. Isto é bom para algo como Pascal ou C, para as quais a definição da linguagem é sólida. No caso de TINY, porém, nós ainda não temos uma descrição completa... pois até agora estivemos definindo a linguagem conforme seguimos. Mas não há nada de errado com isso. Na verdade, é preferível, já que podemos adaptar ligeiramente a linguagem conforme avançamos, para manter a análise sintática fácil.
 
 Então, no desenvolvimento a seguir, nós vamos na verdade desenvolver tanto a linguagem quanto o compilador numa abordagem top-down. A descrição BNF vai crescer com o compilador.
 
 Neste processo, haverá um certo número de decisões a serem tomada, cada uma influenciando a BNF e portanto a natureza da linguagem. A cada ponto de decisão eu vou tentar explicar os motivos por trás da minha escolha. Deste modo, se você tiver uma opinião diferente e preferir uma outra opção, você pode escolhê-la. Agora você tem o conhecimento para isto. Eu acho que é importante notar que nada do que fazemos aqui é totalmente definitivo. Quando VOCÊ estiver projetando a SUA linguagem, você deve se sentir livre para fazê-la do SEU jeito.
 
-Muitos de vocês podem perguntar neste ponto: Por que começar tudo de novo? Nós já temos um subconjunto de KISS como produto do [capítulo 7 (análise léxica)](07_analise_lexica). Por que não simplesmente estendê-lo conforme necessário? A resposta é tripla. Primeiro, eu estive fazendo algumas mudanças para simplificar ainda mais o programa... mudanças como encapsular as rotinas de geração de código, de forma que possamos converter o programa para outras plataformas alvo mais facilmente. Segundo, eu quero que você veja como o desenvolvimento pode realmente ser feito partindo numa abordagem top-down como foi discutido no último capítulo. Finalmente, nós dois precisamos praticar. Cada vez que eu passo por este exercício eu fico um pouco melhor, e você também ficará.
+Muitos de vocês podem perguntar neste ponto: Por que começar tudo de novo? Nós já temos um subconjunto de KISS como produto do [capítulo 7 (análise léxica)](07_analise_lexica.md). Por que não simplesmente estendê-lo conforme necessário? A resposta é tripla. Primeiro, eu estive fazendo algumas mudanças para simplificar ainda mais o programa... mudanças como encapsular as rotinas de geração de código, de forma que possamos converter o programa para outras plataformas alvo mais facilmente. Segundo, eu quero que você veja como o desenvolvimento pode realmente ser feito partindo numa abordagem top-down como foi discutido no último capítulo. Finalmente, nós dois precisamos praticar. Cada vez que eu passo por este exercício eu fico um pouco melhor, e você também ficará.
 
 Começando
 ---------
@@ -942,7 +942,7 @@ Repare que eu poderia ter escolhido usar a mesma palavra-chave END para terminar
     end { if }
 ~~~
 
-Como eu expliquei na [parte 5](05_estruturas_controle), usando a técnica de terminais únicos como palavras-chave aumenta o tamanho da lista de palavras-chave e portanto deixa mais lenta a análise léxica, mas neste caso parece um preço pequeno a ser pago por segurança garantida. É melhor achar erros em tempo de compilação do que em tempo de execução.
+Como eu expliquei na [parte 5](05_estruturas_controle.md), usando a técnica de terminais únicos como palavras-chave aumenta o tamanho da lista de palavras-chave e portanto deixa mais lenta a análise léxica, mas neste caso parece um preço pequeno a ser pago por segurança garantida. É melhor achar erros em tempo de compilação do que em tempo de execução.
 
 Um último pensamento, as duas construções acima tem os não-terminais:
 
@@ -1061,7 +1061,7 @@ Download do [compilador "Tiny 0.1"](src/cap10-tiny01.c).
 Análise Léxica
 --------------
 
-É claro que você sabe o que vem depois: Temos que converter o programa para que ele trate de palavras-chave multi-caracter, quebras de linha, e espaços em branco. Nós já passamos por tudo isto na [parte 7](07_analise_lexica). Vamos usar a técnica de análise distribuída que eu mostrei naquele capítulo. A implementação atual é um pouco diferente por causa da forma que eu vou tratar das quebras de linha.
+É claro que você sabe o que vem depois: Temos que converter o programa para que ele trate de palavras-chave multi-caracter, quebras de linha, e espaços em branco. Nós já passamos por tudo isto na [parte 7](07_analise_lexica.md). Vamos usar a técnica de análise distribuída que eu mostrei naquele capítulo. A implementação atual é um pouco diferente por causa da forma que eu vou tratar das quebras de linha.
 
 Para começar, vamos simplesmente permitir espaços em branco. Isto envolve apenas adicionar chamadas a `skipWhite()` no fim das três rotinas, `getName()`, `getNum()` e `match()`. Um chamada a `skipWhite()` em `init()` remove os espaços em branco iniciais. Podemos então entrar com um programa que é mais compreensível, como: 
 
@@ -1090,7 +1090,7 @@ Para rotinas que possuem laços while, como `topDeclarations()`, precisamos de u
 
 Se você já fez tudo isto, teste o programa e verifique que ele realmente trata de espaços em branco e quebras de linha. Tente todas as possibilidades que vierem à sua mente. Se alguma delas não funcionar é possível que você tenha esquecido de algum `newLine()`. Basta verificar em que construção ocorrereu o problema e procurar a mesma no código.
 
-Se tudo estiver correto, estamos prontos para tratar dos tokens multi-caracter e palavras-chave. Para começar, adicione as declarações adicionais (cópias quase idênticas da [parte 7](07_analise_lexica)):
+Se tudo estiver correto, estamos prontos para tratar dos tokens multi-caracter e palavras-chave. Para começar, adicione as declarações adicionais (cópias quase idênticas da [parte 7](07_analise_lexica.md)):
 
 ~~~c
 #define MAXTOKEN 16
@@ -1107,7 +1107,7 @@ char token; /* código do token atual */
 char value[MAXTOKEN+1]; /* texto do token atual */
 ~~~
 
-Em seguida, adicione as três rotinas, também da [parte 7](07_analise_lexica):
+Em seguida, adicione as três rotinas, também da [parte 7](07_analise_lexica.md):
 
 ~~~c
 /* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */

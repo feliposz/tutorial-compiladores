@@ -168,7 +168,7 @@ int newLabel()
 }
 
 /* emite um rótulo */
-int postLabel(int lbl)
+void postLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }

@@ -58,6 +58,6 @@ Há mais de uma forma para se organizar as atividades de análise de um analisad
 
 Faça download do código-fonte: [cap01-craddle.c](src/cap01-craddle.c) (Original em Pascal: [orig01-craddle.pas](src/pascal/orig01-craddle.pas))
 
-Por enquanto é só isso. Compile o código acima. Tenha certeza que ele é compilado e executado corretamente. Então continue com a próxima lição, que é sobre [análise de expressões](02_analise_expressoes).
+Por enquanto é só isso. Compile o código acima. Tenha certeza que ele é compilado e executado corretamente. Então continue com a próxima lição, que é sobre [análise de expressões](02_analise_expressoes.md).
 
 {% include footer.md %}
