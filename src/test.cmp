@@ -1794,6 +1794,111 @@ L3:
 PROG ends
 	end MAIN
 
+TEST: echo Program; Var x, y; Begin x = 0; y = 10; While !(x = 10) x = x + 1; y = y - 1; EndWhile; End .  | cap12-tiny12
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+X:	dw 0
+Y:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, 0
+	MOV WORD PTR X, AX
+	MOV AX, 10
+	MOV WORD PTR Y, AX
+L0:
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 10
+	POP BX
+	CMP BX, AX
+	JE L2
+	XOR AX, AX
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	NOT AX
+	JZ L1
+	MOV AX, WORD PTR X
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR X, AX
+	MOV AX, WORD PTR Y
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV WORD PTR Y, AX
+	JMP L0
+L1:
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo {x}Program{x};{x}{}Var{x} alfa, beta; Begin{x}   Read(alfa,{x} beta);   If alfa {x}^>= 1{x}     beta {x}= beta - 1  {x{y}z} Else     beta{x} = beta + 2;{ }  EndIf{x};   Write(alfa{x}, beta){ }End{x}  | cap12-tiny13
+	.model small
+	.stack
+	.code
+extrn READ:near, WRITE:near
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+ALFA:	dw 0
+BETA:	dw 0
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	CALL READ
+	MOV WORD PTR ALFA, AX
+	CALL READ
+	MOV WORD PTR BETA, AX
+	MOV AX, WORD PTR ALFA
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, WORD PTR BETA
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV WORD PTR BETA, AX
+	JMP L3
+L2:
+	MOV AX, WORD PTR BETA
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR BETA, AX
+L3:
+	MOV AX, WORD PTR ALFA
+	CALL WRITE
+	MOV AX, WORD PTR BETA
+	CALL WRITE
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
 =================
 Testes de Falha
 =================

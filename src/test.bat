@@ -119,6 +119,11 @@ echo Program Var x , y Begin x = 1 If x = 1 y = y - 1 Else y = y + 2 EndIf End .
 echo Program Var alfa, beta Begin alfa = 1 If alfa ^^^<^^^> 1 beta = beta - 1 Else beta = beta + 2 EndIf End .| cap11-tiny11
 echo Program Var alfa, beta Begin Read(alfa, beta) If alfa ^^^>^^^= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End . | cap11-tiny11
 
+echo Program; Var x, y; Begin x = 0; y = 10; While !(x = 10) x = x + 1; y = y - 1; EndWhile; End .| cap12-tiny12
+
+echo {x}Program{x};{x}{}Var{x} alfa, beta; Begin{x}   Read(alfa,{x} beta);   If alfa {x}^^^>= 1{x}     beta {x}= beta - 1  {x{y}z} Else     beta{x} = beta + 2;{ }  EndIf{x};   Write(alfa{x}, beta){ }End{x}| cap12-tiny13
+
+
 @echo,
 @echo =================
 @echo Testes de Falha

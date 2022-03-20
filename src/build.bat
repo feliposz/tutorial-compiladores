@@ -17,3 +17,5 @@ gcc cap10-tiny01.c -o cap10-tiny01.exe
 gcc cap10-tiny10.c -o cap10-tiny10.exe
 gcc cap11-lex.c -o cap11-lex.exe
 gcc cap11-tiny11.c -o cap11-tiny11.exe
+gcc cap12-tiny12.c -o cap12-tiny12.exe
+gcc cap12-tiny13.c -o cap12-tiny13.exe
