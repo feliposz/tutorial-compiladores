@@ -1899,6 +1899,255 @@ L3:
 PROG ends
 	end MAIN
 
+TEST: echo va vb vc b a=b c=b e.  | cap13-base
+A	dw 0
+B	dw 0
+C	dw 0
+	MOV AX, WORD PTR B
+	MOV WORD PTR A, AX
+	MOV AX, WORD PTR B
+	MOV WORD PTR C, AX
+
+TEST: echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-byval
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+A	dw 0
+X:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, WORD PTR [BP+4]
+	MOV WORD PTR A, AX
+	POP BP
+	RET
+B	dw 0
+Y:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, WORD PTR [BP+6]
+	MOV WORD PTR B, AX
+	MOV AX, WORD PTR A
+	MOV WORD PTR [BP+4], AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	POP BP
+	RET
+C	dw 0
+Z:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, WORD PTR B
+	MOV WORD PTR [BP+6], AX
+	MOV AX, WORD PTR [BP+8]
+	MOV WORD PTR C, AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR [BP+6]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	POP BP
+	RET
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, WORD PTR A
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV AX, WORD PTR B
+	MOV WORD PTR A, AX
+	MOV AX, WORD PTR A
+	PUSH AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, WORD PTR B
+	MOV WORD PTR C, AX
+	MOV AX, WORD PTR A
+	PUSH AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR C
+	PUSH AX
+	CALL Z
+	ADD SP, 6
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-byref
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+A	dw 0
+X:
+	PUSH BP
+	MOV BP, SP
+	MOV BX, WORD PTR [BP+4]
+	MOV AX, WORD PTR [BX]
+	MOV WORD PTR A, AX
+	POP BP
+	RET
+B	dw 0
+Y:
+	PUSH BP
+	MOV BP, SP
+	MOV BX, WORD PTR [BP+6]
+	MOV AX, WORD PTR [BX]
+	MOV WORD PTR B, AX
+	MOV AX, WORD PTR A
+	MOV BX, WORD PTR [BP+4]
+	MOV WORD PTR [BX], AX
+	MOV AX, OFFSET B
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	POP BP
+	RET
+C	dw 0
+Z:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, WORD PTR B
+	MOV BX, WORD PTR [BP+6]
+	MOV WORD PTR [BX], AX
+	MOV BX, WORD PTR [BP+8]
+	MOV AX, WORD PTR [BX]
+	MOV WORD PTR C, AX
+	MOV AX, OFFSET B
+	PUSH AX
+	MOV AX, WORD PTR [BP+6]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	POP BP
+	RET
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, OFFSET A
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV AX, WORD PTR B
+	MOV WORD PTR A, AX
+	MOV AX, OFFSET A
+	PUSH AX
+	MOV AX, OFFSET B
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, WORD PTR B
+	MOV WORD PTR C, AX
+	MOV AX, OFFSET A
+	PUSH AX
+	MOV AX, OFFSET B
+	PUSH AX
+	MOV AX, OFFSET C
+	PUSH AX
+	CALL Z
+	ADD SP, 6
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
+TEST: echo va px(m) b a=m e vb py(m,n) vi b b=m n=a i=b x(i) e vc pz(m,n,o) vi vj b n=b c=m y(b,n) i=j e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-locals
+	.model small
+	.stack
+	.code
+PROG segment byte public
+	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+A	dw 0
+X:
+	PUSH BP
+	MOV BP, SP
+	SUB SP, 0
+	MOV AX, WORD PTR [BP+4]
+	MOV WORD PTR A, AX
+	MOV SP, BP
+	POP BP
+	RET
+B	dw 0
+Y:
+	PUSH BP
+	MOV BP, SP
+	SUB SP, 2
+	MOV AX, WORD PTR [BP+6]
+	MOV WORD PTR B, AX
+	MOV AX, WORD PTR A
+	MOV WORD PTR [BP+4], AX
+	MOV AX, WORD PTR B
+	MOV WORD PTR [BP-2], AX
+	MOV AX, WORD PTR [BP-2]
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV SP, BP
+	POP BP
+	RET
+C	dw 0
+Z:
+	PUSH BP
+	MOV BP, SP
+	SUB SP, 4
+	MOV AX, WORD PTR B
+	MOV WORD PTR [BP+6], AX
+	MOV AX, WORD PTR [BP+8]
+	MOV WORD PTR C, AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR [BP+6]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, WORD PTR [BP-4]
+	MOV WORD PTR [BP-2], AX
+	MOV SP, BP
+	POP BP
+	RET
+MAIN:
+	MOV AX, PROG
+	MOV DS, AX
+	MOV ES, AX
+	MOV AX, WORD PTR A
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV AX, WORD PTR B
+	MOV WORD PTR A, AX
+	MOV AX, WORD PTR A
+	PUSH AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, WORD PTR B
+	MOV WORD PTR C, AX
+	MOV AX, WORD PTR A
+	PUSH AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR C
+	PUSH AX
+	CALL Z
+	ADD SP, 6
+	MOV AX, 4C00h
+	INT 21h
+PROG ends
+	end MAIN
+
 =================
 Testes de Falha
 =================

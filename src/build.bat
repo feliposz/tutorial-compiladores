@@ -19,3 +19,7 @@ gcc cap11-lex.c -o cap11-lex.exe
 gcc cap11-tiny11.c -o cap11-tiny11.exe
 gcc cap12-tiny12.c -o cap12-tiny12.exe
 gcc cap12-tiny13.c -o cap12-tiny13.exe
+gcc cap13-base.c -o cap13-base.exe
+gcc cap13-byval.c -o cap13-byval.exe
+gcc cap13-byref.c -o cap13-byref.exe
+gcc cap13-locals.c -o cap13-locals.exe
