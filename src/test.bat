@@ -128,6 +128,18 @@ echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) 
 echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.| cap13-byref
 echo va px(m) b a=m e vb py(m,n) vi b b=m n=a i=b x(i) e vc pz(m,n,o) vi vj b n=b c=m y(b,n) i=j e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.| cap13-locals
 
+cap14-base <nul
+echo ba wb lc B . | cap14-types
+echo ba wb lc B a=a a=b a=c b=a b=b b=c c=a c=b c=c . | cap14-types
+echo ba wb lc B a=42 b=1999 c=999999 a=888888 b=77 c=666 . | cap14-types
+echo ba wb lc B a=a+a a=a-a b=b+b b=b-b c=c+c c=c-c . | cap14-types
+echo ba wb lc B a=b+c a=c+b b=a+c b=c+b c=a+b c=b+a . | cap14-types
+echo ba wb lc B a=b-c a=c-b b=a-c b=c-b c=a-b c=b-a . | cap14-types
+echo ba wb lc B a=a*a a=a/a b=b*b b=b/b c=c*c c=c/c . | cap14-types
+echo ba wb lc B a=b*c a=c*b b=a*c b=c*b c=a*b c=b*a . | cap14-types
+echo ba wb lc B a=b/c a=c/b b=a/c b=c/b c=a/b c=b/a . | cap14-types
+echo ba wb lc ld B d=(b*b)-(4*a*c) . | cap14-types
+
 @echo,
 @echo =================
 @echo Testes de Falha

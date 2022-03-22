@@ -2148,6 +2148,576 @@ MAIN:
 PROG ends
 	end MAIN
 
+TEST: cap14-base  0<nul 
+Symbol table dump:
+A = ?
+B = ?
+C = ?
+D = ?
+E = ?
+F = ?
+G = ?
+H = ?
+I = ?
+J = ?
+K = ?
+L = ?
+M = ?
+N = ?
+O = ?
+P = ?
+Q = ?
+R = ?
+S = ?
+T = ?
+U = ?
+V = ?
+W = ?
+X = ?
+Y = ?
+Z = ?
+
+TEST: echo ba wb lc B .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=a a=b a=c b=a b=b b=c c=a c=b c=c .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, BYTE PTR A
+	MOV BYTE PTR A, AL
+	MOV AX, WORD PTR B
+	MOV BYTE PTR A, AL
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	MOV BYTE PTR A, AL
+	MOV AL, BYTE PTR A
+	CBW
+	MOV WORD PTR B, AX
+	MOV AX, WORD PTR B
+	MOV WORD PTR B, AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	MOV WORD PTR B, AX
+	MOV AL, BYTE PTR A
+	CBW
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV AX, WORD PTR B
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=42 b=1999 c=999999 a=888888 b=77 c=666 .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, 42
+	MOV BYTE PTR A, AL
+	MOV AX, 1999
+	MOV WORD PTR B, AX
+	MOV DX, 15
+	MOV AX, 16959
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV DX, 13
+	MOV AX, 36920
+	MOV BYTE PTR A, AL
+	MOV AL, 77
+	CBW
+	MOV WORD PTR B, AX
+	MOV AX, 666
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=a+a a=a-a b=b+b b=b-b c=c+c c=c-c .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	ADD AL, BL
+	MOV BYTE PTR A, AL
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	XCHG AL, BL
+	SUB AL, BL
+	MOV BYTE PTR A, AL
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	ADD AX, BX
+	MOV WORD PTR B, AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	XCHG AX, BX
+	SUB AX, BX
+	MOV WORD PTR B, AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	POP CX
+	ADD AX, BX
+	ADC DX, CX
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	POP CX
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=b+c a=c+b b=a+c b=c+b c=a+b c=b+a .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV BYTE PTR A, AL
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV BYTE PTR A, AL
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV WORD PTR B, AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV WORD PTR B, AX
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	XCHG AX, BX
+	CBW
+	ADD AX, BX
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	CBW
+	ADD AX, BX
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=b-c a=c-b b=a-c b=c-b c=a-b c=b-a .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	SUB AX, BX
+	SBB DX, CX
+	MOV BYTE PTR A, AL
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV BYTE PTR A, AL
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	SUB AX, BX
+	SBB DX, CX
+	MOV WORD PTR B, AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV WORD PTR B, AX
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	XCHG AX, BX
+	CBW
+	SUB AX, BX
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	CBW
+	XCHG AX, BX
+	SUB AX, BX
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=a*a a=a/a b=b*b b=b/b c=c*c c=c/c .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	IMUL BL
+	MOV BYTE PTR A, AL
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	XCHG AL, BL
+	CBW
+	IDIV BL
+	MOV BYTE PTR A, AL
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	IMUL BX
+	MOV WORD PTR B, AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	MOV WORD PTR B, AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	POP CX
+	CALL MUL32
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	POP CX
+	XCHG AX, BX
+	XCHG DX, CX
+	CALL DIV32
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=b*c a=c*b b=a*c b=c*b c=a*b c=b*a .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	CALL MUL32
+	MOV BYTE PTR A, AL
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	CALL MUL32
+	MOV BYTE PTR A, AL
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	CALL MUL32
+	MOV WORD PTR B, AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	CALL MUL32
+	MOV WORD PTR B, AX
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	XCHG AX, BX
+	CBW
+	IMUL BX
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	CBW
+	IMUL BX
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc B a=b/c a=c/b b=a/c b=c/b c=a/b c=b/a .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	CALL DIV32
+	MOV BYTE PTR A, AL
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	CALL DIV32
+	MOV BYTE PTR A, AL
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	CALL DIV32
+	CBW
+	MOV WORD PTR B, AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	CALL DIV32
+	MOV WORD PTR B, AX
+	MOV AL, BYTE PTR A
+	CBW
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	XCHG AX, BX
+	CBW
+	CWD
+	IDIV BX
+	CBW
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	XCHG AX, BX
+	IDIV BL
+	CWD
+	MOV WORD PTR [C+2], DX
+	MOV WORD PTR [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+
+TEST: echo ba wb lc ld B d=(b*b)-(4*a*c) .   | cap14-types
+A db 0
+B dw 0
+C dd 0
+D dd 0
+	MOV AX, WORD PTR B
+	PUSH AX
+	MOV AX, WORD PTR B
+	POP BX
+	IMUL BX
+	PUSH DX
+	PUSH AX
+	MOV AL, 4
+	CBW
+	PUSH AX
+	MOV AL, BYTE PTR A
+	POP BX
+	IMUL BL
+	PUSH AX
+	MOV DX, WORD PTR [C+2]
+	MOV AX, WORD PTR [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	CALL MUL32
+	POP BX
+	POP CX
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV WORD PTR [D+2], DX
+	MOV WORD PTR [D], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+D = l
+
 =================
 Testes de Falha
 =================
