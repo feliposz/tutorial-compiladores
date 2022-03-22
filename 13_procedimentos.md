@@ -276,7 +276,7 @@ Se você está satisfeito que as coisas estejam funcionando, vamos tratar da seg
 Considere a BNF para a chamada de procedimento:
 
 ~~~ebnf
-    <proc_call> ::= <identifier>
+    <proc-call> ::= <identifier>
 ~~~
 
 para um comando de atribuição, por outro lado, a BNF é:
