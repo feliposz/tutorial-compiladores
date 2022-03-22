@@ -2718,6 +2718,18 @@ B = w
 C = l
 D = l
 
+TEST: echo 1   | cap15-single
+	MOV AX, 1
+
+TEST: echo x   | cap15-single
+	MOV AX, [X]
+
+TEST: echo 12345   | cap15-multi
+	MOV AX, 12345
+
+TEST: echo alfa   | cap15-multi
+	MOV AX, [ALFA]
+
 =================
 Testes de Falha
 =================
@@ -2838,3 +2850,15 @@ PROG segment byte public
 	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
 A:	dw 0
 Error: Duplicate variable name: A
+
+TEST: echo ?   | cap15-single
+Error: Unrecognized character: '?'
+
+TEST: echo ?   | cap15-multi
+Error: Unrecognized character: '?'
+
+TEST: echo 999999   | cap15-multi
+Error: Integer too large.
+
+TEST: echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx   | cap15-multi
+Error: Identifier too long.

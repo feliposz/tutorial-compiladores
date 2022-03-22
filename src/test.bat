@@ -140,6 +140,12 @@ echo ba wb lc B a=b*c a=c*b b=a*c b=c*b c=a*b c=b*a . | cap14-types
 echo ba wb lc B a=b/c a=c/b b=a/c b=c/b c=a/b c=b/a . | cap14-types
 echo ba wb lc ld B d=(b*b)-(4*a*c) . | cap14-types
 
+echo 1 | cap15-single
+echo x | cap15-single
+
+echo 12345 | cap15-multi
+echo alfa | cap15-multi
+
 @echo,
 @echo =================
 @echo Testes de Falha
@@ -175,5 +181,10 @@ echo pb| cap10-tiny01
 echo pbe| cap10-tiny01
 echo pe.| cap10-tiny01
 echo pvavavabe.| cap10-tiny01
+
+echo ? | cap15-single
+echo ? | cap15-multi
+echo 999999 | cap15-multi
+echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx | cap15-multi
 
 @prompt %SAVED_PROMPT%

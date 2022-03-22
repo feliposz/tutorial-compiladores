@@ -25,3 +25,5 @@ gcc cap13-byref.c -o cap13-byref.exe
 gcc cap13-locals.c -o cap13-locals.exe
 gcc cap14-base.c -o cap14-base.exe
 gcc cap14-types.c -o cap14-types.exe
+gcc cap15/SINGLE/*.c -o cap15-single.exe
+gcc cap15/MULTI/*.c -o cap15-multi.exe
