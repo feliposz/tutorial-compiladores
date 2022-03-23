@@ -4,7 +4,7 @@
 /* OBS: este pequeno truque serve para evitar que um cabeçalho
         seja incluído mais de uma vez em caso de referências recursivas. */
 
-extern char look;
+extern char Look;
 
 void InitInput();
 void NextChar();

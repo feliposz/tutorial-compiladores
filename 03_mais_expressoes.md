@@ -49,11 +49,11 @@ Sabendo como fazer agora, vamos alterar o código de Factor():
 /* analisa e traduz um fator */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if (isalpha(look))
+    } else if (isalpha(Look))
         EmitLn("MOV AX, [%c]", GetName());
     else
         EmitLn("MOV AX, %c", GetNum());
@@ -76,17 +76,17 @@ Como nós não temos ainda um mecanismo para declarar tipos, vamos usar a regra 
 
 Como nós não estamos tratando de listas de parâmetro ainda, não há nada a ser feito a não ser chamar a função, então nós só temos que emitir uma chamada de função (CALL) ao invés de um MOV.
 
-Agora que há duas possibilidades no `if (isalpha(look))` do teste em `Factor()`, vamos tratá-las em uma rotina separada. Modifique `Factor()` assim:
+Agora que há duas possibilidades no `if (isalpha(Look))` do teste em `Factor()`, vamos tratá-las em uma rotina separada. Modifique `Factor()` assim:
 
 ~~~c
 /* analisa e traduz um fator */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if(isalpha(look))
+    } else if(isalpha(Look))
         Ident();
     else
         EmitLn("MOV AX, %c", GetNum());
@@ -101,7 +101,7 @@ void Ident()
 {
     char name;
     name = GetName();
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Match(')');
         EmitLn("CALL %c", name);
@@ -135,7 +135,7 @@ Para entender do que estou falando, tente a seguinte linha:
 Viu como o espaço foi tratado como um terminador? Para fazer com que o compilador trate isto corretamente, adicione a linha:
 
 ~~~c
-    if (look != '\n')
+    if (Look != '\n')
         Expected("NewLine");
 ~~~
 
@@ -190,12 +190,12 @@ Altere a função `GetName()` da seguinte forma:
 void GetName(char *name)
 {
     int i;
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look); i++) {
+    for (i = 0; isalnum(Look); i++) {
         if (i >= MAXNAME)
             Abort("Identifier too long!");
-        name[i] = toupper(look);
+        name[i] = toupper(Look);
         NextChar();
     }
     name[i] = '\0';
@@ -209,12 +209,12 @@ Da mesma forma, altere GetNum():
 void GetNum(char *num)
 {
     int i;
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look); i++) {
+    for (i = 0; isdigit(Look); i++) {
         if (i >= MAXNUM)
             Abort("Integer too long!");
-        num[i] = look;
+        num[i] = Look;
         NextChar();
     }
     num[i] = '\0';
@@ -236,7 +236,7 @@ void Ident()
 {
     char name[MAXNAME+1];
     GetName(name);
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Match(')');
         EmitLn("CALL %s", name);
@@ -258,11 +258,11 @@ void Assignment()
 void Factor()
 {
     char num[MAXNUM+1];
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if(isalpha(look)) {
+    } else if(isalpha(Look)) {
         Ident();
     } else {
         GetNum(num);
@@ -285,7 +285,7 @@ Antes de deixarmos este analisador por enquanto, vamos lidar com o problema de u
 
 A chave para tratar facilmente de espaços em branco é criar uma regra simples de como o analisador deve tratar a entrada, e usar esta regra em todo lugar. Até agora, pelo fato do espaço em branco não ser permitido, fomos capazes de assumir que depois de cada ação do analisador, o caracter de lookahead continha o próximo caracter útil, de forma que pudéssemos testá-lo imediatamente. Nosso projeto foi baseado neste princípio.
 
-Parece ser uma regra boa, portanto é a que vamos usar. Isto significa que toda rotina que avança na entrada deve pular os espaços em branco e deixar o próximo caracter não-branco em look. Felizmente, pelo fato de termos cuidadosamente usado GetName(), GetNum() e Match() para a maioria do processo de entrada, apenas estas 3 rotinas (além de Init()) precisam ser mudadas.
+Parece ser uma regra boa, portanto é a que vamos usar. Isto significa que toda rotina que avança na entrada deve pular os espaços em branco e deixar o próximo caracter não-branco em Look. Felizmente, pelo fato de termos cuidadosamente usado GetName(), GetNum() e Match() para a maioria do processo de entrada, apenas estas 3 rotinas (além de Init()) precisam ser mudadas.
 
 Precisamos de uma rotina para "engolir" caracteres de espaço em branco, até que encontre um que não seja.
 
@@ -293,7 +293,7 @@ Precisamos de uma rotina para "engolir" caracteres de espaço em branco, até qu
 /* pula caracteres de espaço */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 ~~~
@@ -304,7 +304,7 @@ Agora adicione chamadas a SkipWhite() a Match(), GetName() e GetNum() conforme a
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
     SkipWhite();
@@ -314,12 +314,12 @@ void Match(char c)
 void GetName(char *name)
 {
     int i;
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look); i++) {
+    for (i = 0; isalnum(Look); i++) {
         if (i >= MAXNAME)
             Abort("Identifier too long!");
-        name[i] = toupper(look);
+        name[i] = toupper(Look);
         NextChar();
     }
     name[i] = '\0';
@@ -330,12 +330,12 @@ void GetName(char *name)
 void GetNum(char *num)
 {
     int i;
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look); i++) {
+    for (i = 0; isdigit(Look); i++) {
         if (i >= MAXNUM)
             Abort("Integer too long!");
-        num[i] = look;
+        num[i] = Look;
         NextChar();
     }
     num[i] = '\0';

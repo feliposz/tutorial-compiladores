@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* protótipos */
 void Init();
@@ -43,7 +43,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -95,7 +95,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -105,9 +105,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
 
     return name;
@@ -118,9 +118,9 @@ char GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
 
     return num;

@@ -46,7 +46,7 @@ void Block()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'i':
                 DoIf();
                 break;
@@ -77,13 +77,13 @@ Mas suponha que um ponto-e-vírgula seja encontrado. A rotina, como ela está ag
 
 Eu fiquei pensando por um tempo no problema e tentando arrumar alguma solução. Eu achei muitas abordagens possíveis, mas nenhuma era muito satisfatória. Eu finalmente descobri a razão.
 
-Lembre-se que quando começamos com nosso analisador sintático de caracteres simples, adotamos uma convenção de que o caracter **lookahead** seria sempre pré-carregado. Isto é, teríamos o caracter que corresponde à nossa posição atual na entrada, carregado na variável global `look`, de forma que poderíamos examiná-lo tantas vezes quanto necessário. A regra que adotamos era que CADA reconhecedor, tendo encontrado seu token alvo, avançaria `look` para o próximo caracter na entrada.
+Lembre-se que quando começamos com nosso analisador sintático de caracteres simples, adotamos uma convenção de que o caracter **lookahead** seria sempre pré-carregado. Isto é, teríamos o caracter que corresponde à nossa posição atual na entrada, carregado na variável global `Look`, de forma que poderíamos examiná-lo tantas vezes quanto necessário. A regra que adotamos era que CADA reconhecedor, tendo encontrado seu token alvo, avançaria `Look` para o próximo caracter na entrada.
 
 Esta convenção fixa e simples nos foi muito útil quando tínhamos tokens de um caracter, e ainda é. Faria sentido aplicar a mesma regra a tokens multi-caracter.
 
 Mas quando chegamos em análise sintática, eu comecei a violar aquela regra simples. O analisador sintático da [parte 10](10_apresentando_tiny.md) de fato avançava para o próximo token se encontrasse um identificador ou palavra-chave, mas NÃO fazia isto se encontrasse um retorno de linha, um caracter de espaço, ou um operador.
 
-Agora, este tipo de operação "misturada" nos causa sérios problemas na rotina `Block()`, pois o fato da entrada ter avançado ou não depende do tipo de token encontrado. Se for uma palavra-chave ou o alvo de um comando de atribuição, o "cursor", conforme definido pelo conteúdo de `look`, avança para o próximo token OU para o começo de um espaço em branco. Se, por outro lado, o token é um ponto-e-vírgula, ou se emitimos uma quebra de linha, o cursor NÃO avança.
+Agora, este tipo de operação "misturada" nos causa sérios problemas na rotina `Block()`, pois o fato da entrada ter avançado ou não depende do tipo de token encontrado. Se for uma palavra-chave ou o alvo de um comando de atribuição, o "cursor", conforme definido pelo conteúdo de `Look`, avança para o próximo token OU para o começo de um espaço em branco. Se, por outro lado, o token é um ponto-e-vírgula, ou se emitimos uma quebra de linha, o cursor NÃO avança.
 
 É desnecessário dizer que podemos adicionar lógica necessária para nos manter na mesma linha. Mas é complicado, e faz o analisador todo ficar muito frágil.
 
@@ -103,14 +103,14 @@ void GetName()
     int i;
 
     SkipWhite();
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Identifier or Keyword");
-    for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    token = 'x';
+    TokenText[i] = '\0';
+    Token = 'x';
 }
 
 /* recebe um número inteiro */
@@ -119,18 +119,18 @@ void GetNum()
     int i;
 
     SkipWhite();
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXTOKEN; i++) {
-        value[i] = look;
+    for (i = 0; isdigit(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = '#';
+    TokenText[i] = '\0';
+    Token = '#';
 }
 ~~~
 
-Estes dois procedimentos são funcionalmente quase idênticos aos que eu mostrei na [Parte 7](07_analise_lexica.md). Cada um carrega o token corrente, tanto um identificador como um número, na string global `value`. Eles também alteram `token` para o código apropriado. A entrada é deixada com o caracter `look` contendo o primeiro caracter que NÃO é parte do token.
+Estes dois procedimentos são funcionalmente quase idênticos aos que eu mostrei na [Parte 7](07_analise_lexica.md). Cada um carrega o token corrente, tanto um identificador como um número, na string global `TokenText`. Eles também alteram `Token` para o código apropriado. A entrada é deixada com o caracter `Look` contendo o primeiro caracter que NÃO é parte do token.
 
 Podemos fazer o mesmo para operadores, mesmo multi-caracter, com uma rotina como:
 
@@ -140,16 +140,16 @@ void GetOp()
 {
     int i;
 
-    token = look;
-    for (i = 0; !isalnum(look) && !isspace(look) && i < MAXTOKEN; i++) {
-        value[i] = look;
+    Token = Look;
+    for (i = 0; !isalnum(Look) && !isspace(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = Look;
         nextchar();
     }
-    value[i] = '\0';
+    TokenText[i] = '\0';
 }
 ~~~
 
-Repare que `GetOp()` retorna, como seu token codificado, o PRIMEIRO caracter do operador. Isto é importante, pois significa que podemos usar este caracter para orientar o analisador, ao invés de `look`.
+Repare que `GetOp()` retorna, como seu token codificado, o PRIMEIRO caracter do operador. Isto é importante, pois significa que podemos usar este caracter para orientar o analisador, ao invés de `Look`.
 
 Temos que juntar estas rotinas em uma rotina única que trata dos três casos. A rotina seguinte lê qualquer um dos três tipos e sempre deixa a entrada posicionada depois do token:
 
@@ -158,16 +158,16 @@ Temos que juntar estas rotinas em uma rotina única que trata dos três casos. A
 void NextToken()
 {
     SkipWhite();
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName();
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum();
     else
         GetOp();
 }
 ~~~
 
-(Repare que eu coloquei `SkipWhite()` ANTES das chamadas ao invés de depois. Isto significa que, em geral, a variável `look` NÃO vai conter um valor muito útil, e portanto NÃO devemos usá-la como um valor de teste na análise, como temos feito até aqui. Está é a grande diferença em relação à nossa abordagem normal.)
+(Repare que eu coloquei `SkipWhite()` ANTES das chamadas ao invés de depois. Isto significa que, em geral, a variável `Look` NÃO vai conter um valor muito útil, e portanto NÃO devemos usá-la como um valor de teste na análise, como temos feito até aqui. Está é a grande diferença em relação à nossa abordagem normal.)
 
 Agora, lembre-se que antes eu estava cuidadosamente NÃO tratando a quebra de linha como um caracter de espaço. Isto porque, com `SkipWhite()` sendo chamado por último no analisador léxico, o encontro com o retorno de linha iria gerar mais um comando de leitura. Se estivéssemos na última linha do programa, não poderíamos sair até entrar com uma nova linha com no mínimo um caracter. É por isso que precisávamos da segunda rotina, `NewLine()`, para tratar das quebras de linha.
 
@@ -179,7 +179,7 @@ Isto significa que podemos simplificar muito o programa e os conceitos, tratando
 /* pula caracteres em branco */
 void SkipWhite()
 {
-    while (isspace(look))
+    while (isspace(Look))
         NextChar();
 }
 ~~~
@@ -194,8 +194,8 @@ Se quiser fazer o teste:
 
 ~~~c
 #define MAXTOKEN 16
-char token; /* código do token atual */
-char value[MAXTOKEN+1]; /* texto do token atual */
+char Token; /* código do token atual */
+char TokenText[MAXTOKEN+1]; /* texto do token atual */
 ~~~
 
 - Por último, chame `NextToken()` com o seguinte programa:
@@ -207,8 +207,8 @@ int main()
     Init();
     do {
         NextToken();
-        printf("Token: %c Value: %s\n", token, value);
-    } while (token != '.');
+        printf("Token: %c Value: %s\n", Token, TokenText);
+    } while (Token != '.');
 }
 ~~~
 
@@ -227,14 +227,14 @@ Aqui está a versão final de `GetOp()`:
 void GetOp()
 {
     SkipWhite();
-    token = look;
-    value[0] = look;
-    value[1] = '\0';
+    Token = Look;
+    TokenText[0] = Look;
+    TokenText[1] = '\0';
     NextChar();
 }
 ~~~
 
-Repare que eu ainda atribuo um valor a `value`. Se você estiver muito preocupado com eficiência, é possível remover isto (embora vá fazer uma diferença muito pequena realmente). Quando esperamos um operador, vamos testar apenas `token` de qualquer maneira, então o valor não tem tanta importância. Mas para mim parece ser uma boa prática colocar algum valor lá, só por garantia.
+Repare que eu ainda atribuo um valor a `TokenText`. Se você estiver muito preocupado com eficiência, é possível remover isto (embora vá fazer uma diferença muito pequena realmente). Quando esperamos um operador, vamos testar apenas `Token` de qualquer maneira, então o valor não tem tanta importância. Mas para mim parece ser uma boa prática colocar algum valor lá, só por garantia.
 
 Tente esta nova versão com algum código realístico. Deve ser possível separar qualquer programa em seus tokens individuais, com a diferença que operadores relacionais de dois caracteres serão reconhecidos como tokens separados. Mas tudo bem... vamos tratá-los desta forma.
 
@@ -256,10 +256,10 @@ void Scan()
 {
     int kw;
 
-    if (token == 'x') {
-        kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    if (Token == 'x') {
+        kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
         if (kw >= 0)
-            token = KeywordCode[kw];
+            Token = KeywordCode[kw];
     }
 }
 ~~~
@@ -272,7 +272,7 @@ A seguinte versão de `MatchString()` toma o lugar da versão caracter. Note que
 /* compara string com texto do token atual */
 void MatchString(char *s)
 {
-    if (strcmp(value, s) != 0)
+    if (strcmp(TokenText, s) != 0)
         Expected(s);
     NextToken();
 }
@@ -293,7 +293,7 @@ void Block()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'i':
                 DoIf();
                 break;
@@ -320,16 +320,16 @@ void Block()
 
 Lembre-se que a nova versão de `Scan()` não avança na entrada, apenas procura por palavras-chave. A entrada deve ser avançada por cada rotina que `Block()` chama.
 
-Em geral, temos que trocar todo teste em `look` por um similar em `token`. Por exemplo:
+Em geral, temos que trocar todo teste em `Look` por um similar em `Token`. Por exemplo:
 
 ~~~c
 /* analisa e traduz uma expressão booleana */
 void BoolExpression()
 {
     BoolTerm();
-    while (IsOrOp(token)) {
+    while (IsOrOp(Token)) {
         AsmPush();
-        switch (token) {
+        switch (Token) {
           case '|':
               BoolOr();
               break;
@@ -367,7 +367,7 @@ void DoIf()
     l2 = l1;
     AsmBranchFalse(l1);
     Block();
-    if (token == 'l') {
+    if (Token == 'l') {
         NextToken();
         l2 = NewLabel();
         AsmBranch(l2);

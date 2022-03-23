@@ -13,10 +13,10 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define MAXVAR 26
-int var[MAXVAR];
+int VarTable[MAXVAR];
 
 /* protótipos */
 void Init();
@@ -44,7 +44,7 @@ int main()
 {
     Init();
     do {
-        switch (look) {
+        switch (Look) {
             case '?':
                 Input();
                 break;
@@ -56,7 +56,7 @@ int main()
                 break;
         }
         NewLine();
-    } while (look != '.');
+    } while (Look != '.');
 
     return 0;
 }
@@ -74,19 +74,19 @@ void InitVar()
     int i;
 
     for (i = 0; i < MAXVAR; i++)
-        var[i] = 0;
+        VarTable[i] = 0;
 }
 
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* captura um caracter de nova linha */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 
@@ -139,7 +139,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -149,9 +149,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
 
     return name;
@@ -164,12 +164,12 @@ int GetNum()
 
     i = 0;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
 
-    while (isdigit(look)) {
+    while (isdigit(Look)) {
         i *= 10;
-        i += look - '0';
+        i += Look - '0';
         NextChar();
     }
 
@@ -209,7 +209,7 @@ void Assignment()
 
     name = GetName();
     Match('=');
-    var[name - 'A'] = Expression();
+    VarTable[name - 'A'] = Expression();
 }
 
 /* avalia um fator */
@@ -217,12 +217,12 @@ int Factor()
 {
     int val;
 
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         val = Expression();
         Match(')');
-    } else if (isalpha(look))
-        val = var[GetName() - 'A'];
+    } else if (isalpha(Look))
+        val = VarTable[GetName() - 'A'];
     else
         val = GetNum();
 
@@ -235,8 +235,8 @@ int Term()
     int val;
 
     val = Factor();
-    while (IsMulOp(look)) {
-        switch (look) {
+    while (IsMulOp(Look)) {
+        switch (Look) {
             case '*':
                 Match('*');
                 val *= Factor();
@@ -256,13 +256,13 @@ int Expression()
 {
     int val;
 
-    if (IsAddOp(look))
+    if (IsAddOp(Look))
         val = 0;
     else
         val = Term();
 
-    while (IsAddOp(look)) {
-        switch (look) {
+    while (IsAddOp(Look)) {
+        switch (Look) {
           case '+':
               Match('+');
               val += Term();
@@ -287,7 +287,7 @@ void Input()
     name = GetName();
     printf("%c? ", name);
     fgets(buffer, 20, stdin);
-    var[name - 'A'] = atoi(buffer);
+    VarTable[name - 'A'] = atoi(buffer);
 }
 
 /* interpreta um comando de saída */
@@ -297,5 +297,5 @@ void Output()
 
     Match('!');
     name = GetName();
-    printf("%c -> %d\n", name, var[name - 'A']);
+    printf("%c -> %d\n", name, VarTable[name - 'A']);
 }

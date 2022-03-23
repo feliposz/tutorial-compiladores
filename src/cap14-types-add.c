@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define SYMBOLTABLE_SIZE 26
 char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
@@ -106,7 +106,7 @@ void Init()
 /* lê próximo caracter da entrada em lookahead */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -440,21 +440,21 @@ int IsVarType(char c)
 /* pula caracteres em branco */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
 /* reconhece uma quebra de linha */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 
-/* verifica se look combina com caracter esperado */
+/* verifica se Look combina com caracter esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
     SkipWhite();
@@ -465,9 +465,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
     SkipWhite();
 
@@ -479,12 +479,12 @@ long GetNum()
 {
     long num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
     num = 0;
-    while (isdigit(look)) {
+    while (isdigit(Look)) {
         num *= 10;
-        num += look - '0';
+        num += Look - '0';
         NextChar();
     }
     SkipWhite();
@@ -551,7 +551,7 @@ char VarType(char name)
 /* analiza e traduz a declaração de uma variável */
 void Declaration()
 {
-    char type = look;
+    char type = Look;
     NextChar();
     AllocVar(GetName(), type);
 }
@@ -559,15 +559,15 @@ void Declaration()
 /* analiza e traduz as declarações globais */
 void TopDeclarations()
 {
-    while (look != 'B') {
-        switch (look) {
+    while (Look != 'B') {
+        switch (Look) {
             case 'b':
             case 'w':
             case 'l':
                 Declaration();
                 break;
             default:
-                Unrecognized(look);
+                Unrecognized(Look);
                 break;
         }
         NewLine();
@@ -586,7 +586,7 @@ char Term()
 {
     char type;
 
-    if (isalpha(look))
+    if (isalpha(Look))
         type = LoadVar(GetName());
     else
         type = LoadNum(GetNum());
@@ -613,13 +613,13 @@ char Expression()
 {
     char type;
 
-    if (IsAddOp(look))
+    if (IsAddOp(Look))
         type = UnaryOp();
     else
         type = Term();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         AsmPush(type);
-        switch (look) {
+        switch (Look) {
             case '+':
                 type = Add(type);
                 break;
@@ -646,7 +646,7 @@ void Assignment()
 /* analisa traduz um bloco de comandos */
 void Block()
 {
-    while (look != '.') {
+    while (Look != '.') {
         Assignment();
         NewLine();
     }

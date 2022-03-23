@@ -747,7 +747,7 @@ PROG segment byte public
 	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
 X:
 exit_prog:
-	MOV AX,4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
+	MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
 	INT 21h       ; chamada de sistema DOS
 PROG ends
 	end X
@@ -760,7 +760,7 @@ PROG segment byte public
 	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
 X:
 exit_prog:
-	MOV AX,4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
+	MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
 	INT 21h       ; chamada de sistema DOS
 PROG ends
 	end X

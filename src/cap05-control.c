@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 /* protótipos */
@@ -63,7 +63,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -115,7 +115,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -125,9 +125,9 @@ char GetName()
 {
     char name;
 
-    if (!isupper(look))
+    if (!isupper(Look))
         Expected("Name");
-    name = look;
+    name = Look;
     NextChar();
 
     return name;
@@ -138,9 +138,9 @@ char GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
 
     return num;
@@ -201,7 +201,7 @@ void DoIf(int exitLabel)
     l2 = l1;
     EmitLn("JZ L%d", l1);
     Block(exitLabel);
-    if (look == 'l') {
+    if (Look == 'l') {
         Match('l');
         l2 = NewLabel();
         EmitLn("JMP L%d", l2);
@@ -329,7 +329,7 @@ void Block(int exitLabel)
     follow = 0;
 
     while (!follow) {
-        switch (look) {
+        switch (Look) {
             case 'i':
                 DoIf(exitLabel);
                 break;
@@ -367,7 +367,7 @@ void Block(int exitLabel)
 void Program()
 {
     Block(-1);
-    if (look != 'e')
+    if (Look != 'e')
         Expected("End");
     EmitLn("; END");
 }

@@ -10,12 +10,12 @@ void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
-    if (isdigit(look)) {
+    if (isdigit(Look)) {
         GetNum(num);
         AsmLoadConst(num);
-    } else if (isalpha(look)) {
+    } else if (isalpha(Look)) {
         GetName(name);
         AsmLoadVar(name);
     } else
-        Error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", Look);
 }

@@ -117,7 +117,7 @@ void Block()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'i':
                 DoIf();
                 break;
@@ -153,10 +153,10 @@ Como as declarações são comandos também, também devemos adicionar uma chama
 void TopDeclarations()
 {
     Scan();
-    while (token == 'v') {
+    while (Token == 'v') {
         do {
             Declaration();
-        } while (token == ',');
+        } while (Token == ',');
         Semicolon();
         Scan();
     }
@@ -194,7 +194,7 @@ A versão Pascal é um pouco mais complicada, mas ainda assim ela requer apenas 
 void Statement()
 {
     Scan();
-    switch (token) {
+    switch (Token) {
         case 'i':
             DoIf();
             break;
@@ -221,7 +221,7 @@ Usando a rotina, podemos agora reescrever `Block()` :
 void Block()
 {
     Statement();
-    while (token == ';') {
+    while (Token == ';') {
         NextToken();
         Statement();
     }
@@ -244,7 +244,7 @@ Considere a seguinte versão de "semicolon":
 /* reconhece um ponto-e-vírgula opcional */
 void Semicolon()
 {
-    if (token == ';')
+    if (Token == ';')
         NextToken();
 }
 ~~~
@@ -273,14 +273,14 @@ Agora, vamos precisar de uma rotina que pule os comentários. Então, entre com 
 /* pula um campo de comentário */
 void SkipComment()
 {
-    while (look != '}') {
+    while (Look != '}') {
         NextCharX();
     }
     NextCharX();
 }
 ~~~
 
-Evidentemente, o que está rotina faz é simplesmente ler e descartar caracteres da entrada, até encontrar uma chave direita ("}"). Então ele lê um caracter a mais e o coloca em "look" como esperado.
+Evidentemente, o que está rotina faz é simplesmente ler e descartar caracteres da entrada, até encontrar uma chave direita ("}"). Então ele lê um caracter a mais e o coloca em "Look" como esperado.
 
 Agora podemos escrever uma nova versão de `NextChar()` que usa "skipComment" para remover os comentários:
 
@@ -289,7 +289,7 @@ Agora podemos escrever uma nova versão de `NextChar()` que usa "skipComment" pa
 void NextChar()
 {
     NextCharX();
-    if (look == '{')
+    if (Look == '{')
         SkipComment();
 }
 ~~~
@@ -310,8 +310,8 @@ Para fazer isto, volte à versão anterior de `NextChar()` da forma como ela era
 /* pula caracteres em branco */
 void SkipWhite()
 {
-    while (isspace(look) || look == '{') {
-        if (look == '{')
+    while (isspace(Look) || Look == '{') {
+        if (Look == '{')
             SkipComment();
         else
             NextChar();
@@ -331,9 +331,9 @@ Mas para arrumar isto é incrivelmente simples. Tudo o que precisamos fazer é t
 /* pula um campo de comentário */
 void SkipComment()
 {
-    while (look != '}') {
+    while (Look != '}') {
         NextChar();
-        if (look == '{') /* trata comentários aninhados */
+        if (Look == '{') /* trata comentários aninhados */
             SkipComment();
     }
     NextChar();
@@ -356,14 +356,14 @@ Vamos assumir que estamos usando os delimitadores de C "/*" e "*/". Primeiro, te
 void NextChar()
 {
     if (TempChar != ' ') {
-        look = TempChar;
+        Look = TempChar;
         TempChar = ' ';
     } else {
         NextCharX();
-        if (look == '/') {
+        if (Look == '/') {
             TempChar = getchar();
             if (TempChar == '*') {
-                look = '{';
+                Look = '{';
                 TempChar = ' ';
             }
         }
@@ -390,9 +390,9 @@ void SkipComment()
     do {
         do {
             NextCharX();
-        } while (look != '*');
+        } while (Look != '*');
         NextCharX();
-    } while (look != '/');
+    } while (Look != '/');
     NextCharX();
 }
 ~~~
@@ -412,7 +412,7 @@ void SkipComment()
 {
     do {
         NextCharX();
-    } while (look != '\n');
+    } while (Look != '\n');
     NextChar();
 }
 ~~~
@@ -423,8 +423,8 @@ Se o caracter de início do comentário é único, como ";" de assembly, é prat
 /* pula caracteres em branco */
 void SkipWhite()
 {
-    while (isspace(look) || look == '#') {
-        if (look == '#')
+    while (isspace(Look) || Look == '#') {
+        if (Look == '#')
             SkipComment();
         else
             NextChar();

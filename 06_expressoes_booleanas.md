@@ -221,9 +221,9 @@ int GetBoolean()
 {
     int boolean;
 
-    if (!IsBoolean(look))
+    if (!IsBoolean(Look))
         Expected("Boolean Literal");
-    boolean = (look == 'T');
+    boolean = (Look == 'T');
     NextChar();
 
     return boolean;
@@ -250,7 +250,7 @@ Quando estávamos tratando dos dados numéricos, tivemos que criar código para 
 /* analisa e traduz uma expressão Booleana */
 void BoolExpression()
 {
-    if (!IsBoolean(look))
+    if (!IsBoolean(Look))
         Expected("Boolean Literal");
     if (GetBoolean())
         EmitLn("MOV AX, -1");
@@ -273,7 +273,7 @@ Eu prefiro a versão Pascal para os operadores OR e XOR. Mas como estamos manten
 /* analisa e traduz um termo Booleano */
 void BoolTerm()
 {
-    if (!IsBoolean(look))
+    if (!IsBoolean(Look))
         Expected("Boolean Literal");
     if (GetBoolean())
         EmitLn("MOV AX, -1");
@@ -303,9 +303,9 @@ void BoolXor()
 void BoolExpression()
 {
     BoolTerm();
-    while (IsOrOp(look)) {
+    while (IsOrOp(Look)) {
         EmitLn("PUSH AX");
-        switch (look) {
+        switch (Look) {
           case '|':
               BoolOr();
               break;
@@ -339,7 +339,7 @@ Renomeie a rotina `BoolTerm()` para `NotFactor()`, e entre com a nova versão de
 void BoolTerm()
 {
     NotFactor();
-    while (look == '&') {
+    while (Look == '&') {
         EmitLn("PUSH AX");
         Match('&');
         NotFactor();
@@ -355,7 +355,7 @@ Estamos quase chegando lá. Estamos traduzindo expressões booleanas complexas, 
 /* analisa e traduz um fator booleno com NOT opcional */
 void NotFactor()
 {
-    if (look == '!') {
+    if (Look == '!') {
         Match('!');
         BoolFactor();
         EmitLn("NOT AX");
@@ -372,7 +372,7 @@ Se você tem acompanhado o que fizemos no analisador para expressões matemátic
 /* analisa e traduz um fator booleano */
 void BoolFactor()
 {
-    if (IsBoolean(look)) {
+    if (IsBoolean(Look)) {
         if (GetBoolean())
             EmitLn("MOV AX, -1");
         else
@@ -526,9 +526,9 @@ void Less()
 void Relation()
 {
     Expression();
-    if (IsRelOp(look)) {
+    if (IsRelOp(Look)) {
         EmitLn("PUSH AX");
-        switch (look) {
+        switch (Look) {
             case '=':
                 Equals();
                 break;
@@ -555,7 +555,7 @@ void Ident()
     char name;
 
     name = GetName();
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Match(')');
         EmitLn("CALL %c", name);
@@ -566,11 +566,11 @@ void Ident()
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         BoolExpression();
         Match(')');
-    } else if(isalpha(look))
+    } else if(isalpha(Look))
         Ident();
     else
         EmitLn("MOV AX, %c", GetNum());
@@ -579,8 +579,8 @@ void Factor()
 /* analisa e traduz um fator com sinal opcional */
 void SignedFactor()
 {
-    int minusSign = (look == '-');
-    if (IsAddOp(look))
+    int minusSign = (Look == '-');
+    if (IsAddOp(Look))
     {
         NextChar();
         SkipWhite();
@@ -614,9 +614,9 @@ void Divide()
 void Term()
 {
     SignedFactor();
-    while (IsMulOp(look)) {
+    while (IsMulOp(Look)) {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -650,9 +650,9 @@ void Subtract()
 void Expression()
 {
     Term();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -717,7 +717,7 @@ Eis a rotina:
 /* reconhece uma linha em branco */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 ~~~
@@ -734,7 +734,7 @@ void Block(int exitLabel)
 
     while (!follow) {
         NewLine();
-        switch (look) {
+        switch (Look) {
             case 'i':
                 DoIf(exitLabel);
                 break;

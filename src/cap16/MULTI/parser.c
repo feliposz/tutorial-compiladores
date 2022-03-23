@@ -20,8 +20,8 @@ void Assignment()
 void Expression()
 {
     SignedTerm();
-    while (IsAddOp(look)) {
-        switch (look) {
+    while (IsAddOp(Look)) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -42,8 +42,8 @@ void Expression()
 void Term()
 {
     NotFactor();
-    while (IsMulOp(look)) {
-        switch (look) {
+    while (IsMulOp(Look)) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -60,8 +60,8 @@ void Term()
 /* analisa e traduz um termo com um sinal opcional */
 void SignedTerm()
 {
-    char sign = look;
-    if (IsAddOp(look))
+    char sign = Look;
+    if (IsAddOp(Look))
         NextChar();
     Term();
     if (sign == '-')
@@ -73,24 +73,24 @@ void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if (isdigit(look)) {
+    } else if (isdigit(Look)) {
         GetNum(num);
         AsmLoadConst(num);
-    } else if (isalpha(look)) {
+    } else if (isalpha(Look)) {
         GetName(name);
         AsmLoadVar(name);
     } else
-        Error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", Look);
 }
 
 /* analisa e traduz um fator com NOT opcional */
 void NotFactor()
 {
-    if (look == '!') {
+    if (Look == '!') {
         Match('!');
         Factor();
         AsmNot();

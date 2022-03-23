@@ -16,7 +16,7 @@ Este código é de livre distribuição e uso.
 #define MAXNAME 30
 #define MAXNUM 5
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* protótipos */
 void Init();
@@ -45,7 +45,7 @@ int main()
 {
     Init();
     Assignment();
-    if (look != '\n')
+    if (Look != '\n')
         Expected("NewLine");
 
     return 0;
@@ -61,7 +61,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -113,14 +113,14 @@ void Expected(char *fmt, ...)
 /* pula caracteres de espaço */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
     SkipWhite();
@@ -130,12 +130,12 @@ void Match(char c)
 void GetName(char *name)
 {
     int i;
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look); i++) {
+    for (i = 0; isalnum(Look); i++) {
         if (i >= MAXNAME)
             Abort("Identifier too long!");
-        name[i] = toupper(look);
+        name[i] = toupper(Look);
         NextChar();
     }
     name[i] = '\0';
@@ -146,12 +146,12 @@ void GetName(char *name)
 void GetNum(char *num)
 {
     int i;
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look); i++) {
+    for (i = 0; isdigit(Look); i++) {
         if (i >= MAXNUM)
             Abort("Integer too long!");
-        num[i] = look;
+        num[i] = Look;
         NextChar();
     }
     num[i] = '\0';
@@ -177,7 +177,7 @@ void Ident()
 {
     char name[MAXNAME+1];
     GetName(name);
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Match(')');
         EmitLn("CALL %s", name);
@@ -199,11 +199,11 @@ void Assignment()
 void Factor()
 {
     char num[MAXNUM+1];
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if(isalpha(look)) {
+    } else if(isalpha(Look)) {
         Ident();
     } else {
         GetNum(num);
@@ -235,9 +235,9 @@ void Divide()
 void Term()
 {
     Factor();
-    while (look == '*' || look == '/') {
+    while (Look == '*' || Look == '/') {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -270,13 +270,13 @@ void Subtract()
 /* reconhece e traduz uma expressão */
 void Expression()
 {
-    if (IsAddOp(look))
+    if (IsAddOp(Look))
         EmitLn("XOR AX, AX");
     else
         Term();
-    while (look == '+' || look == '-') {
+    while (Look == '+' || Look == '-') {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;

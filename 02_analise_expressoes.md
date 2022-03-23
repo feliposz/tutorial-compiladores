@@ -67,7 +67,7 @@ void Expression()
 {
     Term();
     EmitLn("MOV BX, AX");
-    switch (look) {
+    switch (Look) {
         case '+':
             Add();
             break;
@@ -157,9 +157,9 @@ Nós podemos acomodar esta definição de uma expressão com a adição de um si
 void Expression()
 {
     Term();
-    while (look == '+' || look == '-') {
+    while (Look == '+' || Look == '-') {
         EmitLn("MOV BX, AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -200,9 +200,9 @@ Portando, vamos alterar as funções `Expression()`, `Add()` e `Subtract()`, de 
 void Expression()
 {
     Term();
-    while (look == '+' || look == '-') {
+    while (Look == '+' || Look == '-') {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -291,9 +291,9 @@ void Divide()
 void Term()
 {
     Factor();
-    while (look == '*' || look == '/') {
+    while (Look == '*' || Look == '/') {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -330,9 +330,9 @@ void Subtract()
 void Expression()
 {
     Term();
-    while (look == '+' || look == '-') {
+    while (Look == '+' || Look == '-') {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -373,7 +373,7 @@ Complicado ou não, podemos cuidar disso ajustando apenas umas poucas linhas do 
 /* analisa e traduz um fator */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
@@ -402,13 +402,13 @@ Há várias formas de resolver o problema. A mais fácil (embora não a melhor) 
 /* analisa e traduz uma expressão */
 void Expression()
 {
-    if (IsAddOp(look))
+    if (IsAddOp(Look))
         EmitLn("XOR AX, AX");
     else
         Term();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;

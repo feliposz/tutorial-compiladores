@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* protótipos */
 void Init();
@@ -52,7 +52,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -104,7 +104,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -114,9 +114,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
 
     return name;
@@ -127,9 +127,9 @@ char GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
 
     return num;
@@ -152,7 +152,7 @@ void EmitLn(char *fmt, ...)
 /* analisa e traduz um fator */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
@@ -184,9 +184,9 @@ void Divide()
 void Term()
 {
     Factor();
-    while (look == '*' || look == '/') {
+    while (Look == '*' || Look == '/') {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -222,13 +222,13 @@ void Subtract()
 /* reconhece e traduz uma expressão */
 void Expression()
 {
-    if (IsAddOp(look))
+    if (IsAddOp(Look))
         EmitLn("XOR AX, AX");
     else
         Term();
-    while (look == '+' || look == '-') {
+    while (Look == '+' || Look == '-') {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;

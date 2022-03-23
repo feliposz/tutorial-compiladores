@@ -60,7 +60,7 @@ Com estas idéias em mente, podemos continuar construindo nosso analisador. O c�
 void Program()
 {
     Block();
-    if (look != 'e')
+    if (Look != 'e')
         Expected("End");
     EmitLn("; END");
 }
@@ -74,7 +74,7 @@ O código de "block" é:
 /* analisa e traduz um bloco de comandos */
 void Block()
 {
-    while (look != 'e') {
+    while (Look != 'e') {
         Other();
     }
 }
@@ -144,7 +144,7 @@ void PostLabel(int lbl)
 }
 ~~~
 
-Note que foi adicionada uma nova variável global chamada `LabelCount`, então adicione mais uma declaração de variável abaixo da definição de `look`:
+Note que foi adicionada uma nova variável global chamada `LabelCount`, então adicione mais uma declaração de variável abaixo da definição de `Look`:
 
 ~~~c
 int LabelCount; /* Contador usado pelo gerador de rótulos */
@@ -217,8 +217,8 @@ Adicione esta rotina ao programa, altere `Block()` para se referir a `DoIf()` de
 /* analisa e traduz um bloco de comandos */
 void Block()
 {
-    while (look != 'e') {
-        switch (look) {
+    while (Look != 'e') {
+        switch (Look) {
             case 'i':
                 DoIf();
                 break;
@@ -253,9 +253,9 @@ Insira esta rotina e execute o programa. Teste algo assim:
 > {
 >     char name;
 > 
->     if (!isupper(look))
+>     if (!isupper(Look))
 >         Expected("Name");
->     name = look;
+>     name = Look;
 >     NextChar();
 > 
 >     return name;
@@ -321,7 +321,7 @@ void DoIf()
     l2 = l1;
     EmitLn("JZ L%d", l1);
     Block();
-    if (look == 'l') {
+    if (Look == 'l') {
         Match('l');
         l2 = NewLabel();
         EmitLn("JMP L%d", l2);
@@ -333,7 +333,7 @@ void DoIf()
 }
 ~~~
 
-Aí está. Um analisador/tradutor completo de um IF em 20 linhas de código. Altere também a função `Block()`. Troque o teste em `while (look != 'e')` por `look != 'e' && look != 'l'`, ou então o L será tratado por `Other()` e nosso IF não vai funcionar.
+Aí está. Um analisador/tradutor completo de um IF em 20 linhas de código. Altere também a função `Block()`. Troque o teste em `while (Look != 'e')` por `Look != 'e' && Look != 'l'`, ou então o L será tratado por `Other()` e nosso IF não vai funcionar.
 
 Faça o teste agora, com alguma coisa assim:
 
@@ -404,7 +404,7 @@ void DoWhile()
 }
 ~~~
 
->**Nota de tradução:** Por favor, não confundam `DoWhile()` com o comando `do ... while(<cond>);` da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
+>**Nota de tradução:** Por favor, não confundam `DoWhile()` com o comando `do ... while (<cond>);` da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
 
 Como temos um comando novo, temos que adicionar a chamada à rotina `Block()`:
 
@@ -412,8 +412,8 @@ Como temos um comando novo, temos que adicionar a chamada à rotina `Block()`:
 /* analisa e traduz um bloco de comandos */
 void Block()
 {
-    while (look != 'e' && look != 'l') {
-        switch (look) {
+    while (Look != 'e' && Look != 'l') {
+        switch (Look) {
             case 'i':
                 DoIf();
                 break;
@@ -439,7 +439,7 @@ O comando LOOP
 
 Poderíamos parar por aqui e ter uma linguagem que funciona. Já foi provado que uma linguagem de alto nível com duas construções, o IF e o WHILE, são suficientes para escrever código estruturado. Mas já que estamos no meio do caminho, vamos enriquecer um pouco o repertório.
 
-Esta estrutura é mais fácil ainda, já que ela não tem uma condição... é um laço de repetição infinito. Qual o objetivo de um laço destes? Nenhum, por si só, porém mais tarde, vamos adicionar o comando BREAK, que vai servir para sairmos do laço. Isto deixa a linguagem mais rica e evita coisas estranhas como `while(1)` ou `WHILE TRUE DO` de C e Pascal, respectivamente.
+Esta estrutura é mais fácil ainda, já que ela não tem uma condição... é um laço de repetição infinito. Qual o objetivo de um laço destes? Nenhum, por si só, porém mais tarde, vamos adicionar o comando BREAK, que vai servir para sairmos do laço. Isto deixa a linguagem mais rica e evita coisas estranhas como `while (1)` ou `WHILE TRUE DO` de C e Pascal, respectivamente.
 
 A sintaxe é simples:
 
@@ -523,7 +523,7 @@ void Block()
     follow = 0;
 
     while (!follow) {
-        switch (look) {
+        switch (Look) {
             case 'i':
                 DoIf();
                 break;
@@ -735,7 +735,7 @@ void Block(int exitLabel)
     follow = 0;
 
     while (!follow) {
-        switch (look) {
+        switch (Look) {
             case 'i':
                 DoIf(exitLabel);
                 break;
@@ -786,7 +786,7 @@ void DoIf(int exitLabel)
     l2 = l1;
     EmitLn("JZ L%d", l1);
     Block(exitLabel);
-    if (look == 'l') {
+    if (Look == 'l') {
         Match('l');
         l2 = NewLabel();
         EmitLn("JMP L%d", l2);
@@ -820,7 +820,7 @@ E `Program()` fica assim:
 void Program()
 {
     Block(-1);
-    if (look != 'e')
+    if (Look != 'e')
         Expected("End");
     EmitLn("; END");
 }

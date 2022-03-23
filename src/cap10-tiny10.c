@@ -18,7 +18,7 @@ Este código é de livre distribuição e uso.
 char *SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
 int SymbolCount; /* número de entradas na tabela de símbolos */
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 
@@ -32,26 +32,26 @@ char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE
 char *KeywordCode = "ileweRWvbep";
 
 #define MAXTOKEN 16
-char value[MAXTOKEN+1]; /* texto do token atual */
-char token; /* código do token atual */
+char TokenText[MAXTOKEN+1]; /* texto do token atual */
+char Token; /* código do token atual */
 
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* pula caracteres de espaço */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
 /* captura caracteres de nova linha */
 void NewLine()
 {
-    while (look == '\n') {
+    while (Look == '\n') {
         NextChar();
         SkipWhite();
     }
@@ -113,7 +113,7 @@ void Undefined(char *name)
 void Match(char c)
 {
     NewLine();
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
     SkipWhite();
@@ -125,14 +125,14 @@ void GetName()
     int i;
 
     NewLine();
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    token = 'x';
+    TokenText[i] = '\0';
+    Token = 'x';
     SkipWhite();
 }
 
@@ -144,12 +144,12 @@ int GetNum()
     num = 0;
 
     NewLine();
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
 
-    while (isdigit(look)) {
+    while (isdigit(Look)) {
         num *= 10;
-        num += look - '0';
+        num += Look - '0';
         NextChar();
     }
     SkipWhite();
@@ -176,17 +176,17 @@ void Scan()
     int kw;
 
     GetName();
-    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
     if (kw == -1)
-        token = 'x';
+        Token = 'x';
     else
-        token = KeywordCode[kw];
+        Token = KeywordCode[kw];
 }
 
 /* verifica se a string combina com o esperado */
 void MatchString(char *s)
 {
-    if (strcmp(value, s) != 0)
+    if (strcmp(TokenText, s) != 0)
         Expected(s);
 }
 
@@ -460,10 +460,10 @@ void AllocVar(char *name)
     AddEntry(name);
 
     NewLine();
-    if (look == '=') {
+    if (Look == '=') {
         Match('=');
         NewLine();
-        if (look == '-') {
+        if (Look == '-') {
                 Match('-');
                 signal = -1;
         }
@@ -479,9 +479,9 @@ void Declaration()
     NewLine();
     for (;;) {
         GetName();
-        AllocVar(value);
+        AllocVar(TokenText);
         NewLine();
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
         NewLine();
@@ -492,8 +492,8 @@ void Declaration()
 void TopDeclarations()
 {
     Scan();
-    while (token != 'b') {
-        switch (token) {
+    while (Token != 'b') {
+        switch (Token) {
             case 'v':
                 Declaration();
                 break;
@@ -512,13 +512,13 @@ void BoolExpression(); /* declaração adianta */
 void Factor()
 {
     NewLine();
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         BoolExpression();
         Match(')');
-    } else if (isalpha(look)) {
+    } else if (isalpha(Look)) {
         GetName();
-        AsmLoadVar(value);
+        AsmLoadVar(TokenText);
     } else
         AsmLoadConst(GetNum());
 }
@@ -527,7 +527,7 @@ void Factor()
 void NegFactor()
 {
     Match('-');
-    if (isdigit(look))
+    if (isdigit(Look))
         AsmLoadConst(-GetNum());
     else {
         Factor();
@@ -538,7 +538,7 @@ void NegFactor()
 /* analisa e traduz um fator inicial */
 void FirstFactor()
 {
-    switch (look) {
+    switch (Look) {
         case '+':
             Match('+');
             Factor();
@@ -571,9 +571,9 @@ void Divide()
 /* código comum usado por "term" e "firstTerm" */
 void TermCommon()
 {
-    while (IsMulOp(look)) {
+    while (IsMulOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '*':
             Multiply();
             break;
@@ -618,9 +618,9 @@ void Subtract()
 void Expression()
 {
     FirstTerm();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '+':
             Add();
             break;
@@ -637,18 +637,18 @@ void Relation()
     char op;
 
     Expression();
-    if (IsRelOp(look)) {
-        op = look;
+    if (IsRelOp(Look)) {
+        op = Look;
         Match(op); /* só para remover o operador do caminho */
         if (op == '<') {
-            if (look == '>') { /* trata operador <> */
+            if (Look == '>') { /* trata operador <> */
                 Match('>');
                 op = '#';
-            } else if (look == '=') { /* trata operador <= */
+            } else if (Look == '=') { /* trata operador <= */
                 Match('=');
                 op = 'L';
             }
-        } else if (op == '>' && look == '=') { /* trata operador >= */
+        } else if (op == '>' && Look == '=') { /* trata operador >= */
             Match('=');
             op = 'G';
         }
@@ -662,7 +662,7 @@ void Relation()
 /* analisa e traduz um fator booleano com NOT inicial */
 void NotFactor()
 {
-    if (look == '!') {
+    if (Look == '!') {
         Match('!');
         Relation();
         AsmNot();
@@ -674,7 +674,7 @@ void NotFactor()
 void BoolTerm()
 {
     NotFactor();
-    while (look == '&') {
+    while (Look == '&') {
         AsmPush();
         Match('&');
         NotFactor();
@@ -702,9 +702,9 @@ void BoolXor()
 void BoolExpression()
 {
     BoolTerm();
-    while (IsOrOp(look)) {
+    while (IsOrOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '|':
               BoolOr();
               break;
@@ -720,7 +720,7 @@ void Assignment()
 {
     char name[MAXTOKEN+1];
 
-    strcpy(name, value);
+    strcpy(name, TokenText);
     Match('=');
     BoolExpression();
     AsmStore(name);
@@ -738,7 +738,7 @@ void DoIf()
     l2 = l1;
     AsmBranchFalse(l1);
     Block();
-    if (token == 'l') {
+    if (Token == 'l') {
         l2 = NewLabel();
         AsmBranch(l2);
         PostLabel(l1);
@@ -771,9 +771,9 @@ void DoRead()
     for (;;) {
         GetName();
         AsmRead();
-        AsmStore(value);
+        AsmStore(TokenText);
         NewLine();
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
     }
@@ -788,7 +788,7 @@ void DoWrite()
         Expression();
         AsmWrite();
         NewLine();
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
     }
@@ -802,7 +802,7 @@ void Block()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'i':
                 DoIf();
                 break;
@@ -861,7 +861,7 @@ int main()
     Init();
     Program();
 
-    if (look != '\n')
+    if (Look != '\n')
         Abort("Unexpected data after \'.\'");
 
     return 0;

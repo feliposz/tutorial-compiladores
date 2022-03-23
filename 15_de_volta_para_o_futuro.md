@@ -77,7 +77,7 @@ Crie o arquivo `main.c`:
 int main()
 {
     InitInput();
-    printf("%c\n", look);
+    printf("%c\n", Look);
 
     return 0;
 }
@@ -85,7 +85,7 @@ int main()
 
 Note a inclusão do cabeçalho `input.h` na nossa rotina. Se você não fizer isto terá um erro de compilação. Não esqueça de juntar os módulos depois da compilação separada, para obter o programa executável.
 
-Repare que podemos acessar a variável `look` mesmo não a tendo declarado em nosso programa. Se estivéssemos escrevendo o programa numa forma orientada a objeto, não deveríamos permitir que módulos externos tivessem acesso a variáveis internas, mas para o nosso caso a abordagem é apropriada.
+Repare que podemos acessar a variável `Look` mesmo não a tendo declarado em nosso programa. Se estivéssemos escrevendo o programa numa forma orientada a objeto, não deveríamos permitir que módulos externos tivessem acesso a variáveis internas, mas para o nosso caso a abordagem é apropriada.
 
 Eu devo lembrar, como eu já fiz antes, que a função do módulo de entrada é, e sempre foi, considerada como uma simplificação de um módulo real. Em um compilador de produção, a entrada será proveniente de um arquivo ao invés do teclado. E certamente isto vai incluir um buffer para melhorar a eficiência de entradas do disco. A melhor parte dos módulos separados, como na própria orientação a objetos em si, é que podemos modificar o código em uma unidade para que ele seja tão simples ou tão sofisticado quanto necessário. Desde que a interface não mude, o resto do programa permanece inalterado. E já que os módulos são compilados, ao invés de meramente incluídos, o tempo necessário para juntá-los com o ligador (*linker*) é basicamente zero. O resultado é que podemos ter todos os benefícios de implementações sofisticadas, sem ter que carregar o código todo como bagagem.
 
@@ -121,7 +121,7 @@ Teste a nova unidade com o seguinte programa (altere o arquivo `main.c`):
 int main()
 {
     InitInput();
-    printf("%c\n", look);
+    printf("%c\n", Look);
     EmitLn("Hello, World!");
 
     return 0;
@@ -238,12 +238,12 @@ void GetName(char *name)
 {
     int i;
     
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look); i++) {
+    for (i = 0; isalnum(Look); i++) {
         if (i >= MAXNAME)
             Error("Identifier too long.");
-        name[i] = toupper(look);
+        name[i] = toupper(Look);
         NextChar();
     }
     name[i] = '\0';
@@ -254,12 +254,12 @@ void GetNum(char *num)
 {
     int i;
     
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look); i++) {
+    for (i = 0; isdigit(Look); i++) {
         if (i >= MAXNUM)
             Error("Integer too large.");
-        num[i] = look;
+        num[i] = Look;
         NextChar();
     }
     num[i] = '\0';
@@ -336,13 +336,13 @@ long GetNum()
 {
     long num = 0;
     
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
     do {
         num *= 10;
-        num += look - '0';
+        num += Look - '0';
         NextChar();
-    } while (isdigit(look));
+    } while (isdigit(Look));
     
     return num;
 }
@@ -465,14 +465,14 @@ void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
-    if (isdigit(look)) {
+    if (isdigit(Look)) {
         GetNum(num);
         AsmLoadConst(num);
-    } else if (isalpha(look)) {
+    } else if (isalpha(Look)) {
         GetName(name);
         AsmLoadVar(name);
     } else
-        Error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", Look);
 }
 ~~~
 

@@ -30,10 +30,10 @@ char *KeywordList[KEYWORDLIST_SIZE] = { "IF", "ELSE", "ENDIF", "END" };
 /* a ordem deve obedecer a lista de palavras-chave */
 const char *KeywordCode = "ilee";
 
-char token;
-char value[MAXTOKEN + 1];
+char Token;
+char TokenText[MAXTOKEN + 1];
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
                 /* protótipos */
@@ -97,7 +97,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -149,7 +149,7 @@ void Expected(char *fmt, ...)
 /* verifica se o caracter combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
     SkipWhite();
@@ -158,7 +158,7 @@ void Match(char c)
 /* verifica se a string combina com o esperado */
 void MatchString(char *s)
 {
-    if (strcmp(value, s) != 0)
+    if (strcmp(TokenText, s) != 0)
         Expected("'%s'", s);
 }
 
@@ -167,17 +167,17 @@ void GetName()
 {
     int i;
 
-    while (look == '\n')
+    while (Look == '\n')
         NewLine();
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look) && i < MAXNAME; i++)
+    for (i = 0; isalnum(Look) && i < MAXNAME; i++)
     {
-        value[i] = toupper(look);
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    token = 'x';
+    TokenText[i] = '\0';
+    Token = 'x';
     SkipWhite();
 }
 
@@ -186,15 +186,15 @@ void GetNum()
 {
     int i;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXNUM; i++)
+    for (i = 0; isdigit(Look) && i < MAXNUM; i++)
     {
-        value[i] = look;
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = '#';
+    TokenText[i] = '\0';
+    Token = '#';
     SkipWhite();
 }
 
@@ -209,18 +209,18 @@ void GetOp()
 {
     int i;
 
-    if (!IsOp(look))
+    if (!IsOp(Look))
         Expected("Operator");
-    for (i = 0; IsOp(look) && i < MAXOP; i++)
+    for (i = 0; IsOp(Look) && i < MAXOP; i++)
     {
-        value[i] = look;
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    if (strlen(value) == 1)
-        token = value[0];
+    TokenText[i] = '\0';
+    if (strlen(TokenText) == 1)
+        Token = TokenText[0];
     else
-        token = '?';
+        Token = '?';
 }
 
 /* analisador léxico */
@@ -229,9 +229,9 @@ void Scan()
     int kw;
 
     GetName();
-    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
     if (kw != -1)
-        token = KeywordCode[kw];
+        Token = KeywordCode[kw];
 }
 
 /* emite uma instrução seguida por uma nova linha */
@@ -251,14 +251,14 @@ void EmitLn(char *fmt, ...)
 /* reconhece uma linha em branco */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 
 /* pula caracteres de espaço */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
@@ -304,21 +304,21 @@ int Lookup(char *s, char *list[], int size)
 void Ident()
 {
     GetName();
-    if (look == '(')
+    if (Look == '(')
     {
         Match('(');
         Match(')');
-        EmitLn("CALL %s", value);
+        EmitLn("CALL %s", TokenText);
     }
     else
-        EmitLn("MOV AX, [%s]", value);
+        EmitLn("MOV AX, [%s]", TokenText);
 }
 
 /* analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name[MAXNAME + 1];
-    strcpy(name, value);
+    strcpy(name, TokenText);
     Match('=');
     Expression();
     EmitLn("MOV [%s], AX", name);
@@ -327,26 +327,26 @@ void Assignment()
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (look == '(')
+    if (Look == '(')
     {
         Match('(');
         Expression();
         Match(')');
     }
-    else if (isalpha(look))
+    else if (isalpha(Look))
         Ident();
     else
     {
         GetNum();
-        EmitLn("MOV AX, %s", value);
+        EmitLn("MOV AX, %s", TokenText);
     }
 }
 
 /* analisa e traduz um fator com sinal opcional */
 void SignedFactor()
 {
-    int minusSign = (look == '-');
-    if (IsAddOp(look))
+    int minusSign = (Look == '-');
+    if (IsAddOp(Look))
     {
         NextChar();
         SkipWhite();
@@ -398,10 +398,10 @@ void Divide()
 /* código comum a firstTerm e term */
 void TermCommon()
 {
-    while (IsMulOp(look))
+    while (IsMulOp(Look))
     {
         EmitLn("PUSH AX");
-        switch (look)
+        switch (Look)
         {
             case '*':
                 Multiply();
@@ -431,10 +431,10 @@ void Term()
 void Expression()
 {
     FirstTerm();
-    while (IsAddOp(look))
+    while (IsAddOp(Look))
     {
         EmitLn("PUSH AX");
-        switch (look)
+        switch (Look)
         {
             case '+':
                 Add();
@@ -461,7 +461,7 @@ void DoIf()
     l2 = l1;
     EmitLn("JZ L%d", l1);
     Block();
-    if (token == 'l')
+    if (Token == 'l')
     {
         l2 = NewLabel();
         EmitLn("JMP L%d", l2);
@@ -478,9 +478,9 @@ void Block()
     int follow = 0;
 
     Scan();
-    while (token != 'e' && token != 'l')
+    while (Token != 'e' && Token != 'l')
     {
-        switch (token)
+        switch (Token)
         {
             case 'i':
                 DoIf();

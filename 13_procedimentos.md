@@ -231,8 +231,8 @@ void DoMain()
 /* analiza e traduz as declarações globais */
 void TopDeclarations()
 {
-    while (look != '.') {
-        switch (look) {
+    while (Look != '.') {
+        switch (Look) {
             case 'v':
                 Declaration();
                 break;
@@ -243,7 +243,7 @@ void TopDeclarations()
                 DoMain();
                 break;
             default:
-                Unrecognized(look);
+                Unrecognized(Look);
                 break;
         }
         NewLine();
@@ -322,7 +322,7 @@ void AssignOrProc()
 /* analiza e traduz um bloco de comandos */
 void DoBlock()
 {
-    while (look != 'e') {
+    while (Look != 'e') {
         AssignOrProc();
         NewLine();
     }
@@ -388,9 +388,9 @@ Antes de continuar mais, vamos alterar o tradutor para tratar de uma lista de pa
 void FormalList()
 {
     Match('(');
-    if (look != ')') {
+    if (Look != ')') {
         FormalParam();
-        while (look == ',') {
+        while (Look == ',') {
             Match(',');
             FormalParam();
         }
@@ -445,9 +445,9 @@ void Param()
 void ParamList()
 {
     Match('(');
-    if (look != ')') {
+    if (Look != ')') {
         Param();
-        while (look == ',') {
+        while (Look == ',') {
             Match(',');
             Param();
         }
@@ -832,11 +832,11 @@ int ParamList()
     int count = 0;;
 
     Match('(');
-    if (look != ')') {
+    if (Look != ')') {
         for (;;) {
             Param();
             count++;
-            if (look != ',')
+            if (Look != ',')
                 break;
             Match(',');
         }
@@ -1148,10 +1148,10 @@ Já que este uso de variáveis locais se encaixa tão bem no esquema de parâmet
 
 A idéia geral é saber quantas variáveis locais existem. Então alteramos o valor do ponteiro da pilha para baixo para abrir espaço para elas. Parâmetros formais são endereçados como deslocamentos positivos em relação ao ponteiro de base (BP) da pilha, e as variáveis locais como deslocamentos negativos. Com muito pouco  trabalho, as rotinas que já criamos podem tomar conta da coisa toda.
 
-Vamos começar criando uma nova variável, `base`:
+Vamos começar criando uma nova variável, `BaseParam`:
 
 ~~~c
-int base; /* base para cálculo no deslocamento na pilha */
+int BaseParam; /* base para cálculo no deslocamento na pilha */
 ~~~
 
 Vamos usar esta variável, ao invés de `ParamCount`, para calcular os deslocamentos na pilha. Isto significa alterar a referência a `ParamCount` em `AsmOffsetParam()`:
@@ -1163,29 +1163,29 @@ int AsmOffsetParam(int par)
     int offset;
 
     /* offset = (endereço de retorno + BP) + tamanho do parâmetro * posição relativa */
-    offset = 4 + 2 * (base - par); 
+    offset = 4 + 2 * (BaseParam - par); 
 
     return offset;
 }
 ~~~
 
-A idéia é que o valor de `base` será congelado depois que processarmos os parâmetros formais, e não irá mais aumentar quando as variáveis locais forem inseridas na tabela de símbolos. Isto é tratado no final de `FormalList()`:
+A idéia é que o valor de `BaseParam` será congelado depois que processarmos os parâmetros formais, e não irá mais aumentar quando as variáveis locais forem inseridas na tabela de símbolos. Isto é tratado no final de `FormalList()`:
 
 ~~~c
 /* processa a lista de parâmetros formais de um procedimento */
 void FormalList()
 {
     Match('(');
-    if (look != ')') {
+    if (Look != ')') {
         FormalParam();
-        while (look == ',') {
+        while (Look == ',') {
             Match(',');
             FormalParam();
         }
     }
     Match(')');
     NewLine();
-    base = ParamCount;
+    BaseParam = ParamCount;
     ParamCount += 2;
 }
 ~~~
@@ -1228,7 +1228,7 @@ int LocalDeclarations()
 {
     int count;
 
-    for (count = 0; look == 'v'; count++) {
+    for (count = 0; Look == 'v'; count++) {
         LocalDeclaration();
     }
 

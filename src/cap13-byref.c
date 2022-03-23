@@ -14,7 +14,7 @@ Este código é de livre distribuição e uso.
 #include <string.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define SYMBOLTABLE_SIZE 26
 char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
@@ -118,7 +118,7 @@ void Init()
 /* lê próximo caracter da entrada em lookahead */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -280,21 +280,21 @@ int IsMulOp(char c)
 /* pula caracteres em branco */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
 /* reconhece uma quebra de linha */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 
-/* verifica se look combina com caracter esperado */
+/* verifica se Look combina com caracter esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
     SkipWhite();
@@ -305,9 +305,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
     SkipWhite();
 
@@ -319,9 +319,9 @@ char GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
     SkipWhite();
 
@@ -508,7 +508,7 @@ void AssignOrProc()
 /* analiza e traduz um bloco de comandos */
 void DoBlock()
 {
-    while (look != 'e') {
+    while (Look != 'e') {
         AssignOrProc();
         NewLine();
     }
@@ -537,11 +537,11 @@ int ParamList()
     int count = 0;;
 
     Match('(');
-    if (look != ')') {
+    if (Look != ')') {
         for (;;) {
             Param();
             count++;
-            if (look != ',')
+            if (Look != ',')
                 break;
             Match(',');
         }
@@ -572,9 +572,9 @@ void FormalParam()
 void FormalList()
 {
     Match('(');
-    if (look != ')') {
+    if (Look != ')') {
         FormalParam();
-        while (look == ',') {
+        while (Look == ',') {
             Match(',');
             FormalParam();
         }
@@ -608,8 +608,8 @@ void Declaration()
 /* analiza e traduz as declarações globais */
 void TopDeclarations()
 {
-    while (look != '.') {
-        switch (look) {
+    while (Look != '.') {
+        switch (Look) {
             case 'v':
                 Declaration();
                 break;
@@ -620,7 +620,7 @@ void TopDeclarations()
                 DoMain();
                 break;
             default:
-                Unrecognized(look);
+                Unrecognized(Look);
                 break;
         }
         NewLine();

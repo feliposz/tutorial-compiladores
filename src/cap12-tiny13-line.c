@@ -19,7 +19,7 @@ char *SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
 char SymbolType[SYMBOLTABLE_SIZE]; /* tabela de tipos de símbolos */
 int SymbolCount; /* número de entradas na tabela de símbolos */
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 #define KEYWORDLIST_SIZE 9
@@ -32,13 +32,13 @@ char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE
 char *KeywordCode = "ileweRWve";
 
 #define MAXTOKEN 16
-char value[MAXTOKEN+1]; /* texto do token atual */
-char token; /* código do token atual */
+char TokenText[MAXTOKEN+1]; /* texto do token atual */
+char Token; /* código do token atual */
 
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* pula um campo de comentário de uma só linha*/
@@ -46,15 +46,15 @@ void SkipComment()
 {
     do {
         NextChar();
-    } while (look != '\n');
+    } while (Look != '\n');
     NextChar();
 }
 
 /* pula caracteres em branco */
 void SkipWhite()
 {
-    while (isspace(look) || look == '#') {
-        if (look == '#')
+    while (isspace(Look) || Look == '#') {
+        if (Look == '#')
             SkipComment();
         else
             NextChar();
@@ -119,10 +119,10 @@ void Duplicate(char *name)
     Abort("Error: Duplicated identifier %s\n", name);
 }
 
-/* reporta um erro se token NÃO for um identificador */
+/* reporta um erro se Token NÃO for um identificador */
 void CheckIdent()
 {
-    if (token != 'x')
+    if (Token != 'x')
         Expected("Identifier");
 }
 
@@ -132,14 +132,14 @@ void GetName()
     int i;
 
     SkipWhite();
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Identifier or Keyword");
-    for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    token = 'x';
+    TokenText[i] = '\0';
+    Token = 'x';
 }
 
 /* recebe um número inteiro */
@@ -148,33 +148,33 @@ void GetNum()
     int i;
 
     SkipWhite();
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXTOKEN; i++) {
-        value[i] = look;
+    for (i = 0; isdigit(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = '#';
+    TokenText[i] = '\0';
+    Token = '#';
 }
 
 /* analisa e traduz um operador */
 void GetOp()
 {
     SkipWhite();
-    token = look;
-    value[0] = look;
-    value[1] = '\0';
+    Token = Look;
+    TokenText[0] = Look;
+    TokenText[1] = '\0';
     NextChar();
 }
 
-/* pega o próximo token de entrada */
+/* pega o próximo Token de entrada */
 void NextToken()
 {
     SkipWhite();
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName();
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum();
     else
         GetOp();
@@ -198,17 +198,17 @@ void Scan()
 {
     int kw;
 
-    if (token == 'x') {
-        kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    if (Token == 'x') {
+        kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
         if (kw >= 0)
-            token = KeywordCode[kw];
+            Token = KeywordCode[kw];
     }
 }
 
 /* verifica se a string combina com o esperado */
 void MatchString(char *s)
 {
-    if (strcmp(value, s) != 0)
+    if (strcmp(TokenText, s) != 0)
         Expected(s);
     NextToken();
 }
@@ -502,16 +502,16 @@ void Declaration()
 {
     NextToken();
     CheckIdent();
-    CheckDuplicate(value);
-    AddEntry(value, 'v');
-    AllocVar(value, 0);
+    CheckDuplicate(TokenText);
+    AddEntry(TokenText, 'v');
+    AllocVar(TokenText, 0);
     NextToken();
 }
 
 /* reconhece um ponto-e-vírgula opcional */
 void Semicolon()
 {
-    if (token == ';')
+    if (Token == ';')
         MatchString(";");
 }
 
@@ -519,10 +519,10 @@ void Semicolon()
 void TopDeclarations()
 {
     Scan();
-    while (token == 'v') {
+    while (Token == 'v') {
         do {
             Declaration();
-        } while (token == ',');
+        } while (Token == ',');
         Semicolon();
         Scan();
     }
@@ -533,16 +533,16 @@ void BoolExpression(); /* declaração adianta */
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (token == '(') {
+    if (Token == '(') {
         NextToken();
         BoolExpression();
         MatchString(")");
     } else {
-        if (token == 'x') {
-            CheckTable(value);
-            AsmLoadVar(value);
-        } else if (token == '#')
-            AsmLoadConst(value);
+        if (Token == 'x') {
+            CheckTable(TokenText);
+            AsmLoadVar(TokenText);
+        } else if (Token == '#')
+            AsmLoadConst(TokenText);
         else
             Expected("Math Factor");
         NextToken();
@@ -569,9 +569,9 @@ void Divide()
 void Term()
 {
     Factor();
-    while (IsMulOp(token)) {
+    while (IsMulOp(Token)) {
         AsmPush();
-        switch (token) {
+        switch (Token) {
           case '*':
             Multiply();
             break;
@@ -601,13 +601,13 @@ void Subtract()
 /* analisa e traduz uma expressão matemática */
 void Expression()
 {
-    if (IsAddOp(token))
+    if (IsAddOp(Token))
         AsmClear();
     else
         Term();
-    while (IsAddOp(token)) {
+    while (IsAddOp(Token)) {
         AsmPush();
-        switch (token) {
+        switch (Token) {
             case '+':
                 Add();
                 break;
@@ -624,18 +624,18 @@ void Relation()
     char op;
 
     Expression();
-    if (IsRelOp(token)) {
-        op = token;
+    if (IsRelOp(Token)) {
+        op = Token;
         NextToken(); /* só para remover o operador do caminho */
         if (op == '<') {
-            if (token == '>') { /* trata operador <> */
+            if (Token == '>') { /* trata operador <> */
                 NextToken();
                 op = '#';
-            } else if (token == '=') { /* trata operador <= */
+            } else if (Token == '=') { /* trata operador <= */
                 NextToken();
                 op = 'L';
             }
-        } else if (op == '>' && token == '=') { /* trata operador >= */
+        } else if (op == '>' && Token == '=') { /* trata operador >= */
             NextToken();
             op = 'G';
         }
@@ -649,7 +649,7 @@ void Relation()
 /* analisa e traduz um fator booleano com NOT inicial */
 void NotFactor()
 {
-    if (token == '!') {
+    if (Token == '!') {
         NextToken();
         Relation();
         AsmNot();
@@ -661,7 +661,7 @@ void NotFactor()
 void BoolTerm()
 {
     NotFactor();
-    while (token == '&') {
+    while (Token == '&') {
         NextToken();
         AsmPush();
         NotFactor();
@@ -689,9 +689,9 @@ void BoolXor()
 void BoolExpression()
 {
     BoolTerm();
-    while (IsOrOp(token)) {
+    while (IsOrOp(Token)) {
         AsmPush();
-        switch (token) {
+        switch (Token) {
           case '|':
               BoolOr();
               break;
@@ -707,7 +707,7 @@ void Assignment()
 {
     char name[MAXTOKEN+1];
 
-    strcpy(name, value);
+    strcpy(name, TokenText);
     CheckTable(name);
     NextToken();
     MatchString("=");
@@ -728,7 +728,7 @@ void DoIf()
     l2 = l1;
     AsmBranchFalse(l1);
     Block();
-    if (token == 'l') {
+    if (Token == 'l') {
         NextToken();
         l2 = NewLabel();
         AsmBranch(l2);
@@ -763,11 +763,11 @@ void DoRead()
     MatchString("(");
     for (;;) {
         CheckIdent();
-        CheckTable(value);
+        CheckTable(TokenText);
         AsmRead();
-        AsmStore(value);
+        AsmStore(TokenText);
         NextToken();
-        if (token != ',')
+        if (Token != ',')
             break;
         NextToken();
     }
@@ -782,7 +782,7 @@ void DoWrite()
     for (;;) {
         Expression();
         AsmWrite();
-        if (token != ',')
+        if (Token != ',')
             break;
         NextToken();
     }
@@ -798,7 +798,7 @@ void DoWrite()
 void Statement()
 {
     Scan();
-    switch (token) {
+    switch (Token) {
         case 'i':
             DoIf();
             break;
@@ -821,7 +821,7 @@ void Statement()
 void Block()
 {
     Statement();
-    while (token == ';') {
+    while (Token == ';') {
         NextToken();
         Statement();
     }
@@ -837,7 +837,7 @@ void Block()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'i':
                 DoIf();
                 break;

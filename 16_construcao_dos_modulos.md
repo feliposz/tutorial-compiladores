@@ -77,8 +77,8 @@ Em primeiro lugar, vamos tratar de um problema que já vimos anteriormente: noss
 /* analisa e traduz um fator com um sinal opcional */
 void SignedFactor()
 {
-    char sign = look;
-    if (IsAddOp(look))
+    char sign = Look;
+    if (IsAddOp(Look))
         NextChar();
     Factor();
     if (sign == '-')
@@ -147,8 +147,8 @@ Mas no momento vamos continuar fazendo as coisas uma de cada vez, e considerar e
 void Expression()
 {
     SignedFactor();
-    while (IsAddOp(look)) {
-        switch (look) {
+    while (IsAddOp(Look)) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -238,8 +238,8 @@ Nosso procedimentos `Term()` é virtualmente um clone de `Expression()` e se par
 void Term()
 {
     Factor();
-    while (IsMulOp(look)) {
-        switch (look) {
+    while (IsMulOp(Look)) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -257,8 +257,8 @@ Nosso próximo passo é alterar alguns nomes. `SignedFactor()` agora torna-se `S
 /* analisa e traduz um termo com um sinal opcional */
 void SignedTerm()
 {
-    char sign = look;
-    if (IsAddOp(look))
+    char sign = Look;
+    if (IsAddOp(Look))
         NextChar();
     Term();
     if (sign == '-')
@@ -287,8 +287,8 @@ void Subtract()
 void Expression()
 {
     SignedTerm();
-    while (IsAddOp(look)) {
-        switch (look) {
+    while (IsAddOp(Look)) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -316,18 +316,18 @@ void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if (isdigit(look)) {
+    } else if (isdigit(Look)) {
         GetNum(num);
         AsmLoadConst(num);
-    } else if (isalpha(look)) {
+    } else if (isalpha(Look)) {
         GetName(name);
         AsmLoadVar(name);
     } else
-        Error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", Look);
 }
 ~~~
 
@@ -403,8 +403,8 @@ Em seguida, temos que incluir a análise destas operações em "expression":
 void Expression()
 {
     SignedTerm();
-    while (IsAddOp(look)) {
-        switch (look) {
+    while (IsAddOp(Look)) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -530,8 +530,8 @@ No analisador sintático:
 void Term()
 {
     Factor();
-    while (IsMulOp(look)) {
-        switch (look) {
+    while (IsMulOp(Look)) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -615,7 +615,7 @@ Então, como implementar as regras? Da mesma forma que fizemos com `SignedTerm()
 /* analisa e traduz um fator com NOT opcional */
 void NotFactor()
 {
-    if (look == '!') {
+    if (Look == '!') {
         Match('!');
         Factor();
         AsmNot();

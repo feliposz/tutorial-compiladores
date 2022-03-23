@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 /* protótipos */
@@ -73,7 +73,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -125,7 +125,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
     SkipWhite();
@@ -136,11 +136,11 @@ char GetName()
 {
     char name;
 
-    while (look == '\n')
+    while (Look == '\n')
         NewLine();
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
     SkipWhite();
 
@@ -152,9 +152,9 @@ char GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
     SkipWhite();
 
@@ -178,14 +178,14 @@ void EmitLn(char *fmt, ...)
 /* reconhece uma linha em branco */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 
 /* pula caracteres de espaço */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
@@ -220,7 +220,7 @@ void Ident()
     char name;
 
     name = GetName();
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Match(')');
         EmitLn("CALL %c", name);
@@ -242,11 +242,11 @@ void Assignment()
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if(isalpha(look))
+    } else if(isalpha(Look))
         Ident();
     else
         EmitLn("MOV AX, %c", GetNum());
@@ -255,8 +255,8 @@ void Factor()
 /* analisa e traduz um fator com sinal opcional */
 void SignedFactor()
 {
-    int minusSign = (look == '-');
-    if (IsAddOp(look))
+    int minusSign = (Look == '-');
+    if (IsAddOp(Look))
     {
         NextChar();
         SkipWhite();
@@ -308,9 +308,9 @@ void Divide()
 /* código comum a firstTerm e term */
 void TermCommon()
 {
-    while (IsMulOp(look)) {
+    while (IsMulOp(Look)) {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
           case '*':
               Multiply();
               break;
@@ -339,9 +339,9 @@ void Term()
 void Expression()
 {
     FirstTerm();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;
@@ -368,7 +368,7 @@ void DoIf()
     l2 = l1;
     EmitLn("JZ L%d", l1);
     Block();
-    if (look == 'l') {
+    if (Look == 'l') {
         Match('l');
         l2 = NewLabel();
         EmitLn("JMP L%d", l2);
@@ -387,7 +387,7 @@ void Block()
     follow = 0;
 
     while (!follow) {
-        switch (look) {
+        switch (Look) {
             case 'i':
                 DoIf();
                 break;
@@ -409,7 +409,7 @@ void Block()
 void Program()
 {
     Block();
-    if (look != 'e')
+    if (Look != 'e')
         Expected("End");
     EmitLn("; END");
 }

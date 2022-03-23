@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-int look; /* O caracter lido "antecipadamente" (lookahead) */
+int Look; /* O caracter lido "antecipadamente" (lookahead) */
 char CurrentClass; /* classe atual lida por getClass */
 char CurrentType; /* tipo atual lido por getType */
 char CurrentSigned; /* indica se tipo atual é com ou sem sinal */
@@ -21,7 +21,7 @@ char CurrentSigned; /* indica se tipo atual é com ou sem sinal */
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* inicialização do compilador */
@@ -79,7 +79,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -89,9 +89,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
 
     return name;
@@ -102,9 +102,9 @@ char GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
 
     return num;
@@ -127,8 +127,8 @@ void EmitLn(char *fmt, ...)
 /* recebe uma classe de armazenamento C */
 void GetClass()
 {
-    if (look == 'a' || look == 'x' || look == 's') {
-        CurrentClass = look;
+    if (Look == 'a' || Look == 'x' || Look == 's') {
+        CurrentClass = Look;
         NextChar();
     } else
         CurrentClass = 'a';
@@ -138,15 +138,15 @@ void GetClass()
 void GetType()
 {
     CurrentType = ' ';
-    if (look == 'u') {
+    if (Look == 'u') {
         CurrentSigned = 'u';
         CurrentType = 'i';
         NextChar();
     } else {
         CurrentSigned = 's';
     }
-    if (look == 'i' || look == 'l' || look == 'c') {
-        CurrentType = look;
+    if (Look == 'i' || Look == 'l' || Look == 'c') {
+        CurrentType = Look;
         NextChar();
     }
 }
@@ -172,7 +172,7 @@ void DoData(char name)
     for (;;) {
         printf("Class: %c, Sign: %c, Type: %c, Data: %c\n",
             CurrentClass, CurrentSigned, CurrentType, name);
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
         name = GetName();
@@ -186,7 +186,7 @@ void TopDeclaration()
     char name;
 
     name = GetName();
-    if (look == '(')
+    if (Look == '(')
         FunctionDeclaration(name);
     else
         DoData(name);
@@ -197,7 +197,7 @@ int main()
 {
     Init();
 
-    while (look != EOF && look != '\n') {
+    while (Look != EOF && Look != '\n') {
         GetClass();
         GetType();
         TopDeclaration();

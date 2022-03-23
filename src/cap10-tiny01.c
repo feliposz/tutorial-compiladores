@@ -16,13 +16,13 @@ Este código é de livre distribuição e uso.
 #define VARTABLE_SIZE 26
 char VarTable[VARTABLE_SIZE]; /* tabela de símbolos */
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -74,7 +74,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -84,9 +84,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
 
     return name;
@@ -99,12 +99,12 @@ int GetNum()
 
     num = 0;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
 
-    while (isdigit(look)) {
+    while (isdigit(Look)) {
         num *= 10;
-        num += look - '0';
+        num += Look - '0';
         NextChar();
     }
 
@@ -352,9 +352,9 @@ void AllocVar(char name)
     else
         VarTable[name - 'A'] = 'v';
 
-    if (look == '=') {
+    if (Look == '=') {
         Match('=');
-        if (look == '-') {
+        if (Look == '-') {
             Match('-');
             signal = -1;
         }
@@ -370,7 +370,7 @@ void Declaration()
     Match('v');
     for (;;) {
         AllocVar(GetName());
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
     }
@@ -379,8 +379,8 @@ void Declaration()
 /* analisa e traduz declarações globais */
 void TopDeclarations()
 {
-    while (look != 'b') {
-        switch (look) {
+    while (Look != 'b') {
+        switch (Look) {
             case 'v':
                 Declaration();
                 break;
@@ -397,11 +397,11 @@ void BoolExpression(); /* declaração adianta */
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         BoolExpression();
         Match(')');
-    } else if (isalpha(look))
+    } else if (isalpha(Look))
         AsmLoadVar(GetName());
     else
         AsmLoadConst(GetNum());
@@ -411,7 +411,7 @@ void Factor()
 void NegFactor()
 {
     Match('-');
-    if (isdigit(look))
+    if (isdigit(Look))
         AsmLoadConst(-GetNum());
     else {
         Factor();
@@ -422,7 +422,7 @@ void NegFactor()
 /* analisa e traduz um fator inicial */
 void FirstFactor()
 {
-    switch (look) {
+    switch (Look) {
         case '+':
             Match('+');
             Factor();
@@ -455,9 +455,9 @@ void Divide()
 /* código comum usado por "term" e "firstTerm" */
 void TermCommon()
 {
-    while (IsMulOp(look)) {
+    while (IsMulOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '*':
             Multiply();
             break;
@@ -502,9 +502,9 @@ void Subtract()
 void Expression()
 {
     FirstTerm();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '+':
             Add();
             break;
@@ -521,8 +521,8 @@ void Relation()
     char op;
 
     Expression();
-    if (IsRelOp(look)) {
-        op = look;
+    if (IsRelOp(Look)) {
+        op = Look;
         Match(op); /* só para remover o operador do caminho */
         AsmPush();
         Expression();
@@ -534,7 +534,7 @@ void Relation()
 /* analisa e traduz um fator booleano com NOT inicial */
 void NotFactor()
 {
-    if (look == '!') {
+    if (Look == '!') {
         Match('!');
         Relation();
         AsmNot();
@@ -546,7 +546,7 @@ void NotFactor()
 void BoolTerm()
 {
     NotFactor();
-    while (look == '&') {
+    while (Look == '&') {
         AsmPush();
         Match('&');
         NotFactor();
@@ -574,9 +574,9 @@ void BoolXor()
 void BoolExpression()
 {
     BoolTerm();
-    while (IsOrOp(look)) {
+    while (IsOrOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '|':
               BoolOr();
               break;
@@ -611,7 +611,7 @@ void DoIf()
     l2 = l1;
     AsmBranchFalse(l1);
     Block();
-    if (look == 'l') {
+    if (Look == 'l') {
         Match('l');
         l2 = NewLabel();
         AsmBranch(l2);
@@ -645,7 +645,7 @@ void Block()
     int follow = 0;
 
     while (!follow) {
-        switch (look) {
+        switch (Look) {
             case 'i':
                 DoIf();
                 break;
@@ -700,7 +700,7 @@ int main()
     Init();
     Program();
 
-    if (look != '\n')
+    if (Look != '\n')
         Abort("Unexpected data after \'.\'");
 
     return 0;

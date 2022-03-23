@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include "input.h"
 
-char look; /* caracter "lookahead */
+char Look; /* caracter "lookahead */
 
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* inicializa o módulo de entrada */

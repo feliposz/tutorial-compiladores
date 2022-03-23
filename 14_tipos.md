@@ -198,13 +198,13 @@ void Declaration()
 /* analiza e traduz as declarações globais */
 void TopDeclarations()
 {
-        while (look != '.') {
-                switch (look) {
+        while (Look != '.') {
+                switch (Look) {
                   case 'v':
                         Declaration();
                         break;
                   default:
-                        Unrecognized(look);
+                        Unrecognized(Look);
                         break;
                 }
                 NewLine();
@@ -260,7 +260,7 @@ void AllocVar(char name, char type)
 /* analiza e traduz a declaração de uma variável */
 void Declaration()
 {
-    char type = look;
+    char type = Look;
     NextChar();
     AllocVar(GetName(), type);
 }
@@ -268,15 +268,15 @@ void Declaration()
 /* analiza e traduz as declarações globais */
 void TopDeclarations()
 {
-    while (look != '.') {
-        switch (look) {
+    while (Look != '.') {
+        switch (Look) {
             case 'b':
             case 'w':
             case 'l':
                 Declaration();
                 break;
             default:
-                Unrecognized(look);
+                Unrecognized(Look);
                 break;
         }
         NewLine();
@@ -417,7 +417,7 @@ void Assignment()
 /* analisa traduz um bloco de comandos */
 void Block()
 {
-    while (look != '.') {
+    while (Look != '.') {
         Assignment();
         NewLine();
     }
@@ -681,12 +681,12 @@ long GetNum()
 {
     long num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
     num = 0;
-    while (isdigit(look)) {
+    while (isdigit(Look)) {
         num *= 10;
-        num += look - '0';
+        num += Look - '0';
         NextChar();
     }
     SkipWhite();
@@ -747,7 +747,7 @@ char Expression()
 {
     char type;
 
-    if (isalpha(look))
+    if (isalpha(Look))
         type = LoadVar(GetName());
     else
         type = LoadNum(GetNum());
@@ -775,13 +775,13 @@ char Expression()
 {
     char type;
 
-    if (IsAddOp(look))
+    if (IsAddOp(Look))
         type = UnaryOp();
     else
         type = Term();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         AsmPush(type);
-        switch (look) {
+        switch (Look) {
             case '+':
                 type = Add(type);
                 break;
@@ -1028,11 +1028,11 @@ char Factor()
 {
     char type;
 
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         type = Expression();
         Match(')');
-    } else if (isalpha(look))
+    } else if (isalpha(Look))
         type = LoadVar(GetName());
     else
         type = LoadNum(GetNum());
@@ -1060,9 +1060,9 @@ char Term()
     char type;
 
     type = Factor();
-    while (IsMulOp(look)) {
+    while (IsMulOp(Look)) {
         AsmPush(type);
-        switch (look) {
+        switch (Look) {
             case '*':
                 type = Multiply(type);
                 break;

@@ -8,10 +8,10 @@
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (isdigit(look))
+    if (isdigit(Look))
         AsmLoadConst(GetNum());
-    else if (isalpha(look))
+    else if (isalpha(Look))
         AsmLoadVar(GetName());
     else
-        Error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", Look);
 }

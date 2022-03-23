@@ -63,9 +63,9 @@ int GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
 
     return num - '0';
@@ -106,13 +106,13 @@ int Expression()
 {
     int val;
 
-    if (IsAddOp(look))
+    if (IsAddOp(Look))
         val = 0;
     else
         val = GetNum();
 
-    while (IsAddOp(look)) {
-        switch (look) {
+    while (IsAddOp(Look)) {
+        switch (Look) {
             case '+':
                 Match('+');
                 val += GetNum();
@@ -139,8 +139,8 @@ int Term()
     int val;
 
     val = GetNum();
-    while (IsMulOp(look)) {
-        switch (look) {
+    while (IsMulOp(Look)) {
+        switch (Look) {
             case '*':
                 Match('*');
                 val *= GetNum();
@@ -168,12 +168,12 @@ int GetNum()
 
     i = 0;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
 
-    while (isdigit(look)) {
+    while (isdigit(Look)) {
         i *= 10;
-        i += look - '0';
+        i += Look - '0';
         NextChar();
     }
 
@@ -189,7 +189,7 @@ int Factor()
 {
     int val;
 
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         val = Expression();
         Match(')');
@@ -223,11 +223,11 @@ As razões pelas quais eu trouxe isto à tona são uma lição e um aviso. A li�
 
 O próximo passo é adicionar nomes de variáveis. Agora, porém, temos um pequeno problema. Para o compilador, não tivemos problemas em tratar do nome das variáveis... apenas deixamos o problema dos nomes para o montador e deixamos o resto do programa alocar espaço de armazenamento para elas. Aqui, por outro lado, temos que buscar os valores das variáveis e retorná-los como valores de `Factor()`. Nós temos que criar um mecanismo para armazenar estas variáveis.
 
-Nos primórdios da computação pessoal, vivia o "Tiny BASIC". Ele tinha um grande total de 26 variáveis possíveis: uma para cada letra do alfabeto. Isto encaixa-se bem no nosso conceito de tokens de um só caracter, então vamos usar o mesmo truque. No começo de nosso interpretador, após a declaração de "look", insira as seguintes declarações:
+Nos primórdios da computação pessoal, vivia o "Tiny BASIC". Ele tinha um grande total de 26 variáveis possíveis: uma para cada letra do alfabeto. Isto encaixa-se bem no nosso conceito de tokens de um só caracter, então vamos usar o mesmo truque. No começo de nosso interpretador, após a declaração de `Look`, insira as seguintes declarações:
 
 ~~~c
 #define MAXVAR 26
-int var[MAXVAR];
+int VarTable[MAXVAR];
 ~~~
 
 Também precisamos inicializar a matriz, então adicione isto:
@@ -239,7 +239,7 @@ void InitVar()
     int i;
 
     for (i = 0; i < MAXVAR; i++)
-        var[i] = 0;
+        VarTable[i] = 0;
 }
 ~~~
 
@@ -253,12 +253,12 @@ int Factor()
 {
     int val;
 
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         val = Expression();
         Match(')');
-    } else if (isalpha(look))
-        val = var[GetName() - 'A'];
+    } else if (isalpha(Look))
+        val = VarTable[GetName() - 'A'];
     else
         val = GetNum();
 
@@ -280,7 +280,7 @@ void Assignment()
 
     name = GetName();
     Match('=');
-    var[name - 'A'] = Expression();
+    VarTable[name - 'A'] = Expression();
 }
 ~~~
 
@@ -296,7 +296,7 @@ O que nós precisamos é de um caracter delimitador. Eu voto para o ponto final 
 /* captura um caracter de nova linha */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 ~~~
@@ -311,7 +311,7 @@ int main()
     do {
         Assignment();
         NewLine();
-    } while (look != '.');
+    } while (Look != '.');
 
     return 0;
 }
@@ -334,7 +334,7 @@ void Input()
     name = GetName();
     printf("%c? ", name);
     fgets(buffer, 20, stdin);
-    var[name - 'A'] = atoi(buffer);
+    VarTable[name - 'A'] = atoi(buffer);
 }
 
 /* interpreta um comando de saída */
@@ -344,7 +344,7 @@ void Output()
 
     Match('!');
     name = GetName();
-    printf("%c -> %d\n", name, var[name - 'A']);
+    printf("%c -> %d\n", name, VarTable[name - 'A']);
 }
 ~~~
 
@@ -358,7 +358,7 @@ int main()
 {
     Init();
     do {
-        switch (look) {
+        switch (Look) {
             case '?':
                 Input();
                 break;
@@ -370,7 +370,7 @@ int main()
                 break;
         }
         NewLine();
-    } while (look != '.');
+    } while (Look != '.');
 
     return 0;
 }

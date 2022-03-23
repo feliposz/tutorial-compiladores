@@ -13,22 +13,22 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define MAXTOKEN 16
-char token; /* código do token atual */
-char value[MAXTOKEN+1]; /* texto do token atual */
+char Token; /* código do token atual */
+char TokenText[MAXTOKEN+1]; /* texto do token atual */
 
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* pula caracteres em branco */
 void SkipWhite()
 {
-    while (isspace(look))
+    while (isspace(Look))
         NextChar();
 }
 
@@ -95,7 +95,7 @@ void EmitLn(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -106,14 +106,14 @@ void GetName()
     int i;
 
     SkipWhite();
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Identifier or Keyword");
-    for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    token = 'x';
+    TokenText[i] = '\0';
+    Token = 'x';
 }
 
 /* recebe um número inteiro */
@@ -122,33 +122,33 @@ void GetNum()
     int i;
 
     SkipWhite();
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXTOKEN; i++) {
-        value[i] = look;
+    for (i = 0; isdigit(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = '#';
+    TokenText[i] = '\0';
+    Token = '#';
 }
 
 /* analisa e traduz um operador */
 void GetOp()
 {
     SkipWhite();
-    token = look;
-    value[0] = look;
-    value[1] = '\0';
+    Token = Look;
+    TokenText[0] = Look;
+    TokenText[1] = '\0';
     NextChar();
 }
 
-/* pega o próximo token de entrada */
+/* pega o próximo Token de entrada */
 void NextToken()
 {
     SkipWhite();
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName();
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum();
     else
         GetOp();
@@ -166,6 +166,6 @@ int main()
     Init();
     do {
         NextToken();
-        printf("Token: %c Value: %s\n", token, value);
-    } while (token != '.');
+        printf("Token: %c Value: %s\n", Token, TokenText);
+    } while (Token != '.');
 }

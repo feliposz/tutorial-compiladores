@@ -18,7 +18,7 @@ int IsMulOp(char c)
 /* verifica se caracter combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();        
 }
@@ -28,12 +28,12 @@ void GetName(char *name)
 {
     int i;
     
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look); i++) {
+    for (i = 0; isalnum(Look); i++) {
         if (i >= MAXNAME)
             Error("Identifier too long.");
-        name[i] = toupper(look);
+        name[i] = toupper(Look);
         NextChar();
     }
     name[i] = '\0';
@@ -44,12 +44,12 @@ void GetNum(char *num)
 {
     int i;
     
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look); i++) {
+    for (i = 0; isdigit(Look); i++) {
         if (i >= MAXNUM)
             Error("Integer too large.");
-        num[i] = look;
+        num[i] = Look;
         NextChar();
     }
     num[i] = '\0';

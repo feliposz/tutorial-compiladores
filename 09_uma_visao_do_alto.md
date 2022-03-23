@@ -193,7 +193,7 @@ void Declarations()
 
     do {
         valid = 1;
-        switch (look) {
+        switch (Look) {
             case 'l': Labels(); break;
             case 'c': Constants(); break;
             case 't': Types(); break;
@@ -258,7 +258,7 @@ Note que os comandos podem começar com qualquer identificador exceto END. Entã
 void Statements()
 {
     Match('b');
-    while (look != 'e')
+    while (Look != 'e')
         NextChar();
     Match('e');
 }
@@ -344,14 +344,14 @@ Apesar de estarmos mais interessados em C completo aqui, eu vou mostrar o códig
 /* analisa e traduz um programa Small C */
 void Program()
 {
-    while (look != EOF) {
-        switch (look) {
+    while (Look != EOF) {
+        switch (Look) {
             case '#':
-                preProcessor(); break;
+                PreProcessor(); break;
             case 'i':
-                intDeclaration(); break;
+                IntDeclaration(); break;
             case 'c':
-                charDeclaration(); break;
+                CharDeclaration(); break;
             default:
                 FunctionDeclaration(); break;
         }
@@ -359,7 +359,7 @@ void Program()
 }
 ~~~
 
-Note que eu tive que usar `EOF` par indicar o fim do código. C não tem uma palavra-chave como `end` ou `.` para indicar o fim. REPARE porém que agora `look` deve ser declarada como `int` e não mais como `char`.
+Note que eu tive que usar `EOF` par indicar o fim do código. C não tem uma palavra-chave como `end` ou `.` para indicar o fim. REPARE porém que agora `Look` deve ser declarada como `int` e não mais como `char`.
 
 Com a linguagem C completa, as coisas não são nem um pouco fáceis. O problema começa pois em C, as funções também podem ter tipos. Então quando o compilador vê a palavra chave `int`, ele ainda não sabe se deve esperar uma declaração de dados ou uma definição de função. As coisas ficam mais complicadas pois o próximo token pode não ser um nome... pode ser um "*" ou "(", ou uma combinações dos dois.
 
@@ -390,7 +390,7 @@ int main()
 {
     Init();
 
-    while (look != EOF && look != '\n') {
+    while (Look != EOF && Look != '\n') {
         GetClass();
         GetType();
         TopDeclaration();
@@ -416,8 +416,8 @@ E agora altere `GetClass()`:
 /* recebe uma classe de armazenamento C */
 void GetClass()
 {
-    if (look == 'a' || look == 'x' || look == 's') {
-        CurrentClass = look;
+    if (Look == 'a' || Look == 'x' || Look == 's') {
+        CurrentClass = Look;
         NextChar();
     } else
         CurrentClass = 'a';
@@ -433,15 +433,15 @@ Podemos fazer algo semelhante para tipos. Entre com a seguinte rotina:
 void GetType()
 {
     CurrentType = ' ';
-    if (look == 'u') {
+    if (Look == 'u') {
         CurrentSigned = 'u';
         CurrentType = 'i';
         NextChar();
     } else {
         CurrentSigned = 's';
     }
-    if (look == 'i' || look == 'l' || look == 'c') {
-        CurrentType = look;
+    if (Look == 'i' || Look == 'l' || Look == 'c') {
+        CurrentType = Look;
         NextChar();
     }
 }
@@ -467,7 +467,7 @@ void TopDeclaration()
     char name;
 
     name = GetName();
-    if (look == '(')
+    if (Look == '(')
         FunctionDeclaration(name);
     else
         DoData(name);
@@ -500,7 +500,7 @@ void DoData(char name)
     for (;;) {
         printf("Class: %c, Sign: %c, Type: %c, Data: %c\n",
             CurrentClass, CurrentSigned, CurrentType, name);
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
         name = GetName();

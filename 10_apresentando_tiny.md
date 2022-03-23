@@ -102,7 +102,7 @@ int main()
     Init();
     Program();
 
-    if (look != '\n')
+    if (Look != '\n')
         Abort("Unexpected data after \'.\'");
 
     return 0;
@@ -209,8 +209,8 @@ void Declaration()
 /* analisa e traduz declarações globais */
 void TopDeclarations()
 {
-    while (look != 'b') {
-        switch (look) {
+    while (Look != 'b') {
+        switch (Look) {
             case 'v':
                 Declaration();
                 break;
@@ -278,7 +278,7 @@ void Declaration()
     Match('v');
     for (;;) {
         AllocVar(GetName());
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
     }
@@ -305,7 +305,7 @@ void AllocVar(char name)
 {
     char value = '0';
 
-    if (look == '=') {
+    if (Look == '=') {
         Match('=');
         value = GetNum();
     }
@@ -330,12 +330,12 @@ int GetNum()
 
     num = 0;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
 
-    while (isdigit(look)) {
+    while (isdigit(Look)) {
         num *= 10;
-        num += look - '0';
+        num += Look - '0';
         NextChar();
     }
 
@@ -351,9 +351,9 @@ void AllocVar(char name)
 {
     int value = 0, signal = 1;
 
-    if (look == '=') {
+    if (Look == '=') {
         Match('=');
-        if (look == '-') {
+        if (Look == '-') {
             Match('-');
             signal = -1;
         }
@@ -452,7 +452,7 @@ void Assignment()
 /* analisa e traduz um bloco de comandos */
 void Block()
 {
-    while (look != 'e')
+    while (Look != 'e')
         Assignment();
 }
 ~~~
@@ -588,11 +588,11 @@ De qualquer forma, o código a seguir implementa a BNF:
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Expression();
         Match(')');
-    } else if (isalpha(look))
+    } else if (isalpha(Look))
         AsmLoadVar(GetName());
     else
         AsmLoadConst(GetNum());
@@ -602,7 +602,7 @@ void Factor()
 void NegFactor()
 {
     Match('-');
-    if (isdigit(look))
+    if (isdigit(Look))
         AsmLoadConst(-GetNum());
     else {
         Factor();
@@ -613,7 +613,7 @@ void NegFactor()
 /* analisa e traduz um fator inicial */
 void FirstFactor()
 {
-    switch (look) {
+    switch (Look) {
         case '+':
             Match('+');
             Factor();
@@ -646,9 +646,9 @@ void Divide()
 /* código comum usado por "term" e "firstTerm" */
 void TermCommon()
 {
-    while (IsMulOp(look)) {
+    while (IsMulOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '*':
             Multiply();
             break;
@@ -693,9 +693,9 @@ void Subtract()
 void Expression()
 {
     FirstTerm();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '+':
             Add();
             break;
@@ -836,8 +836,8 @@ void Relation()
     char op;
 
     Expression();
-    if (IsRelOp(look)) {
-        op = look;
+    if (IsRelOp(Look)) {
+        op = Look;
         Match(op); /* só para remover o operador do caminho */
         AsmPush();
         Expression();
@@ -849,7 +849,7 @@ void Relation()
 /* analisa e traduz um fator booleano com NOT inicial */
 void NotFactor()
 {
-    if (look == '!') {
+    if (Look == '!') {
         Match('!');
         Relation();
         AsmNot();
@@ -861,7 +861,7 @@ void NotFactor()
 void BoolTerm()
 {
     NotFactor();
-    while (look == '&') {
+    while (Look == '&') {
         AsmPush();
         Match('&');
         NotFactor();
@@ -889,9 +889,9 @@ void BoolXor()
 void BoolExpression()
 {
     BoolTerm();
-    while (IsOrOp(look)) {
+    while (IsOrOp(Look)) {
         AsmPush();
-        switch (look) {
+        switch (Look) {
           case '|':
               BoolOr();
               break;
@@ -982,7 +982,7 @@ void DoIf()
     l2 = l1;
     AsmBranchFalse(l1);
     Block();
-    if (look == 'l') {
+    if (Look == 'l') {
         Match('l');
         l2 = NewLabel();
         AsmBranch(l2);
@@ -1027,7 +1027,7 @@ void Block()
     int follow = 0;
 
     while (!follow) {
-        switch (look) {
+        switch (Look) {
             case 'i':
                 DoIf();
                 break;
@@ -1075,7 +1075,7 @@ Insira a rotina:
 /* captura caracteres de nova linha */
 void NewLine()
 {
-    while (look == '\n') {
+    while (Look == '\n') {
         NextChar();
         SkipWhite();
     }
@@ -1086,7 +1086,7 @@ Note que já vimos esta rotina antes mas numa forma diferente. Eu agora alterei 
 
 O próximo passo é inserir a chamada a `NewLine()` onde quer que seja permitido uma nova linha. Como eu já disse antes, isto pode ser muito diferente dependendo da linguagem. Em TINY, eu decidi que é possível colocar quebras de linha virtualmente em qualquer lugar. Isto significa que precisamos de chamadas a `NewLine()` no INÍCIO (não no fim, como `SkipWhite()` das rotinas `GetName()`, `GetNum()` e `Match()`.
 
-Para rotinas que possuem laços while, como `TopDeclarations()`, precisamos de uma chamada a `NewLine()` no início da rotina e no fim de cada repetição. Desta forma podemos garantir que `NewLine()` foi chamada no início de cada passagem do laço. Também é necessário adicionar `NewLine()` antes dos testes diretos de `look`, como em `Factor()` e `AllocVar()`.
+Para rotinas que possuem laços while, como `TopDeclarations()`, precisamos de uma chamada a `NewLine()` no início da rotina e no fim de cada repetição. Desta forma podemos garantir que `NewLine()` foi chamada no início de cada passagem do laço. Também é necessário adicionar `NewLine()` antes dos testes diretos de `Look`, como em `Factor()` e `AllocVar()`.
 
 Se você já fez tudo isto, teste o programa e verifique que ele realmente trata de espaços em branco e quebras de linha. Tente todas as possibilidades que vierem à sua mente. Se alguma delas não funcionar é possível que você tenha esquecido de algum `NewLine()`. Basta verificar em que construção ocorrereu o problema e procurar a mesma no código.
 
@@ -1103,8 +1103,8 @@ char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE
 /* a ordem deve obedecer a lista de palavras-chave */
 char *KeywordCode = "ilewevbep";
 
-char token; /* código do token atual */
-char value[MAXTOKEN+1]; /* texto do token atual */
+char Token; /* código do token atual */
+char TokenText[MAXTOKEN+1]; /* texto do token atual */
 ~~~
 
 Em seguida, adicione as três rotinas, também da [parte 7](07_analise_lexica.md):
@@ -1129,17 +1129,17 @@ void Scan()
     int kw;
 
     GetName();
-    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
     if (kw == -1)
-        token = 'x';
+        Token = 'x';
     else
-        token = KeywordCode[kw];
+        Token = KeywordCode[kw];
 }
 
 /* verifica se a string combina com o esperado */
 void MatchString(char *s)
 {
-    if (strcmp(value, s) != 0)
+    if (strcmp(TokenText, s) != 0)
         Expected(s);
 }
 ~~~
@@ -1153,19 +1153,19 @@ void GetName()
     int i;
 
     NewLine();
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXTOKEN; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    token = 'x';
+    TokenText[i] = '\0';
+    Token = 'x';
     SkipWhite();
 }
 ~~~
 
-Repare que esta rotina deixa seu resultado na variável global `value`.
+Repare que esta rotina deixa seu resultado na variável global `TokenText`.
 
 Depois, temos que alterar cada referência a `GetName()` para refletir sua nova forma. Elas ocorrem em `Factor()`, `Assignment()` e `Declaration()`:
 
@@ -1174,13 +1174,13 @@ Depois, temos que alterar cada referência a `GetName()` para refletir sua nova 
 void Factor()
 {
     NewLine();
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         BoolExpression();
         Match(')');
-    } else if (isalpha(look)) {
+    } else if (isalpha(Look)) {
         GetName();
-        AsmLoadVar(value[0]);
+        AsmLoadVar(TokenText[0]);
     } else
         AsmLoadConst(GetNum());
 }
@@ -1190,7 +1190,7 @@ void Assignment()
 {
     char name;
 
-    name = value[0];
+    name = TokenText[0];
     Match('=');
     BoolExpression();
     AsmStore(name);
@@ -1202,9 +1202,9 @@ void Declaration()
     NewLine();
     for (;;) {
         GetName();
-        AllocVar(value[0]);
+        AllocVar(TokenText[0]);
         NewLine();
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
         NewLine();
@@ -1214,7 +1214,7 @@ void Declaration()
 
 (Repare que ainda estamos nos limitando a variáveis com nomes de uma só letra, então vamos usar apenas o primeiro caracter da string como uma saída fácil por enquanto.)
 
-Finalmente, temos que fazer as alterações para usar "token" ao invés de `look` como caracter de teste e chamar `Scan()` nos lugares apropriados. Na maioria, isto envolve remover chamadas a `Match()`, ocasionalmente trocando chamadas de `Match()` por chamadas a `MatchString()`, e trocando chamadas a `NewLine()` por chamadas a `Scan()`. Aqui estão as rotinas afetadas:
+Finalmente, temos que fazer as alterações para usar "token" ao invés de `Look` como caracter de teste e chamar `Scan()` nos lugares apropriados. Na maioria, isto envolve remover chamadas a `Match()`, ocasionalmente trocando chamadas de `Match()` por chamadas a `MatchString()`, e trocando chamadas a `NewLine()` por chamadas a `Scan()`. Aqui estão as rotinas afetadas:
 
 ~~~c
 /* analisa e traduz um comando IF */
@@ -1227,7 +1227,7 @@ void DoIf()
     l2 = l1;
     AsmBranchFalse(l1);
     Block();
-    if (token == 'l') {
+    if (Token == 'l') {
         l2 = NewLabel();
         AsmBranch(l2);
         PostLabel(l1);
@@ -1260,7 +1260,7 @@ void Block()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'i':
                 DoIf();
                 break;
@@ -1283,7 +1283,7 @@ void TopDeclarations()
 {
     Scan();
     while (token != 'b') {
-        switch (token) {
+        switch (Token) {
             case 'v':
                 Declaration();
                 break;
@@ -1401,10 +1401,10 @@ void AllocVar(char *name)
     AddEntry(name);
 
     NewLine();
-    if (look == '=') {
+    if (Look == '=') {
         Match('=');
         NewLine();
-        if (look == '-') {
+        if (Look == '-') {
                 Match('-');
                 signal = -1;
         }
@@ -1415,7 +1415,7 @@ void AllocVar(char *name)
 }
 ~~~
 
-Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caracter único. Elas incluem `AsmLoadVar()`, `AsmStore()`, `Undefined()` (apenas alteramos o tipo de `char` para `char *` e `%c` para `%s` nos `printf`'s), `Factor()`, `Declaration()` (alteramos `value[0]` para `value`). Em `Assignment()` a mudança é um pouco diferente, mas nada complicada:
+Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caracter único. Elas incluem `AsmLoadVar()`, `AsmStore()`, `Undefined()` (apenas alteramos o tipo de `char` para `char *` e `%c` para `%s` nos `printf`'s), `Factor()`, `Declaration()` (alteramos `TokenText[0]` para `TokenText`). Em `Assignment()` a mudança é um pouco diferente, mas nada complicada:
 
 ~~~c
 /* analisa e traduz um comando de atribuição */
@@ -1423,7 +1423,7 @@ void Assignment()
 {
     char name[MAXTOKEN+1];
 
-    strcpy(name, value);
+    strcpy(name, TokenText);
     Match('=');
     BoolExpression();
     AsmStore(name);
@@ -1463,18 +1463,18 @@ void Relation()
     char op;
 
     Expression();
-    if (IsRelOp(look)) {
-        op = look;
+    if (IsRelOp(Look)) {
+        op = Look;
         Match(op); /* só para remover o operador do caminho */
         if (op == '<') {
-            if (look == '>') { /* trata operador <> */
+            if (Look == '>') { /* trata operador <> */
                 Match('>');
                 op = '#';
-            } else if (look == '=') { /* trata operador <= */
+            } else if (Look == '=') { /* trata operador <= */
                 Match('=');
                 op = 'L';
             }
-        } else if (op == '>' && look == '=') { /* trata operador >= */
+        } else if (op == '>' && Look == '=') { /* trata operador >= */
             Match('=');
             op = 'G';
         }
@@ -1575,9 +1575,9 @@ void DoRead()
     for (;;) {
         GetName();
         AsmRead();
-        AsmStore(value);
+        AsmStore(TokenText);
         NewLine();
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
     }
@@ -1592,7 +1592,7 @@ void DoWrite()
         Expression();
         AsmWrite();
         NewLine();
-        if (look != ',')
+        if (Look != ',')
             break;
         Match(',');
     }
@@ -1610,7 +1610,7 @@ void Block()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'i':
                 DoIf();
                 break;

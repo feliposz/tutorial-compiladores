@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 /* protótipos */
@@ -75,7 +75,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -127,7 +127,7 @@ void Expected(char *fmt, ...)
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -137,9 +137,9 @@ char GetName()
 {
     char name;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    name = toupper(look);
+    name = toupper(Look);
     NextChar();
 
     return name;
@@ -150,9 +150,9 @@ char GetNum()
 {
     char num;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    num = look;
+    num = Look;
     NextChar();
 
     return num;
@@ -207,9 +207,9 @@ int GetBoolean()
 {
     int boolean;
 
-    if (!IsBoolean(look))
+    if (!IsBoolean(Look))
         Expected("Boolean Literal");
-    boolean = (look == 'T');
+    boolean = (Look == 'T');
     NextChar();
 
     return boolean;
@@ -230,7 +230,7 @@ void PostLabel(int lbl)
 /* analisa e traduz um fator booleano */
 void BoolFactor()
 {
-    if (IsBoolean(look)) {
+    if (IsBoolean(Look)) {
         if (GetBoolean())
             EmitLn("MOV AX, -1");
         else
@@ -242,7 +242,7 @@ void BoolFactor()
 /* analisa e traduz um fator booleno com NOT opcional */
 void NotFactor()
 {
-    if (look == '!') {
+    if (Look == '!') {
         Match('!');
         BoolFactor();
         EmitLn("NOT AX");
@@ -254,7 +254,7 @@ void NotFactor()
 void BoolTerm()
 {
     NotFactor();
-    while (look == '&') {
+    while (Look == '&') {
         EmitLn("PUSH AX");
         Match('&');
         NotFactor();
@@ -285,9 +285,9 @@ void BoolXor()
 void BoolExpression()
 {
     BoolTerm();
-    while (IsOrOp(look)) {
+    while (IsOrOp(Look)) {
         EmitLn("PUSH AX");
-        switch (look) {
+        switch (Look) {
           case '|':
               BoolOr();
               break;
@@ -378,9 +378,9 @@ void Less()
 void Relation()
 {
     Expression();
-    if (IsRelOp(look)) {
+    if (IsRelOp(Look)) {
         EmitLn("PUSH AX");
-        switch (look) {
+        switch (Look) {
             case '=':
                 Equals();
                 break;
@@ -403,7 +403,7 @@ void Ident()
     char name;
 
     name = GetName();
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         Match(')');
         EmitLn("CALL %c", name);
@@ -414,11 +414,11 @@ void Ident()
 /* analisa e traduz um fator matemático */
 void Factor()
 {
-    if (look == '(') {
+    if (Look == '(') {
         Match('(');
         BoolExpression();
         Match(')');
-    } else if(isalpha(look))
+    } else if(isalpha(Look))
         Ident();
     else
         EmitLn("MOV AX, %c", GetNum());
@@ -427,8 +427,8 @@ void Factor()
 /* analisa e traduz um fator com sinal opcional */
 void SignedFactor()
 {
-    int minusSign = (look == '-');
-    if (IsAddOp(look))
+    int minusSign = (Look == '-');
+    if (IsAddOp(Look))
     {
         NextChar();
     }
@@ -461,9 +461,9 @@ void Divide()
 void Term()
 {
     SignedFactor();
-    while (IsMulOp(look)) {
+    while (IsMulOp(Look)) {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '*':
                 Multiply();
                 break;
@@ -497,9 +497,9 @@ void Subtract()
 void Expression()
 {
     Term();
-    while (IsAddOp(look)) {
+    while (IsAddOp(Look)) {
         EmitLn("PUSH AX");
-        switch(look) {
+        switch (Look) {
             case '+':
                 Add();
                 break;

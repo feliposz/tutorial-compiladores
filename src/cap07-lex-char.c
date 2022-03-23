@@ -30,9 +30,9 @@ char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "END"};
 /* a ordem deve obedecer a lista de palavras-chave */
 const char *KeywordCode = "ilee";
 
-char token;
-char value[MAXTOKEN+1];
-char look; /* O caracter lido "antecipadamente" (lookahead) */
+char Token;
+char TokenText[MAXTOKEN+1];
+char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* protótipos */
 void Init();
@@ -59,7 +59,7 @@ int main()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'x':
                 printf("Ident: ");
                 break;
@@ -75,10 +75,10 @@ int main()
                 printf("Operator: ");
                 break;
         }
-        printf("%s\n", value);
-        if (value[0] == '\n')
+        printf("%s\n", TokenText);
+        if (TokenText[0] == '\n')
             NewLine();
-    } while (strcmp(value, "END") != 0);
+    } while (strcmp(TokenText, "END") != 0);
 
     return 0;
 }
@@ -92,7 +92,7 @@ void Init()
 /* lê próximo caracter da entrada */
 void NextChar()
 {
-    look = getchar();
+    Look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
@@ -144,7 +144,7 @@ void Expected(char *fmt, ...)
 /* pula caracteres de espaço */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
@@ -152,7 +152,7 @@ void SkipWhite()
 void SkipComma()
 {
     SkipWhite();
-    if (look == ',') {
+    if (Look == ',') {
         NextChar();
         SkipWhite();
     }
@@ -161,14 +161,14 @@ void SkipComma()
 /* reconhece uma linha em branco */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 
 /* verifica se entrada combina com o esperado */
 void Match(char c)
 {
-    if (look != c)
+    if (Look != c)
         Expected("'%c'", c);
     NextChar();
 }
@@ -198,18 +198,18 @@ void GetName()
 {
     int i, kw;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look) && i < MAXNAME; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXNAME; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    TokenText[i] = '\0';
+    kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
     if (kw == -1)
-        token = 'x';
+        Token = 'x';
     else
-        token = KeywordCode[kw];
+        Token = KeywordCode[kw];
 }
 
 /* recebe um número inteiro */
@@ -217,14 +217,14 @@ void GetNum()
 {
     int i;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXNUM; i++) {
-        value[i] = look;
+    for (i = 0; isdigit(Look) && i < MAXNUM; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = '#';
+    TokenText[i] = '\0';
+    Token = '#';
 }
 
 /* recebe um operador */
@@ -232,34 +232,34 @@ void GetOp()
 {
     int i;
 
-    if (!IsOp(look))
+    if (!IsOp(Look))
         Expected("Operator");
-    for (i = 0; IsOp(look) && i < MAXOP; i++) {
-        value[i] = look;
+    for (i = 0; IsOp(Look) && i < MAXOP; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    if (strlen(value) == 1)
-        token = value[0];
+    TokenText[i] = '\0';
+    if (strlen(TokenText) == 1)
+        Token = TokenText[0];
     else
-        token = '?';
+        Token = '?';
 }
 
 /* analisador léxico */
 void Scan()
 {
-    while (look == '\n')
+    while (Look == '\n')
         NewLine();
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName();
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum();
-    else if (IsOp(look))
+    else if (IsOp(Look))
         GetOp();
     else {
-        value[0] = look;
-        value[1] = '\0';
-        token = '?';
+        TokenText[0] = Look;
+        TokenText[1] = '\0';
+        Token = '?';
         NextChar();
     }
     SkipWhite();

@@ -86,10 +86,10 @@ void GetName(char *name)
 {
     int i;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look) && i < MAXNAME; i++) {
-        name[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXNAME; i++) {
+        name[i] = toupper(Look);
         NextChar();
     }
     name[i] = '\0';
@@ -100,10 +100,10 @@ void GetNum(char *num)
 {
     int i;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXNUM; i++) {
-        num[i] = look;
+    for (i = 0; isdigit(Look) && i < MAXNUM; i++) {
+        num[i] = Look;
         NextChar();
     }
     num[i] = '\0';
@@ -148,7 +148,7 @@ Já tratamos também de espaços em branco antes, usando a rotina `SkipWhite()`:
 /* pula caracteres de espaço */
 void SkipWhite()
 {
-    while (look == ' ' || look == '\t')
+    while (Look == ' ' || Look == '\t')
         NextChar();
 }
 ~~~
@@ -159,12 +159,12 @@ Adicione `SkipWhite()` no final de `GetName()` e `GetNum()` e esta nova rotina:
 /* analisador léxico */
 void Scan(char *token)
 {
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName(token);
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum(token);
     else {
-        token[0] = look;
+        token[0] = Look;
         token[1] = '\0';
         NextChar();
     }
@@ -181,19 +181,19 @@ int main()
     Init();
 
     do {
-        Scan(token);
-        printf("%s\n", token);
-    } while (token[0] != '\n');
+        Scan(Token);
+        printf("%s\n", Token);
+    } while (Token[0] != '\n');
 
     return 0;
 }
 ~~~
 
-Você terá que declarar a variável `token` no começo do programa como uma variável global. Coloque em MAXTOKEN um tamanho conveniente.
+Você terá que declarar a variável `Token` no começo do programa como uma variável global. Coloque em MAXTOKEN um tamanho conveniente.
 
 ```c
 #define MAXTOKEN 30
-char token[MAXTOKEN+1];
+char Token[MAXTOKEN+1];
 ```
 
 Agora, execute o programa. Note como a sequência de entrada é, de fato, separada em tokens.
@@ -233,7 +233,7 @@ Altere a rotina `SkipWhite()` para:
 ~~~c
 void SkipWhite()
 {
-    while (isspace(look))
+    while (isspace(Look))
         NextChar();
 }
 ~~~
@@ -243,9 +243,9 @@ Precisamos dar ao programa principal uma nova condição de parada, pois ele nun
 
 ~~~c
     do {
-        Scan(token);
-        printf("%s\n", token);
-    } while (token[0] != '.');
+        Scan(Token);
+        printf("%s\n", Token);
+    } while (Token[0] != '.');
 ~~~
 
 
@@ -270,7 +270,7 @@ Certo, vamos arrumar o problema. Para fazer isto, volte para a versão anterior 
 /* reconhece uma linha em branco */
 void NewLine()
 {
-    if (look == '\n')
+    if (Look == '\n')
         NextChar();
 }
 ~~~
@@ -286,11 +286,11 @@ int main()
     Init();
 
     do {
-        Scan(token);
-        printf("%s\n", token);
-        if (token[0] == '\n')
+        Scan(Token);
+        printf("%s\n", Token);
+        if (Token[0] == '\n')
             NewLine();
-    } while (token[0] != '.');
+    } while (Token[0] != '.');
 
     return 0;
 }
@@ -305,7 +305,7 @@ Se você conferir ao código que nós fizemos no [último capítulo](src/cap06-b
 Se, por outro lado, você quer uma linguagem orientada a linha como assembly, BASIC ou FORTRAN (ou mesmo Ada... note que ela tem comentários terminados por quebra de linha), então você precisa que `Scan()` retorne as quebras de linha como tokens. E também precisa que as quebras de linha finais sejam removidas. A melhor forma de fazer isto é assim, novamente no início de `Scan()`:
 
 ~~~c
-    if (look == '\n')
+    if (Look == '\n')
         NewLine();
 ~~~
 
@@ -332,10 +332,10 @@ void GetOp(char *op)
 {
     int i;
 
-    if (!IsOp(look))
+    if (!IsOp(Look))
         Expected("Operator");
-    for (i = 0; IsOp(look) && i < MAXOP; i++) {
-        op[i] = look;
+    for (i = 0; IsOp(Look) && i < MAXOP; i++) {
+        op[i] = Look;
         NextChar();
     }
     op[i] = '\0';
@@ -350,16 +350,16 @@ Agora vamos alterar `Scan()`:
 ~~~c
 void Scan(char *token)
 {
-    while (look == '\n')
+    while (Look == '\n')
         NewLine();
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName(token);
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum(token);
-    else if (IsOp(look))
+    else if (IsOp(Look))
         GetOp(token);
     else {
-        token[0] = look;
+        token[0] = Look;
         token[1] = '\0';
         NextChar();
     }
@@ -383,7 +383,7 @@ Eu acho que isto é indesculpável. É muito fácil escrever um analisador que �
 void SkipComma()
 {
     SkipWhite();
-    if (look == ',') {
+    if (Look == ',') {
         NextChar();
         SkipWhite();
     }
@@ -405,7 +405,7 @@ Começando a Fantasiar
 
 Certo, neste ponto temos um excelente analisador léxico que vai separar a entrada em tokens. Podemos usá-lo como ele está e ter um compilador usável. Mas há outros aspectos de análise léxica que precisamos cobrir.
 
-A principal consideração é eficiência. Lembre-se que quando estávamos tratando de um único caracter como token, todo teste era uma comparação de um único caracter, `look`, com uma constante de caracter. Também usamos bastante o comando "switch".
+A principal consideração é eficiência. Lembre-se que quando estávamos tratando de um único caracter como token, todo teste era uma comparação de um único caracter, `Look`, com uma constante de caracter. Também usamos bastante o comando "switch".
 
 Com os tokens multi-caracter sendo retornados por `Scan()`, todos aqueles testes vão requerer comparações de strings. Muito mais lento. E não só lento, mas também esquisito, pois não há equivalente do comando "switch" para strings em C. Parece especialmente dispendioso testar o que antes eram meros caracteres... o "=", "+", e outros operadores... usando comparação de strings.
 
@@ -457,14 +457,14 @@ int main()
 {
     Init();
 
-    GetName(token);
+    GetName(Token);
     printf("%d\n", Lookup(token, KeywordList, KEYWORDLIST_SIZE));
 
     return 0;
 }
 ~~~
 
-Repare como `Lookup()` é chamada: é passado o ponteiro para `token`, `KeywordList` e o tamanho da lista de palavras-chave.
+Repare como `Lookup()` é chamada: é passado o ponteiro para `Token`, `KeywordList` e o tamanho da lista de palavras-chave.
 
 Agora que podemos reconhecer palavras-chave, a próxima coisa a fazer é retornar códigos para elas.
 
@@ -480,11 +480,11 @@ enum {
 
 e fazer retornar uma destas constantes. Vamos tentar. Insira a linha acima nas suas declarações.
 
-Altere a declaração de `token` anterior para "value" e adicione uma nova:
+Altere a declaração de `Token` anterior para `TokenText` e adicione uma nova:
 
 ~~~c
-int token;
-char value[MAXTOKEN+1];
+int Token;
+char TokenText[MAXTOKEN+1];
 ~~~
 
 Modifique o analisador desta forma:
@@ -494,25 +494,25 @@ void Scan()
 {
     int kw;
 
-    while (look == '\n')
+    while (Look == '\n')
         NewLine();
-    if (isalpha(look)) {
-        GetName(value);
-        kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    if (isalpha(Look)) {
+        GetName(TokenText);
+        kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
         if (kw == -1)
-            token = TK_IDENT;
+            Token = TK_IDENT;
         else
-            token = kw;
-    } else if (isdigit(look)) {
-        GetNum(value);
-        token = TK_NUMBER;
-    } else if (IsOp(look)) {
-        GetOp(value);
-        token = TK_OPERATOR;
+            Token = kw;
+    } else if (isdigit(Look)) {
+        GetNum(TokenText);
+        Token = TK_NUMBER;
+    } else if (IsOp(Look)) {
+        GetOp(TokenText);
+        Token = TK_OPERATOR;
     } else {
-        value[0] = look;
-        value[1] = '\0';
-        token = TK_OPERATOR;
+        TokenText[0] = Look;
+        TokenText[1] = '\0';
+        Token = TK_OPERATOR;
         NextChar();
     }
     SkipWhite();
@@ -531,7 +531,7 @@ int main()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case TK_IDENT:
                 printf("Ident: ");
                 break;
@@ -548,8 +548,8 @@ int main()
                 printf("Keyword: ");
                 break;
         }
-        printf("%s\n", value);
-        if (value[0] == '\n')
+        printf("%s\n", TokenText);
+        if (TokenText[0] == '\n')
             NewLine();
     } while (token != KW_END);
 
@@ -557,11 +557,11 @@ int main()
 }
 ~~~
 
-O que fizemos foi substituir a string `token` usada anteriormente com um variável inteira com valores enumerados. `Scan()` retorna o tipo na variável `token`, e retorna a string em si na nova variável `value`.
+O que fizemos foi substituir a string `Token` usada anteriormente com um variável inteira com valores enumerados. `Scan()` retorna o tipo na variável `Token`, e retorna a string em si na nova variável `TokenText`.
 
 Certo, compile e entre com algumas seqüências. Se tudo der certo, você vai perceber que agora estamos reconhecendo palavras-chave.
 
-O que temos agora, está funcionando perfeitamente, e foi fácil de gerar a partir do que tinhamos anteriormente. De qualquer forma, ainda está um pouco esquisito pra mim. Podemos simplificar as coisas um pouco permitindo que `GetName()`, `GetNum()`, `GetOp()` e `Scan()` trabalharem com as variáveis globais `token` e "value", eliminando portando as cópias locais. E parece também mais "limpo" mover o teste em `Lookup()` dentro de `GetName()`. A nova forma para as rotinas é:
+O que temos agora, está funcionando perfeitamente, e foi fácil de gerar a partir do que tinhamos anteriormente. De qualquer forma, ainda está um pouco esquisito pra mim. Podemos simplificar as coisas um pouco permitindo que `GetName()`, `GetNum()`, `GetOp()` e `Scan()` trabalharem com as variáveis globais `Token` e `TokenText`, eliminando portando as cópias locais. E parece também mais "limpo" mover o teste em `Lookup()` dentro de `GetName()`. A nova forma para as rotinas é:
 
 ~~~c
 /* recebe o nome de um identificador */
@@ -569,18 +569,18 @@ void GetName()
 {
     int i, kw;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look) && i < MAXNAME; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXNAME; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    TokenText[i] = '\0';
+    kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
     if (kw == -1)
-        token = TK_IDENT;
+        Token = TK_IDENT;
     else
-        token = kw;
+        Token = kw;
 }
 
 /* recebe um número inteiro */
@@ -588,14 +588,14 @@ void GetNum()
 {
     int i;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXNUM; i++) {
-        value[i] = look;
+    for (i = 0; isdigit(Look) && i < MAXNUM; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = TK_NUMBER;
+    TokenText[i] = '\0';
+    Token = TK_NUMBER;
 }
 
 /* recebe um operador */
@@ -603,14 +603,14 @@ void GetOp()
 {
     int i;
 
-    if (!IsOp(look))
+    if (!IsOp(Look))
         Expected("Operator");
-    for (i = 0; IsOp(look) && i < MAXOP; i++) {
-        value[i] = look;
+    for (i = 0; IsOp(Look) && i < MAXOP; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = TK_OPERATOR;
+    TokenText[i] = '\0';
+    Token = TK_OPERATOR;
 }
 
 /* analisador léxico */
@@ -618,18 +618,18 @@ void Scan()
 {
     int kw;
 
-    while (look == '\n')
+    while (Look == '\n')
         NewLine();
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName();
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum();
-    else if (IsOp(look))
+    else if (IsOp(Look))
         GetOp();
     else {
-        value[0] = look;
-        value[1] = '\0';
-        token = TK_OPERATOR;
+        TokenText[0] = Look;
+        TokenText[1] = '\0';
+        Token = TK_OPERATOR;
         NextChar();
     }
     SkipWhite();
@@ -651,7 +651,7 @@ Além disso, já temos experiência com a idéia de codificar palavras-chave com
 
 Alguns de vocês podem ter o sentimento que essa idéia de retornar caracteres como código é muito "mickey mouse". Eu devo admitir que é um pouco esquisito para operadores multi-caracter como "<=". Se preferir ficar com as constantes enumeradas, tudo bem. Para o resto do pessoal, eu gostaria de mostrar como alterar o que já fizemos acima para suportar esta abordagem.
 
-Primeiro, você pode apagar a declaração das constantes agora... não vamos precisar delas. E pode também alterar o tipo de `token` para caracter.
+Primeiro, você pode apagar a declaração das constantes agora... não vamos precisar delas. E pode também alterar o tipo de `Token` para caracter.
 
 No lugar das constantes enumeradas, adicione a seguinte constante string:
 
@@ -668,18 +668,18 @@ void GetName()
 {
     int i, kw;
 
-    if (!isalpha(look))
+    if (!isalpha(Look))
         Expected("Name");
-    for (i = 0; isalnum(look) && i < MAXNAME; i++) {
-        value[i] = toupper(look);
+    for (i = 0; isalnum(Look) && i < MAXNAME; i++) {
+        TokenText[i] = toupper(Look);
         NextChar();
     }
-    value[i] = '\0';
-    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
+    TokenText[i] = '\0';
+    kw = Lookup(TokenText, KeywordList, KEYWORDLIST_SIZE);
     if (kw == -1)
-        token = 'x';
+        Token = 'x';
     else
-        token = KeywordCode[kw];
+        Token = KeywordCode[kw];
 }
 
 /* recebe um número inteiro */
@@ -687,14 +687,14 @@ void GetNum()
 {
     int i;
 
-    if (!isdigit(look))
+    if (!isdigit(Look))
         Expected("Integer");
-    for (i = 0; isdigit(look) && i < MAXNUM; i++) {
-        value[i] = look;
+    for (i = 0; isdigit(Look) && i < MAXNUM; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    token = '#';
+    TokenText[i] = '\0';
+    Token = '#';
 }
 
 /* recebe um operador */
@@ -702,34 +702,34 @@ void GetOp()
 {
     int i;
 
-    if (!IsOp(look))
+    if (!IsOp(Look))
         Expected("Operator");
-    for (i = 0; IsOp(look) && i < MAXOP; i++) {
-        value[i] = look;
+    for (i = 0; IsOp(Look) && i < MAXOP; i++) {
+        TokenText[i] = Look;
         NextChar();
     }
-    value[i] = '\0';
-    if (strlen(value) == 1)
-        token = value[0];
+    TokenText[i] = '\0';
+    if (strlen(TokenText) == 1)
+        Token = TokenText[0];
     else
-        token = '?';
+        Token = '?';
 }
 
 /* analisador léxico */
 void Scan()
 {
-    while (look == '\n')
+    while (Look == '\n')
             NewLine();
-    if (isalpha(look))
+    if (isalpha(Look))
         GetName();
-    else if (isdigit(look))
+    else if (isdigit(Look))
         GetNum();
-    else if (IsOp(look))
+    else if (IsOp(Look))
         GetOp();
     else {
-        value[0] = look;
-        value[1] = '\0';
-        token = '?';
+        TokenText[0] = Look;
+        TokenText[1] = '\0';
+        Token = '?';
         NextChar();
     }
     SkipWhite();
@@ -746,7 +746,7 @@ int main()
 
     do {
         Scan();
-        switch (token) {
+        switch (Token) {
             case 'x':
                 printf("Ident: ");
                 break;
@@ -762,10 +762,10 @@ int main()
                 printf("Operator: ");
                 break;
         }
-        printf("%s\n", value);
-        if (value[0] == '\n')
+        printf("%s\n", TokenText);
+        if (TokenText[0] == '\n')
             NewLine();
-    } while (strcmp(value, "END") != 0);
+    } while (strcmp(TokenText, "END") != 0);
 
     return 0;
 }
@@ -825,7 +825,7 @@ Na versão multi-caracter, a regra é similar: o caracter lookahead corrente dev
 
 A versão multi-caracter é mostrada abaixo. Para chegar nela, tive que fazer as seguintes alterações:
 
-- Adicionar as variáveis `token` e `value`, e as definições usadas por `Lookup()`.
+- Adicionar as variáveis `Token` e `TokenText`, e as definições usadas por `Lookup()`.
 - Adicionar as definições de `KeywordList` e `KeywordCode`.
 - Adicionar `Lookup()`.
 - Trocar `GetName()` e `GetNum()` por suas versões multi-caracter. (Repare que a chamada a `Lookup()` foi retirada de `GetName()`, para que ela não seja executada em chamadas dentro de `Expression()`.)
