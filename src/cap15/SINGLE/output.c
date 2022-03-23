@@ -2,7 +2,7 @@
 #include <stdarg.h>
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
     

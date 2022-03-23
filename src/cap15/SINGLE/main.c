@@ -4,8 +4,8 @@
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    initInput();
-    factor();
+    InitInput();
+    Factor();
 
     return 0;
 }

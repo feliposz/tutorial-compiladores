@@ -125,7 +125,7 @@ Os primeiros compiladores foram projetados para tratar de programas grandes... e
 
 O objetivo declarado por Brinch Hansen era de que o compilador deveria ser capaz de compilar a si mesmo. Novamente, por causa da memória limitada, isto o levou a fazer um projeto de múltiplas passagens. Ele precisava do mínimo possível de código do compilador residente em memória, para que as tabelas necessárias e outras estruturas coubessem na memória.
 
-Eu não havia comentado sobre isto antes, pois não havia necessidade... nós só lemos e escrevemos os dados diretamente, de qualquer forma. Mas apenas para constar, meus planos sempre foram que, em um compilador de produção, o código fonte e objeto devem coexistir da memória RAM com o compilador. É por isso que eu cuidadosamente mantive `nextChar()` e outras rotinas como rotinas separadas, apesar de seu tamanho reduzido. Vai ser fácil alterá-las para ler e gravar na memória.
+Eu não havia comentado sobre isto antes, pois não havia necessidade... nós só lemos e escrevemos os dados diretamente, de qualquer forma. Mas apenas para constar, meus planos sempre foram que, em um compilador de produção, o código fonte e objeto devem coexistir da memória RAM com o compilador. É por isso que eu cuidadosamente mantive `NextChar()` e outras rotinas como rotinas separadas, apesar de seu tamanho reduzido. Vai ser fácil alterá-las para ler e gravar na memória.
 
 Ênfase na eficiência
 --------------------

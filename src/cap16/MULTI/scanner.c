@@ -4,53 +4,53 @@
 #include "scanner.h"
 
 /* reconhece um operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-' || c == '|' || c == '~');
 }
 
 /* reconhece um operador multiplicativo */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/' || c == '&');
 }
 
 /* verifica se caracter combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();        
+        Expected("'%c'", c);
+    NextChar();        
 }
 
 /* retorna um identificador */
-void getName(char *name)
+void GetName(char *name)
 {
     int i;
     
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     for (i = 0; isalnum(look); i++) {
         if (i >= MAXNAME)
-            error("Identifier too long.");
+            Error("Identifier too long.");
         name[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     name[i] = '\0';
 }
 
 /* retorna um número */
-void getNum(char *num)
+void GetNum(char *num)
 {
     int i;
     
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look); i++) {
         if (i >= MAXNUM)
-            error("Integer too large.");
+            Error("Integer too large.");
         num[i] = look;
-        nextChar();
+        NextChar();
     }
     num[i] = '\0';
 }

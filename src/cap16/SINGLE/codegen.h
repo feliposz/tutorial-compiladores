@@ -1,18 +1,18 @@
 #ifndef _CODEGEN_H
 #define _CODEGEN_H
 
-void asmLoadConstant(char c);
-void asmLoadVariable(char c);
-void asmStoreVariable(char c);
-void asmNegate();
-void asmPush();
-void asmPopAdd();
-void asmPopSub();
-void asmPopMul();
-void asmPopDiv();
-void asmPopOr();
-void asmPopXor();
-void asmPopAnd();
-void asmNot();
+void AsmLoadConst(char c);
+void AsmLoadVar(char c);
+void AsmStoreVar(char c);
+void AsmNegate();
+void AsmPush();
+void AsmPopAdd();
+void AsmPopSub();
+void AsmPopMul();
+void AsmPopDiv();
+void AsmPopOr();
+void AsmPopXor();
+void AsmPopAnd();
+void AsmNot();
 
 #endif

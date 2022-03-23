@@ -23,7 +23,7 @@ Ao menos por enquanto, eu decidi continuar com o estilo clássico, embora possam
 
 Desta vez vou fazer uso extensivo de compilação separada em módulos. No passado, procuramos manter o tamanho e a complexidade do código baixos. Muito trabalho foi feito na forma de experiências diretas no computador, observando apenas um aspecto da tecnologia de compiladores de cada vez. Fizemos isto para evitar ter que carregar programas grandes para discutir apenas conceitos simples. No processo, nós reinventamos a roda e reprogramamos as mesmas funções mais vezes do que eu gostaria de contar. Compilando os módulos separadamente teríamos a funcionalidade e simplicidade que desejamos ao mesmo tempo: você escreve código reutilizável, e faz uso dele numa única linha. Seu programa de testes continua pequeno, mas ele pode fazer coisas mais poderosas.
 
-Agora porém, cada módulo separado que precisa de uma inicialização terá sua própria versão de `init()`. As diversas rotinas que possuíamos antes no "berço" serão agora distribuídas em diversos módulos.
+Agora porém, cada módulo separado que precisa de uma inicialização terá sua própria versão de `Init()`. As diversas rotinas que possuíamos antes no "berço" serão agora distribuídas em diversos módulos.
 
 A interface dos módulos em C é feita via pré-processador e comandos para incluir os arquivos de cabeçalho que contém as declarações dos protótipos e estruturas necessárias. O processo para compilar e juntar os módulos é muito dependente do ambiente de desenvolvimento que está sendo usado, portanto não vou tratar das questões específicas de cada compilador aqui. Se você estiver usando um compilador GCC ou equivalente, é possível fazer o seguinte.
 
@@ -63,7 +63,7 @@ Crie o arquivo [input.c](src/cap15/SINGLE/input.c):
 {% include_relative src/cap15/SINGLE/input.c %}
 ~~~
 
-Como você pode ver, não há nada muito profundo nem complicado neste módulo, já que ele possui apenas dois simples procedimentos. A única coisa a ser feita antes de usarmos este módulo é chamar o procedimento `initInput()`.
+Como você pode ver, não há nada muito profundo nem complicado neste módulo, já que ele possui apenas dois simples procedimentos. A única coisa a ser feita antes de usarmos este módulo é chamar o procedimento `InitInput()`.
 
 Crie esta unidade no seu ambiente de desenvolvimento. Para testar o software, precisamos do programa principal, é claro. Eu usei o seguinte programa, que em breve vai evoluir para o programa principal do nosso compilador.
 
@@ -76,7 +76,7 @@ Crie o arquivo `main.c`:
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    initInput();
+    InitInput();
     printf("%c\n", look);
 
     return 0;
@@ -94,7 +94,7 @@ Futuramente poderíamos prover uma IDE completa para o compilador KISS. Por enqu
 O Módulo de Saída
 -----------------
 
-É claro, que todo programa decente deve ter saída, e o nosso não é exceção. Nossa rotinas de saída consistem na função `emit()`. O código para o módulo de saída correspondente é:
+É claro, que todo programa decente deve ter saída, e o nosso não é exceção. Nossa rotinas de saída consistem na função `EmitLn()`. O código para o módulo de saída correspondente é:
 
 Crie o arquivo [output.h](src/cap15/SINGLE/output.h):
 
@@ -120,9 +120,9 @@ Teste a nova unidade com o seguinte programa (altere o arquivo `main.c`):
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    initInput();
+    InitInput();
     printf("%c\n", look);
-    emit("Hello, World!");
+    EmitLn("Hello, World!");
 
     return 0;
 }
@@ -163,7 +163,7 @@ Como de costume, aí vai um programa de teste (altere o arquivo `main.c`):
 int main()
 {
     char name = 'A';
-    error("'%c' is not a variable", name);
+    Error("'%c' is not a variable", name);
 
     return 0;
 }
@@ -176,7 +176,7 @@ Análise Léxica e Sintática
 
 A arquitetura clássica dos compiladores consiste em módulos separados para o analisador léxico, que provê os tokens na linguagem, e o analisador sintático, que tenta fazer dos tokens elementos da sintaxe. Se você ainda se lembrar do que fizemos em capítulos anteriores, você vai perceber que não fizemos nada desta forma. Por estarmos usando um analisador preditivo, podemos quase sempre dizer qual elemento da linguagem vem em seguida, simplesmente analisado o caracter "lookahead". Portanto, não encontramos nenhuma necessidade de pré-carregar tokens, como faria um *scanner* (ou *lexer*, ambos termo em inglês para "analisador léxico").
 
-Porém, mesmo não havendo um procedimento chamado `scanner()`, faz sentido separar as funções do analisador léxico das funções do analisador sintático. Portanto eu criei mais duas unidades chamadas, sem nenhuma novidade, "scanner" e "parser". A unidade "scanner" contém todas as rotinas conhecidas como reconhecedores. Algumas delas como `isAddOp()` são simples rotinas booleanas que operam no caracter "lookahead". As outras rotinas são aquelas que coletam tokens, como identificadores e constantes numéricas. A unidade "parser" deve conter todas as rotinas que fazem parte do analisador descendente-recursivo. A regra geral deveria ser que a unidade "parser" contenha toda a informação que é específica para a linguagem; em outras palavras, toda a sintaxe da linguagem deve estar contida em "parser". Em um mundo ideal, esta regra deveria ser verdadeira a ponto de podermos alterar o compilador para compilar uma linguagem diferente, simplesmente trocando o módulo de análise sintática.
+Porém, mesmo não havendo um procedimento chamado "scanner", faz sentido separar as funções do analisador léxico das funções do analisador sintático. Portanto eu criei mais duas unidades chamadas, sem nenhuma novidade, "scanner" e "parser". A unidade "scanner" contém todas as rotinas conhecidas como reconhecedores. Algumas delas como `IsAddOp()` são simples rotinas booleanas que operam no caracter "lookahead". As outras rotinas são aquelas que coletam tokens, como identificadores e constantes numéricas. A unidade "parser" deve conter todas as rotinas que fazem parte do analisador descendente-recursivo. A regra geral deveria ser que a unidade "parser" contenha toda a informação que é específica para a linguagem; em outras palavras, toda a sintaxe da linguagem deve estar contida em "parser". Em um mundo ideal, esta regra deveria ser verdadeira a ponto de podermos alterar o compilador para compilar uma linguagem diferente, simplesmente trocando o módulo de análise sintática.
 
 Na prática, as coisas quase nunca são tão puras assim. Sempre há uma pequena parcela de regras sintáticas no analisador léxico também. Por exemplo, as regras que definem um identificador ou uma constante válida podem mudar de linguagem para linguagem. Em algumas linguagens, as regras a respeito de comentários permitem que eles sejam filtrados pelo analisador léxico, enquanto em outras não. Portanto, na prática, ambas unidades acabam tento componentes específicos da linguagem, mas as alterações necessárias ao analisador léxico devem ser relativamente triviais.
 
@@ -204,12 +204,12 @@ O seguinte fragmento de código provê um bom teste para o analisador léxico (a
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    initInput();
-    printf("Name: %c\n", getName());
-    match('=');
-    printf("Num: %c\n", getNum());
-    match('+');
-    printf("Name: %c\n", getName());
+    InitInput();
+    printf("Name: %c\n", GetName());
+    Match('=');
+    printf("Num: %c\n", GetNum());
+    Match('+');
+    printf("Name: %c\n", GetName());
 
     return 0;
 }
@@ -226,7 +226,7 @@ onde x e y podem ser quaisquer nomes de variáveis, e 0 qualquer dígito. O cód
 O Módulo de Análise Léxica
 --------------------------
 
-A próxima, é de longe, a mais importante versão do nosso analisador léxico: é a que trata dos tokens multi-caracter, os quais toda linguagem real deve ter. Apenas duas funções, `getName()` e `getNum()`, foram alteradas entre as duas unidades.
+A próxima, é de longe, a mais importante versão do nosso analisador léxico: é a que trata dos tokens multi-caracter, os quais toda linguagem real deve ter. Apenas duas funções, `GetName()` e `GetNum()`, foram alteradas entre as duas unidades.
 
 Já que esta já faz parte da nossa versão multi-caracter, convém copiar todos os arquivos para um diretório diferente (eu escolhi os nomes [SINGLE](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/SINGLE) e [MULTI](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/MULTI).
 
@@ -234,33 +234,33 @@ Copie o código da unidade anterior OBSERVANDO a mudança dos nomes das unidade 
 
 ~~~c
 /* retorna um identificador */
-void getName(char *name)
+void GetName(char *name)
 {
     int i;
     
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     for (i = 0; isalnum(look); i++) {
         if (i >= MAXNAME)
-            error("Identifier too long.");
+            Error("Identifier too long.");
         name[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     name[i] = '\0';
 }
 
 /* retorna um número */
-void getNum(char *num)
+void GetNum(char *num)
 {
     int i;
     
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look); i++) {
         if (i >= MAXNUM)
-            error("Integer too large.");
+            Error("Integer too large.");
         num[i] = look;
-        nextChar();
+        NextChar();
     }
     num[i] = '\0';
 }
@@ -284,19 +284,19 @@ int main()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
-    initInput();
+    InitInput();
 
-    getName(name);
+    GetName(name);
     printf("Name: %s\n", name);
 
-    match('=');
+    Match('=');
 
-    getNum(num);
+    GetNum(num);
     printf("Num: %s\n", num);
 
-    match('+');
+    Match('+');
 
-    getName(name);
+    GetName(name);
     printf("Num: %s\n", name);
 
     return 0;
@@ -312,11 +312,11 @@ alfa=123+beta
 Decisões, decisões
 ------------------
 
-Apesar da relativa simplicidade dos dois analisadores, foi preciso pensar muito para chegar neles, e muitas decisões foram tomadas. Eu gostaria de compartilhar algumas destas idéias com você para que você possa tomar suas próprias decisões, apropriadas para a sua aplicação. Primeiro, note que as duas versões de `getName()` convertem os caracteres de entrada para letras maiúsculas. Obviamente, houve uma decisão feita aqui, e é um dos casos em que a sintaxe da linguagem acaba envolvendo o analisador léxico também. A linguagem C é sensível a diferenças de letras maísculas e minúsculas. Para uma linguagem como esta, obviamente não podemos converter todos os caracteres para maiúscula. O projeto que estou usando assume uma linguagem como Pascal, onde maísculas e minúsculas não tem diferença. Para tais linguagens, é mais fácil fazer esta conversão no analisador léxico, para que não tenhamos que nos preocupar mais tarde com comparação de strings.
+Apesar da relativa simplicidade dos dois analisadores, foi preciso pensar muito para chegar neles, e muitas decisões foram tomadas. Eu gostaria de compartilhar algumas destas idéias com você para que você possa tomar suas próprias decisões, apropriadas para a sua aplicação. Primeiro, note que as duas versões de `GetName()` convertem os caracteres de entrada para letras maiúsculas. Obviamente, houve uma decisão feita aqui, e é um dos casos em que a sintaxe da linguagem acaba envolvendo o analisador léxico também. A linguagem C é sensível a diferenças de letras maísculas e minúsculas. Para uma linguagem como esta, obviamente não podemos converter todos os caracteres para maiúscula. O projeto que estou usando assume uma linguagem como Pascal, onde maísculas e minúsculas não tem diferença. Para tais linguagens, é mais fácil fazer esta conversão no analisador léxico, para que não tenhamos que nos preocupar mais tarde com comparação de strings.
 
-Poderíamos ter dado um passo além, e mapear os caracteres para maíscula no momento em que são lidos, em `nextChar()`. Esta abordagem funciona também, e eu já a usei uma vez, mas ela é muito restritiva. Especificamente, ela acaba convertendo também caracteres que podem fazer parte de uma string entre aspas, o que não é uma boa idéia. Portanto, se você pretende converter para maiúsculas mesmo, `getName()` é o lugar apropriado para fazer isto.
+Poderíamos ter dado um passo além, e mapear os caracteres para maíscula no momento em que são lidos, em `NextChar()`. Esta abordagem funciona também, e eu já a usei uma vez, mas ela é muito restritiva. Especificamente, ela acaba convertendo também caracteres que podem fazer parte de uma string entre aspas, o que não é uma boa idéia. Portanto, se você pretende converter para maiúsculas mesmo, `GetName()` é o lugar apropriado para fazer isto.
 
-Repare que a função `getNum()` neste analisador retorna o resultado em uma string, da mesma forma que `getName()`. Esta é outra das coisas em que tivemos bastante oscilação. A alternativa seria, como já fizemos em vários outras capítulos", retornar o resultado como um valor inteiro.
+Repare que a função `GetNum()` neste analisador retorna o resultado em uma string, da mesma forma que `GetName()`. Esta é outra das coisas em que tivemos bastante oscilação. A alternativa seria, como já fizemos em vários outras capítulos", retornar o resultado como um valor inteiro.
 
 As duas abordagens tem pontos positivos. Já que estamos tratando de um número, a abordagem que vem à mente imediatamente é retornar o número como um inteiro. Mas lembre-se que o eventual uso do número será num comando de escrita que será usado no mundo exterior. Alguém - nós mesmo ou o código dentro do comando de escrita - vai ter que converter o número de volta a uma string novamente. Há rotinas para fazer tais conversões é claro, mas por que usá-las se não é realmente necessário? Por que converter um número de uma string para um inteiro para convertê-lo novamente, apenas alguns comandos mais tarde, na sua forma string?
 
@@ -332,16 +332,16 @@ Para aqueles de vocês que acham que vamos precisar da versão inteira (e de fat
 
 ~~~c
 /* retorna um número */
-long getNum()
+long GetNum()
 {
     long num = 0;
     
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     do {
         num *= 10;
         num += look - '0';
-        nextChar();
+        NextChar();
     } while (isdigit(look));
     
     return num;
@@ -383,16 +383,16 @@ Crie o arquivo [parser.c](src/cap15/MULTI/parser.c):
 #include "parser.h"
 
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     char num[MAXNUM+1];
 
-    getNum(num);
-    asmLoadConstant(num);
+    GetNum(num);
+    AsmLoadConst(num);
 }
 ~~~
 
-Como você pode ver, esta unidade chama um procedimento, `asmLoadConstant()`, que efetivamente emite o código assembly. Este módulo também faz uso de uma nova unidade, "codegen". Este passo representa a última "grande" mudança em nossa arquitetura, dos capítulos anteriores: a remoção do código dependente de máquina para um módulo separado.
+Como você pode ver, esta unidade chama um procedimento, `AsmLoadConst()`, que efetivamente emite o código assembly. Este módulo também faz uso de uma nova unidade, "codegen". Este passo representa a última "grande" mudança em nossa arquitetura, dos capítulos anteriores: a remoção do código dependente de máquina para um módulo separado.
 
 Para aqueles de vocês que desejam usar uma arquitetura diferente da que estou usando (80x86, 16-bits, DOS), aqui vai a resposta: simplesmente troque o código de "codegen" por outro que sirva à sua CPU favorita.
 
@@ -404,7 +404,7 @@ Crie o arquivo [codegen.h](src/cap15/MULTI/codegen.h):
 #ifndef _CODEGEN_H
 #define _CODEGEN_H
 
-void asmLoadConstant(char *s);
+void AsmLoadConst(char *s);
 
 #endif
 ~~~
@@ -416,9 +416,9 @@ Crie o arquivo [codegen.c](src/cap15/MULTI/codegen.c):
 #include "codegen.h"
 
 /* carrega uma constante no registrador primário */
-void asmLoadConstant(char *s)
+void AsmLoadConst(char *s)
 {
-    emit("MOV AX, %s", s);
+    EmitLn("MOV AX, %s", s);
 }
 ~~~
 
@@ -431,8 +431,8 @@ Compile e teste esta unidade com o seguinte programa principal:
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    initInput();
-    factor();
+    InitInput();
+    Factor();
 
     return 0;
 }
@@ -440,17 +440,17 @@ int main()
 
 Ai está, o código está sendo gerado conforme esperado.
 
-Agora, eu espero que você possa ver a vantagem do nosso novo projeto baseado em unidades separadas. Agora temos um programa principal que possui cinco linhas de tamanho. É tudo o que precisamos ver no programa, a menos que queiramos ver mais. E mesmo assim, todas as outras unidades estão lá, esperando para nos ajudar. Agora temos um código simples e curto, mas aliados poderosos. O que precisa ser feito agora é adicionar códigos às unidades para combinar com as capacidades desenvolvidas nos capítulos anteriores. Nós vamos fazer isto no próximo capítulo, mas antes de terminar, vamos terminar a análise de um fator, apenas para ficarmos satisfeitos de que ainda sabemos como fazê-lo. A versão final de "codegen" inclui o novo procedimento `asmLoadVariable()`. Inclua este novo procedimento na implementação do módulo (e não esqueça de acrescentá-lo no cabeçalho também):
+Agora, eu espero que você possa ver a vantagem do nosso novo projeto baseado em unidades separadas. Agora temos um programa principal que possui cinco linhas de tamanho. É tudo o que precisamos ver no programa, a menos que queiramos ver mais. E mesmo assim, todas as outras unidades estão lá, esperando para nos ajudar. Agora temos um código simples e curto, mas aliados poderosos. O que precisa ser feito agora é adicionar códigos às unidades para combinar com as capacidades desenvolvidas nos capítulos anteriores. Nós vamos fazer isto no próximo capítulo, mas antes de terminar, vamos terminar a análise de um fator, apenas para ficarmos satisfeitos de que ainda sabemos como fazê-lo. A versão final de "codegen" inclui o novo procedimento `AsmLoadVar()`. Inclua este novo procedimento na implementação do módulo (e não esqueça de acrescentá-lo no cabeçalho também):
 
 ~~~c
 /* carrega uma variável no registrador primário */
-void asmLoadVariable(char *s)
+void AsmLoadVar(char *s)
 {
-    emit("MOV AX, [%s]", s);
+    EmitLn("MOV AX, [%s]", s);
 }
 ~~~
 
-O módulo de análise em si não muda, mas temos uma versão mais complexa de `factor()`:
+O módulo de análise em si não muda, mas temos uma versão mais complexa de `Factor()`:
 
 ~~~c
 #include <ctype.h>
@@ -461,18 +461,18 @@ O módulo de análise em si não muda, mas temos uma versão mais complexa de `f
 #include "parser.h"
 
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
     if (isdigit(look)) {
-        getNum(num);
-        asmLoadConstant(num);
+        GetNum(num);
+        AsmLoadConst(num);
     } else if (isalpha(look)) {
-        getName(name);
-        asmLoadVariable(name);
+        GetName(name);
+        AsmLoadVar(name);
     } else
-        error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", look);
 }
 ~~~
 

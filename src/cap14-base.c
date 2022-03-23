@@ -15,62 +15,62 @@ Este código é de livre distribuição e uso.
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
-#define SYMTBL_SZ 26
-char symbolTable[SYMTBL_SZ]; /* tabela de símbolos */
+#define SYMBOLTABLE_SIZE 26
+char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
 
 /* rotinas utilitárias */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void unrecognized(char name);
-void emit(char *fmt, ...);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void Unrecognized(char name);
+void EmitLn(char *fmt, ...);
 
 /* tratamento da tabela de símbolos */
-void dumpTable();
+void DumpTable();
 
 /* analisador léxico rudimentar */
-int isAddOp(char c);
-int isMulOp(char c);
-int isOrOp(char c);
-int isRelOp(char c);
-void skipWhite();
-void newLine();
-void match(char c);
-char getName();
-char getNum();
+int IsAddOp(char c);
+int IsMulOp(char c);
+int IsOrOp(char c);
+int IsRelOp(char c);
+void SkipWhite();
+void NewLine();
+void Match(char c);
+char GetName();
+char GetNum();
 
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    dumpTable();
+    Init();
+    DumpTable();
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
     int i;
 
-    for (i = 0; i < SYMTBL_SZ; i++)
-        symbolTable[i] = '?';
+    for (i = 0; i < SYMBOLTABLE_SIZE; i++)
+        SymbolTable[i] = '?';
 
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 }
 
 /* lê próximo caracter da entrada em lookahead */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -84,7 +84,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -100,7 +100,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -116,13 +116,13 @@ void expected(char *fmt, ...)
 }
 
 /* avisa a respeito de uma palavra-chave desconhecida */
-void unrecognized(char name)
+void Unrecognized(char name)
 {
-    fatal("Unrecognized keyword %c", name);
+    Abort("Unrecognized keyword %c", name);
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -136,87 +136,87 @@ void emit(char *fmt, ...)
 }
 
 /* exibe a tabela de símbolos */
-void dumpTable()
+void DumpTable()
 {
     int i;
 
     printf("Symbol table dump:\n");
 
-    for (i = 0; i < SYMTBL_SZ; i++)
-        printf("%c = %c\n", i + 'A', symbolTable[i]);
+    for (i = 0; i < SYMBOLTABLE_SIZE; i++)
+        printf("%c = %c\n", i + 'A', SymbolTable[i]);
 }
 
 /* testa operadores de adição */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* testa operadores de multiplicação */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
 /* testa operadores OU */
-int isOrOp(char c)
+int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
 /* testa operadores relacionais */
-int isRelOp(char c)
+int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
 
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (look == ' ' || look == '\t')
-        nextChar();
+        NextChar();
 }
 
 /* reconhece uma quebra de linha */
-void newLine()
+void NewLine()
 {
     if (look == '\n')
-        nextChar();
+        NextChar();
 }
 
 /* verifica se look combina com caracter esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
-    skipWhite();
+        Expected("'%c'", c);
+    NextChar();
+    SkipWhite();
 }
 
 /* analisa e traduz um nome (identificador ou palavra-chave) */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 
     return name;
 }
 
 /* analisa e traduz um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 
     return num;
 }

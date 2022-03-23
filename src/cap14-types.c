@@ -15,107 +15,107 @@ Este código é de livre distribuição e uso.
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
-#define SYMTBL_SZ 26
-char symbolTable[SYMTBL_SZ]; /* tabela de símbolos */
+#define SYMBOLTABLE_SIZE 26
+char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
 
 /* rotinas utilitárias */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void unrecognized(char name);
-void emit(char *fmt, ...);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void Unrecognized(char name);
+void EmitLn(char *fmt, ...);
 
 /* tratamento da tabela de símbolos */
-void dumpTable();
-char symbolType(char name);
-char inTable(char name);
-void duplicated(char name);
-void checkDuplicated(char name);
-void addSymbol(char name, char type);
+void DumpTable();
+char SymbolType(char name);
+char InTable(char name);
+void Duplicate(char name);
+void CheckDuplicate(char name);
+void AddEntry(char name, char type);
 
 /* geração de código */
-void asmAllocVar(char name, char type);
-void asmLoadVar(char name, char type);
-void asmStoreVar(char name, char type);
-void asmConvert(char src, char dst);
-void asmLoadConst(long val, char type);
-void asmClear();
-void asmPush(char type);
-void asmPop(char type);
-void asmSwap(char type);
-char asmSameType(char t1, char t2, int ordMatters);
-char asmPopAdd(char t1, char t2);
-char asmPopSub(char t1, char t2);
-char asmPopMul(char t1, char t2);
-char asmPopDiv(char t1, char t2);
+void AsmAllocVar(char name, char type);
+void AsmLoadVar(char name, char type);
+void AsmStoreVar(char name, char type);
+void AsmConvert(char src, char dst);
+void AsmLoadConst(long val, char type);
+void AsmClear();
+void AsmPush(char type);
+void AsmPop(char type);
+void AsmSwap(char type);
+char AsmSameType(char t1, char t2, int ordMatters);
+char AsmPopAdd(char t1, char t2);
+char AsmPopSub(char t1, char t2);
+char AsmPopMul(char t1, char t2);
+char AsmPopDiv(char t1, char t2);
 
 /* analisador léxico rudimentar */
-int isAddOp(char c);
-int isMulOp(char c);
-int isOrOp(char c);
-int isRelOp(char c);
-int isVarType(char c);
-void skipWhite();
-void newLine();
-void match(char c);
-char getName();
-long getNum();
+int IsAddOp(char c);
+int IsMulOp(char c);
+int IsOrOp(char c);
+int IsRelOp(char c);
+int IsVarType(char c);
+void SkipWhite();
+void NewLine();
+void Match(char c);
+char GetName();
+long GetNum();
 
 /* analisador sintático */
-void allocVar(char name, char type);
-char loadVar(char name);
-char loadNum(long val);
-void storeVar(char name, char type);
-void notVar(char name);
-char varType(char name);
-void declaration();
-void topDeclarations();
-char unaryOp();
-char factor();
-char multiply(char type);
-char divide(char type);
-char term();
-char add(char type);
-char subtract(char type);
-char expression();
-void assignment();
-void block();
+void AllocVar(char name, char type);
+char LoadVar(char name);
+char LoadNum(long val);
+void StoreVar(char name, char type);
+void NotVar(char name);
+char VarType(char name);
+void Declaration();
+void TopDeclarations();
+char UnaryOp();
+char Factor();
+char Multiply(char type);
+char Divide(char type);
+char Term();
+char Add(char type);
+char Subtract(char type);
+char Expression();
+void Assignment();
+void Block();
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    topDeclarations();
-    match('B');
-    newLine();
-    block();
-    dumpTable();
+    Init();
+    TopDeclarations();
+    Match('B');
+    NewLine();
+    Block();
+    DumpTable();
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
     int i;
 
-    for (i = 0; i < SYMTBL_SZ; i++)
-        symbolTable[i] = '?';
+    for (i = 0; i < SYMBOLTABLE_SIZE; i++)
+        SymbolTable[i] = '?';
 
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 }
 
 /* lê próximo caracter da entrada em lookahead */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -129,7 +129,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -145,7 +145,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -161,13 +161,13 @@ void expected(char *fmt, ...)
 }
 
 /* avisa a respeito de uma palavra-chave desconhecida */
-void unrecognized(char name)
+void Unrecognized(char name)
 {
-    fatal("Unrecognized keyword %c", name);
+    Abort("Unrecognized keyword %c", name);
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -181,52 +181,52 @@ void emit(char *fmt, ...)
 }
 
 /* exibe a tabela de símbolos */
-void dumpTable()
+void DumpTable()
 {
     int i;
 
     printf("Symbol table dump:\n");
 
-    for (i = 0; i < SYMTBL_SZ; i++)
-        if (symbolTable[i] != '?')
-            printf("%c = %c\n", i + 'A', symbolTable[i]);
+    for (i = 0; i < SYMBOLTABLE_SIZE; i++)
+        if (SymbolTable[i] != '?')
+            printf("%c = %c\n", i + 'A', SymbolTable[i]);
 }
 
 /* retorna o tipo de um identificador */
-char symbolType(char name)
+char SymbolType(char name)
 {
-        return symbolTable[name - 'A'];
+        return SymbolTable[name - 'A'];
 }
 
 /* verifica se "name" consta na tabela de símbolos */
-char inTable(char name)
+char InTable(char name)
 {
-        return (symbolTable[name - 'A'] != '?');
+        return (SymbolTable[name - 'A'] != '?');
 }
 
 /* avisa a respeito de um identificador desconhecido */
-void duplicated(char name)
+void Duplicate(char name)
 {
     fprintf(stderr, "Error: Duplicated identifier %c\n", name);
     exit(1);
 }
 
 /* verifica se um identificador já foi declarado */
-void checkDuplicated(char name)
+void CheckDuplicate(char name)
 {
-        if (inTable(name))
-                duplicated(name);
+        if (InTable(name))
+                Duplicate(name);
 }
 
 /* adiciona novo identificador à tabela de símbolos */
-void addSymbol(char name, char type)
+void AddEntry(char name, char type)
 {
-    checkDuplicated(name);
-        symbolTable[name - 'A'] = type;
+    CheckDuplicate(name);
+        SymbolTable[name - 'A'] = type;
 }
 
 /* gera código para armazenamento de variável */
-void asmAllocVar(char name, char type)
+void AsmAllocVar(char name, char type)
 {
     int btype; /* tamanho em bytes */
 
@@ -243,108 +243,108 @@ void asmAllocVar(char name, char type)
 }
 
 /* gera código para carregar variável de acordo com o tipo */
-void asmLoadVar(char name, char type)
+void AsmLoadVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            emit("MOV AL, BYTE PTR %c", name);
+            EmitLn("MOV AL, BYTE PTR %c", name);
             break;
         case 'w':
-            emit("MOV AX, WORD PTR %c", name);
+            EmitLn("MOV AX, WORD PTR %c", name);
             break;
         case 'l':
-            emit("MOV DX, WORD PTR [%c+2]", name);
-            emit("MOV AX, WORD PTR [%c]", name);
+            EmitLn("MOV DX, WORD PTR [%c+2]", name);
+            EmitLn("MOV AX, WORD PTR [%c]", name);
     }
 }
 
 /* gera código para armazenar variável de acordo com o tipo */
-void asmStoreVar(char name, char type)
+void AsmStoreVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            emit("MOV BYTE PTR %c, AL", name);
+            EmitLn("MOV BYTE PTR %c, AL", name);
             break;
         case 'w':
-            emit("MOV WORD PTR %c, AX", name);
+            EmitLn("MOV WORD PTR %c, AX", name);
             break;
         case 'l':
-            emit("MOV WORD PTR [%c+2], DX", name);
-            emit("MOV WORD PTR [%c], AX", name);
+            EmitLn("MOV WORD PTR [%c+2], DX", name);
+            EmitLn("MOV WORD PTR [%c], AX", name);
     }
 }
 
 /* converte tipo origem para destino */
-void asmConvert(char src, char dst)
+void AsmConvert(char src, char dst)
 {
     if (src == dst)
         return;
     if (src == 'b')
-        emit("CBW");
+        EmitLn("CBW");
     if (dst == 'l')
-        emit("CWD");
+        EmitLn("CWD");
 }
 
 /* gera código para carregar uma constante de acordo com o tipo */
-void asmLoadConst(long val, char type)
+void AsmLoadConst(long val, char type)
 {
     switch (type) {
         case 'b':
-            emit("MOV AL, %d", (int) val);
+            EmitLn("MOV AL, %d", (int) val);
             break;
         case 'w':
-            emit("MOV AX, %d", (int) val);
+            EmitLn("MOV AX, %d", (int) val);
             break;
         case 'l':
-            emit("MOV DX, %u", val >> 16);
-            emit("MOV AX, %u", val & 0xFFFF);
+            EmitLn("MOV DX, %u", val >> 16);
+            EmitLn("MOV AX, %u", val & 0xFFFF);
             break;
     }
 }
 
 /* zera o registrador primário */
-void asmClear()
+void AsmClear()
 {
-    emit("XOR AX, AX");
+    EmitLn("XOR AX, AX");
 }
 
 /* coloca valor na pilha */
-void asmPush(char type)
+void AsmPush(char type)
 {
     if (type == 'b')
-        emit("CBW"); /* só é possível empilhar "word"s */
+        EmitLn("CBW"); /* só é possível empilhar "word"s */
     if (type == 'l')
-        emit("PUSH DX");
-    emit("PUSH AX");
+        EmitLn("PUSH DX");
+    EmitLn("PUSH AX");
 }
 
 /* coloca em registrador(es) secundário(s) valor da pilha */
-void asmPop(char type)
+void AsmPop(char type)
 {
-    emit("POP BX");
+    EmitLn("POP BX");
     if (type == 'l')
-        emit("POP CX");
+        EmitLn("POP CX");
 }
 
 /* gera código para trocar registradores primário e secundário */
-void asmSwap(char type)
+void AsmSwap(char type)
 {
     switch (type) {
       case 'b':
-          emit("XCHG AL, BL");
+          EmitLn("XCHG AL, BL");
           break;
       case 'w':
-          emit("XCHG AX, BX");
+          EmitLn("XCHG AX, BX");
           break;
       case 'l':
-          emit("XCHG AX, BX");
-          emit("XCHG DX, CX");
+          EmitLn("XCHG AX, BX");
+          EmitLn("XCHG DX, CX");
           break;
     }
 }
 
 /* faz a promoção dos tipos dos operandos e inverte a ordem dos mesmos se necessário */
-char asmSameType(char t1, char t2, int ordMatters)
+char AsmSameType(char t1, char t2, int ordMatters)
 {
     int swaped = 0;
     int type = t1;
@@ -352,37 +352,37 @@ char asmSameType(char t1, char t2, int ordMatters)
     if (t1 != t2) {
         if ((t1 == 'b') || (t1 == 'w' && t2 == 'l')) {
             type = t2;
-            asmSwap(type);
-            asmConvert(t1, t2);
+            AsmSwap(type);
+            AsmConvert(t1, t2);
             swaped = 1;
         } else {
             type = t1;
-            asmConvert(t2, t1);
+            AsmConvert(t2, t1);
         }
     }
     if (!swaped && ordMatters)
-        asmSwap(type);
+        AsmSwap(type);
         
     return type;
 }
 
 /* soma valor na pilha com valor no registrador primário */
-char asmPopAdd(char t1, char t2)
+char AsmPopAdd(char t1, char t2)
 {
     char type;
 
-    asmPop(t1);
-    type = asmSameType(t1, t2, 0);
+    AsmPop(t1);
+    type = AsmSameType(t1, t2, 0);
     switch (type) {
         case 'b':
-            emit("ADD AL, BL");
+            EmitLn("ADD AL, BL");
             break;
         case 'w':
-            emit("ADD AX, BX");
+            EmitLn("ADD AX, BX");
             break;
         case 'l':
-            emit("ADD AX, BX");
-            emit("ADC DX, CX");
+            EmitLn("ADD AX, BX");
+            EmitLn("ADC DX, CX");
             break;
     }
 
@@ -390,22 +390,22 @@ char asmPopAdd(char t1, char t2)
 }
 
 /* subtrai do valor da pilha o valor no registrador primário */
-char asmPopSub(char t1, char t2)
+char AsmPopSub(char t1, char t2)
 {
     char type;
 
-    asmPop(t1);
-    type = asmSameType(t1, t2, 1);
+    AsmPop(t1);
+    type = AsmSameType(t1, t2, 1);
     switch (type) {
         case 'b':
-            emit("SUB AL, BL");
+            EmitLn("SUB AL, BL");
             break;
         case 'w':
-            emit("SUB AX, BX");
+            EmitLn("SUB AX, BX");
             break;
         case 'l':
-            emit("SUB AX, BX");
-            emit("SBB DX, CX");
+            EmitLn("SUB AX, BX");
+            EmitLn("SBB DX, CX");
             break;
     }
 
@@ -413,23 +413,23 @@ char asmPopSub(char t1, char t2)
 }
 
 /* multiplica valor na pilha com valor no registrador primário */
-char asmPopMul(char t1, char t2)
+char AsmPopMul(char t1, char t2)
 {
     char type, mulType;
 
-    asmPop(t1);
-    type = asmSameType(t1, t2, 0);
+    AsmPop(t1);
+    type = AsmSameType(t1, t2, 0);
     mulType = 'l';
     switch (type) {
         case 'b':
-            emit("IMUL BL");
+            EmitLn("IMUL BL");
             mulType = 'w';
             break;
         case 'w':
-            emit("IMUL BX");
+            EmitLn("IMUL BX");
             break;
         case 'l':
-            emit("CALL MUL32");
+            EmitLn("CALL MUL32");
             break;
     }
 
@@ -437,142 +437,142 @@ char asmPopMul(char t1, char t2)
 }
 
 /* divide valor na pilha por valor do registrador primário */
-char asmPopDiv(char t1, char t2)
+char AsmPopDiv(char t1, char t2)
 {
-    asmPop(t1);
+    AsmPop(t1);
 
     /* se dividendo for 32-bits divisor deve ser também */
     if (t1 == 'l')
-        asmConvert(t2, 'l');
+        AsmConvert(t2, 'l');
 
     /* coloca operandos na ordem certa conforme o tipo */
     if (t1 == 'l' || t2 == 'l')
-        asmSwap('l');
+        AsmSwap('l');
     else if (t1 == 'w' || t2 == 'w')
-        asmSwap('w');
+        AsmSwap('w');
     else
-        asmSwap('b');
+        AsmSwap('b');
 
     /* dividendo _REAL_ sempre será LONG...
         mas WORD se divisor for BYTE */
     if (t2 == 'b')
-        asmConvert(t1, 'w');
+        AsmConvert(t1, 'w');
     else
-        asmConvert(t1, 'l');
+        AsmConvert(t1, 'l');
 
     /* se um dos operandos for LONG, divisão de 32-bits */
     if (t1 == 'l' || t2 == 'l')
-        emit("CALL DIV32");
+        EmitLn("CALL DIV32");
     else if (t2 == 'w') /* 32 / 16 */
-        emit("IDIV BX");
+        EmitLn("IDIV BX");
     else if (t2 == 'b') /* 16 / 8 */
-        emit("IDIV BL");
+        EmitLn("IDIV BL");
 
     /* tipo do quociente é sempre igual ao do dividendo */
     return t1;
 }
 
 /* testa operadores de adição */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* testa operadores de multiplicação */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
 /* testa operadores OU */
-int isOrOp(char c)
+int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
 /* testa operadores relacionais */
-int isRelOp(char c)
+int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
 
 /* reconhece um tipo de variável válido */
-int isVarType(char c)
+int IsVarType(char c)
 {
     return (c == 'b' || c == 'w' || c == 'l');
 }
 
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (look == ' ' || look == '\t')
-        nextChar();
+        NextChar();
 }
 
 /* reconhece uma quebra de linha */
-void newLine()
+void NewLine()
 {
     if (look == '\n')
-        nextChar();
+        NextChar();
 }
 
 /* verifica se look combina com caracter esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
-    skipWhite();
+        Expected("'%c'", c);
+    NextChar();
+    SkipWhite();
 }
 
 /* analisa e traduz um nome (identificador ou palavra-chave) */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 
     return name;
 }
 
 /* analisa e traduz um número inteiro longo */
-long getNum()
+long GetNum()
 {
     long num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = 0;
     while (isdigit(look)) {
         num *= 10;
         num += look - '0';
-        nextChar();
+        NextChar();
     }
-    skipWhite();
+    SkipWhite();
     return num;
 }
 
 /* aloca espaço de armazenamento para variável */
-void allocVar(char name, char type)
+void AllocVar(char name, char type)
 {
-    addSymbol(name, type);
-    asmAllocVar(name, type);
+    AddEntry(name, type);
+    AsmAllocVar(name, type);
 }
 
 /* carrega variável */
-char loadVar(char name)
+char LoadVar(char name)
 {
-    char type = varType(name);
-    asmLoadVar(name, type);
+    char type = VarType(name);
+    AsmLoadVar(name, type);
     return type;
 }
 
 /* carrega uma constante no registrador primário */
-char loadNum(long val)
+char LoadNum(long val)
 {
     char type;
 
@@ -582,115 +582,115 @@ char loadNum(long val)
         type = 'w';
     else
         type = 'l';
-    asmLoadConst(val, type);
+    AsmLoadConst(val, type);
 
     return type;
 }
 
 /* armazena variável */
-void storeVar(char name, char srcType)
+void StoreVar(char name, char srcType)
 {
-    char dstType = varType(name);
-    asmConvert(srcType, dstType);
-    asmStoreVar(name, dstType);
+    char dstType = VarType(name);
+    AsmConvert(srcType, dstType);
+    AsmStoreVar(name, dstType);
 }
 
 /* avisa a respeito de um identificador que não é uma variável */
-void notVar(char name)
+void NotVar(char name)
 {
-    fatal("'%c' is not a variable", name);
+    Abort("'%c' is not a variable", name);
 }
 
 /* pega o tipo da variável da tabela de símbolos */
-char varType(char name)
+char VarType(char name)
 {
     char type;
 
-    type = symbolType(name);
-    if (!isVarType(type))
-        notVar(name);
+    type = SymbolType(name);
+    if (!IsVarType(type))
+        NotVar(name);
 
     return type;
 }
 
 /* analiza e traduz a declaração de uma variável */
-void declaration()
+void Declaration()
 {
     char type = look;
-    nextChar();
-    allocVar(getName(), type);
+    NextChar();
+    AllocVar(GetName(), type);
 }
 
 /* analiza e traduz as declarações globais */
-void topDeclarations()
+void TopDeclarations()
 {
     while (look != 'B') {
         switch (look) {
             case 'b':
             case 'w':
             case 'l':
-                declaration();
+                Declaration();
                 break;
             default:
-                unrecognized(look);
+                Unrecognized(look);
                 break;
         }
-        newLine();
+        NewLine();
     }
 }
 
 /* tratamento de operador unário */
-char unaryOp()
+char UnaryOp()
 {
-    asmClear();
+    AsmClear();
     return 'w';
 }
 
 /* analisa e traduz um fator matemático */
-char factor()
+char Factor()
 {
     char type;
 
     if (look == '(') {
-        match('(');
-        type = expression();
-        match(')');
+        Match('(');
+        type = Expression();
+        Match(')');
     } else if (isalpha(look))
-        type = loadVar(getName());
+        type = LoadVar(GetName());
     else
-        type = loadNum(getNum());
+        type = LoadNum(GetNum());
 
     return type;
 }
 
 /* reconhece e traduz uma multiplicação */
-char multiply(char type)
+char Multiply(char type)
 {
-    match('*');
-    return asmPopMul(type, factor());
+    Match('*');
+    return AsmPopMul(type, Factor());
 }
 
 /* reconhece e traduz uma multiplicação */
-char divide(char type)
+char Divide(char type)
 {
-    match('/');
-    return asmPopDiv(type, factor());
+    Match('/');
+    return AsmPopDiv(type, Factor());
 }
 
 /* analisa e traduz um termo matemático */
-char term()
+char Term()
 {
     char type;
 
-    type = factor();
-    while (isMulOp(look)) {
-        asmPush(type);
+    type = Factor();
+    while (IsMulOp(look)) {
+        AsmPush(type);
         switch (look) {
             case '*':
-                type = multiply(type);
+                type = Multiply(type);
                 break;
             case '/':
-                type = divide(type);
+                type = Divide(type);
                 break;
         }
     }
@@ -699,36 +699,36 @@ char term()
 }
 
 /* reconhece e traduz uma soma */
-char add(char type)
+char Add(char type)
 {
-    match('+');
-    return asmPopAdd(type, term());
+    Match('+');
+    return AsmPopAdd(type, Term());
 }
 
 /* reconhece e traduz uma subtração */
-char subtract(char type)
+char Subtract(char type)
 {
-    match('-');
-    return asmPopSub(type, term());
+    Match('-');
+    return AsmPopSub(type, Term());
 }
 
 /* analisa e traduz uma expressão */
-char expression()
+char Expression()
 {
     char type;
 
-    if (isAddOp(look))
-        type = unaryOp();
+    if (IsAddOp(look))
+        type = UnaryOp();
     else
-        type = term();
-    while (isAddOp(look)) {
-        asmPush(type);
+        type = Term();
+    while (IsAddOp(look)) {
+        AsmPush(type);
         switch (look) {
             case '+':
-                type = add(type);
+                type = Add(type);
                 break;
             case '-':
-                type = subtract(type);
+                type = Subtract(type);
                 break;
         }
     }
@@ -737,21 +737,21 @@ char expression()
 }
 
 /* analisa e traduz uma atribuição */
-void assignment()
+void Assignment()
 {
     char name, type;
 
-    name = getName();
-    match('=');
-    type = expression();
-    storeVar(name, type);
+    name = GetName();
+    Match('=');
+    type = Expression();
+    StoreVar(name, type);
 }
 
 /* analisa traduz um bloco de comandos */
-void block()
+void Block()
 {
     while (look != '.') {
-        assignment();
-        newLine();
+        Assignment();
+        NewLine();
     }
 }

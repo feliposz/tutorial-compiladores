@@ -2,13 +2,13 @@
 #include "codegen.h"
 
 /* carrega uma constante no registrador primário */
-void asmLoadConstant(char c)
+void AsmLoadConst(char c)
 {
-    emit("MOV AX, %c", c);
+    EmitLn("MOV AX, %c", c);
 }
 
 /* carrega uma variável no registrador primário */
-void asmLoadVariable(char c)
+void AsmLoadVar(char c)
 {
-    emit("MOV AX, %c", c);
+    EmitLn("MOV AX, %c", c);
 }

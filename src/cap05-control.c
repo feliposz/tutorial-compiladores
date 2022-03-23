@@ -14,60 +14,60 @@ Este código é de livre distribuição e uso.
 #include <ctype.h>
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
-int labelCount; /* Contador usado pelo gerador de rótulos */
+int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 /* protótipos */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void match(char c);
-char getName();
-char getNum();
-void emit(char *fmt, ...);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void Match(char c);
+char GetName();
+char GetNum();
+void EmitLn(char *fmt, ...);
 
-int newLabel();
-void postLabel(int lbl);
+int NewLabel();
+void PostLabel(int lbl);
 
-void condition();
-void expression();
+void Condition();
+void Expression();
 
-void other();
-void doIf(int exitLabel);
-void doWhile();
-void doLoop();
-void doRepeat();
-void doFor();
-void doDo();
-void doBreak(int exitLabel);
-void block(int exitLabel);
-void program();
+void Other();
+void DoIf(int exitLabel);
+void DoWhile();
+void DoLoop();
+void DoRepeat();
+void DoFor();
+void DoDo();
+void DoBreak(int exitLabel);
+void Block(int exitLabel);
+void Program();
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    program();
+    Init();
+    Program();
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    labelCount = 0;
-    nextChar();
+    LabelCount = 0;
+    NextChar();
 }
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -81,7 +81,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -97,7 +97,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -113,41 +113,41 @@ void expected(char *fmt, ...)
 }
 
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isupper(look))
-        expected("Name");
+        Expected("Name");
     name = look;
-    nextChar();
+    NextChar();
 
     return name;
 }
 
 /* recebe um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
+    NextChar();
 
     return num;
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -161,168 +161,168 @@ void emit(char *fmt, ...)
 }
 
 /* gera um novo rótulo único */
-int newLabel()
+int NewLabel()
 {
-    return labelCount++;
+    return LabelCount++;
 }
 
 /* emite um rótulo */
-void postLabel(int lbl)
+void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 
 /* analisa e traduz uma condição */
-void condition()
+void Condition()
 {
-    emit("; condition");
+    EmitLn("; condition");
 }
 
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    emit("; expression");
+    EmitLn("; expression");
 }
 
 /* reconhece e traduz um comando qualquer */
-void other()
+void Other()
 {
-    emit("; %c", getName());
+    EmitLn("; %c", GetName());
 }
 
 /* analisa e traduz um comando IF */
-void doIf(int exitLabel)
+void DoIf(int exitLabel)
 {
     int l1, l2;
 
-    match('i');
-    condition();
-    l1 = newLabel();
+    Match('i');
+    Condition();
+    l1 = NewLabel();
     l2 = l1;
-    emit("JZ L%d", l1);
-    block(exitLabel);
+    EmitLn("JZ L%d", l1);
+    Block(exitLabel);
     if (look == 'l') {
-        match('l');
-        l2 = newLabel();
-        emit("JMP L%d", l2);
-        postLabel(l1);
-        block(exitLabel);
+        Match('l');
+        l2 = NewLabel();
+        EmitLn("JMP L%d", l2);
+        PostLabel(l1);
+        Block(exitLabel);
     }
-    match('e');
-    postLabel(l2);
+    Match('e');
+    PostLabel(l2);
 }
 
 /* analisa e traduz um comando WHILE */
-void doWhile()
+void DoWhile()
 {
     int l1, l2;
 
-    match('w');
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    condition();
-    emit("JZ L%d", l2);
-    block(l2);
-    match('e');
-    emit("JMP L%d", l1);
-    postLabel(l2);
+    Match('w');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    Condition();
+    EmitLn("JZ L%d", l2);
+    Block(l2);
+    Match('e');
+    EmitLn("JMP L%d", l1);
+    PostLabel(l2);
 }
 
 /* analisa e traduz um comando LOOP*/
-void doLoop()
+void DoLoop()
 {
     int l1, l2;
 
-    match('p');
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    block(l2);
-    match('e');
-    emit("JMP L%d", l1);
-    postLabel(l2);
+    Match('p');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    Block(l2);
+    Match('e');
+    EmitLn("JMP L%d", l1);
+    PostLabel(l2);
 }
 
 /* analisa e traduz um REPEAT-UNTIL*/
-void doRepeat()
+void DoRepeat()
 {
     int l1, l2;
 
-    match('r');
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    block(l2);
-    match('u');
-    condition();
-    emit("JZ L%d", l1);
-    postLabel(l2);
+    Match('r');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    Block(l2);
+    Match('u');
+    Condition();
+    EmitLn("JZ L%d", l1);
+    PostLabel(l2);
 }
 
 /* analisa e traduz um comando FOR*/
-void doFor()
+void DoFor()
 {
     int l1, l2;
     char name;
 
-    match('f');
-    l1 = newLabel();
-    l2 = newLabel();
-    name = getName();
-    match('=');
-    expression();
-    emit("DEC AX");
-    emit("MOV [%c], AX", name);
-    expression();
-    emit("PUSH AX");
-    postLabel(l1);
-    emit("MOV AX, [%c]", name);
-    emit("INC AX");
-    emit("MOV [%c], AX", name);
-    emit("POP BX");
-    emit("PUSH BX");
-    emit("CMP AX, BX");
-    emit("JG L%d", l2);
-    block(l2);
-    match('e');
-    emit("JMP L%d", l1);
-    postLabel(l2);
-    emit("POP AX");
+    Match('f');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    name = GetName();
+    Match('=');
+    Expression();
+    EmitLn("DEC AX");
+    EmitLn("MOV [%c], AX", name);
+    Expression();
+    EmitLn("PUSH AX");
+    PostLabel(l1);
+    EmitLn("MOV AX, [%c]", name);
+    EmitLn("INC AX");
+    EmitLn("MOV [%c], AX", name);
+    EmitLn("POP BX");
+    EmitLn("PUSH BX");
+    EmitLn("CMP AX, BX");
+    EmitLn("JG L%d", l2);
+    Block(l2);
+    Match('e');
+    EmitLn("JMP L%d", l1);
+    PostLabel(l2);
+    EmitLn("POP AX");
 }
 
 /* analisa e traduz um comando DO */
-void doDo()
+void DoDo()
 {
     int l1, l2;
 
-    match('d');
-    l1 = newLabel();
-    l2 = newLabel();
-    expression();
-    emit("MOV CX, AX");
-    postLabel(l1);
-    emit("PUSH CX");
-    block(l2);
-    match('e');
-    emit("POP CX");
-    emit("LOOP L%d", l1);
-    emit("PUSH CX");
-    postLabel(l2);
-    emit("POP CX");
+    Match('d');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    Expression();
+    EmitLn("MOV CX, AX");
+    PostLabel(l1);
+    EmitLn("PUSH CX");
+    Block(l2);
+    Match('e');
+    EmitLn("POP CX");
+    EmitLn("LOOP L%d", l1);
+    EmitLn("PUSH CX");
+    PostLabel(l2);
+    EmitLn("POP CX");
 }
 
 /* analisa e traduz um comando BREAK */
-void doBreak(int exitLabel)
+void DoBreak(int exitLabel)
 {
-    match('b');
+    Match('b');
     if (exitLabel == -1)
-        fatal("No loop to break from.");
-    emit("JMP L%d", exitLabel);
+        Abort("No loop to break from.");
+    EmitLn("JMP L%d", exitLabel);
 }
 
 /* analisa e traduz um bloco de comandos */
-void block(int exitLabel)
+void Block(int exitLabel)
 {
     int follow;
 
@@ -331,25 +331,25 @@ void block(int exitLabel)
     while (!follow) {
         switch (look) {
             case 'i':
-                doIf(exitLabel);
+                DoIf(exitLabel);
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'p':
-                doLoop();
+                DoLoop();
                 break;
             case 'r':
-                doRepeat();
+                DoRepeat();
                 break;
             case 'f':
-                doFor();
+                DoFor();
                 break;
             case 'd':
-                doDo();
+                DoDo();
                 break;
             case 'b':
-                doBreak(exitLabel);
+                DoBreak(exitLabel);
                 break;
             case 'e':
             case 'l':
@@ -357,17 +357,17 @@ void block(int exitLabel)
                 follow = 1;
                 break;
             default:
-                other();
+                Other();
                 break;
         }
     }
 }
 
 /* analisa e traduz um programa completo */
-void program()
+void Program()
 {
-    block(-1);
+    Block(-1);
     if (look != 'e')
-        expected("End");
-    emit("; END");
+        Expected("End");
+    EmitLn("; END");
 }

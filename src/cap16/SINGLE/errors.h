@@ -1,7 +1,7 @@
 #ifndef _ERRORS_H
 #define _ERRORS_H
 
-void error(char *fmt, ...);
-void expected(char *fmt, ...);
+void Error(char *fmt, ...);
+void Expected(char *fmt, ...);
 
 #endif

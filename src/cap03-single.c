@@ -16,51 +16,51 @@ Este código é de livre distribuição e uso.
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* protótipos */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void match(char c);
-char getName();
-char getNum();
-void emit(char *fmt, ...);
-void ident();
-void assignment();
-void factor();
-void term();
-void expression();
-void add();
-void subtract();
-void multiply();
-void divide();
-int isAddOp(char c);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void Match(char c);
+char GetName();
+char GetNum();
+void EmitLn(char *fmt, ...);
+void Ident();
+void Assignment();
+void Factor();
+void Term();
+void Expression();
+void Add();
+void Subtract();
+void Multiply();
+void Divide();
+int IsAddOp(char c);
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    assignment();
+    Init();
+    Assignment();
     if (look != '\n')
-        expected("NewLine");
+        Expected("NewLine");
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    nextChar();
+    NextChar();
 }
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -74,7 +74,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -90,7 +90,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -106,41 +106,41 @@ void expected(char *fmt, ...)
 }
 
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
+    NextChar();
 
     return name;
 }
 
 /* recebe um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
+    NextChar();
 
     return num;
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -154,119 +154,119 @@ void emit(char *fmt, ...)
 }
 
 /* analisa e traduz um identificador */
-void ident()
+void Ident()
 {
     char name;
-    name = getName();
+    name = GetName();
     if (look == '(') {
-        match('(');
-        match(')');
-        emit("CALL %c", name);
+        Match('(');
+        Match(')');
+        EmitLn("CALL %c", name);
     } else
-        emit("MOV AX, [%c]", name);
+        EmitLn("MOV AX, [%c]", name);
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name;
-    name = getName();
-    match('=');
-    expression();
-    emit("MOV [%c], AX", name);
+    name = GetName();
+    Match('=');
+    Expression();
+    EmitLn("MOV [%c], AX", name);
 }
 
 /* analisa e traduz um fator */
-void factor()
+void Factor()
 {
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else if(isalpha(look))
-        ident();
+        Ident();
     else
-        emit("MOV AX, %c", getNum());
+        EmitLn("MOV AX, %c", GetNum());
 }
 
 /* reconhece e traduz uma multiplicação */
-void multiply()
+void Multiply()
 {
-    match('*');
-    factor();
-    emit("POP BX");
-    emit("IMUL BX");
+    Match('*');
+    Factor();
+    EmitLn("POP BX");
+    EmitLn("IMUL BX");
 }
 
 /* reconhece e traduz uma divisão */
-void divide()
+void Divide()
 {
-    match('/');
-    factor();
-    emit("POP BX");
-    emit("XCHG AX, BX");
-    emit("CWD");
-    emit("IDIV BX");
+    Match('/');
+    Factor();
+    EmitLn("POP BX");
+    EmitLn("XCHG AX, BX");
+    EmitLn("CWD");
+    EmitLn("IDIV BX");
 }
 
 /* analisa e traduz um termo */
-void term()
+void Term()
 {
-    factor();
+    Factor();
     while (look == '*' || look == '/') {
-        emit("PUSH AX");
+        EmitLn("PUSH AX");
         switch(look) {
             case '*':
-                multiply();
+                Multiply();
                 break;
             case '/':
-                divide();
+                Divide();
                 break;
         }
     }
 }
 
 /* reconhece e traduz uma adição */
-void add()
+void Add()
 {
-    match('+');
-    term();
-    emit("POP BX");
-    emit("ADD AX, BX");
+    Match('+');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* reconhece e traduz uma subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    term();
-    emit("POP BX");
-    emit("SUB AX, BX");
-    emit("NEG AX");
+    Match('-');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    EmitLn("NEG AX");
 }
 
 /* reconhece e traduz uma expressão */
-void expression()
+void Expression()
 {
-    if (isAddOp(look))
-        emit("XOR AX, AX");
+    if (IsAddOp(look))
+        EmitLn("XOR AX, AX");
     else
-        term();
+        Term();
     while (look == '+' || look == '-') {
-        emit("PUSH AX");
+        EmitLn("PUSH AX");
         switch(look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
         }
     }
 }
 
 /* reconhece operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }

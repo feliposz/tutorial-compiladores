@@ -14,24 +14,24 @@ Este código é de livre distribuição e uso.
 #include <ctype.h>
 
 int look; /* O caracter lido "antecipadamente" (lookahead) */
-char currentClass; /* classe atual lida por getClass */
-char currentType; /* tipo atual lido por getType */
-char currentSigned; /* indica se tipo atual é com ou sem sinal */
+char CurrentClass; /* classe atual lida por getClass */
+char CurrentType; /* tipo atual lido por getType */
+char CurrentSigned; /* indica se tipo atual é com ou sem sinal */
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    nextChar();
+    NextChar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -45,7 +45,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -61,7 +61,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -77,41 +77,41 @@ void expected(char *fmt, ...)
 }
 
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
+    NextChar();
 
     return name;
 }
 
 /* recebe um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
+    NextChar();
 
     return num;
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -125,82 +125,82 @@ void emit(char *fmt, ...)
 }
 
 /* recebe uma classe de armazenamento C */
-void getClass()
+void GetClass()
 {
     if (look == 'a' || look == 'x' || look == 's') {
-        currentClass = look;
-        nextChar();
+        CurrentClass = look;
+        NextChar();
     } else
-        currentClass = 'a';
+        CurrentClass = 'a';
 }
 
 /* recebe um tipo de dado C */
-void getType()
+void GetType()
 {
-    currentType = ' ';
+    CurrentType = ' ';
     if (look == 'u') {
-        currentSigned = 'u';
-        currentType = 'i';
-        nextChar();
+        CurrentSigned = 'u';
+        CurrentType = 'i';
+        NextChar();
     } else {
-        currentSigned = 's';
+        CurrentSigned = 's';
     }
     if (look == 'i' || look == 'l' || look == 'c') {
-        currentType = look;
-        nextChar();
+        CurrentType = look;
+        NextChar();
     }
 }
 
 /* analisa uma declaração de função */
-void functionDeclaration(char name)
+void FunctionDeclaration(char name)
 {
-    match('(');
-    match(')');
-    match('{');
-    match('}');
-    if (currentType == ' ')
-        currentType = 'i';
+    Match('(');
+    Match(')');
+    Match('{');
+    Match('}');
+    if (CurrentType == ' ')
+        CurrentType = 'i';
     printf("Class: %c, Sign: %c, Type: %c, Function: %c\n",
-        currentClass, currentSigned, currentType, name);
+        CurrentClass, CurrentSigned, CurrentType, name);
 }
 
 /* analisa uma declaração de variável */
-void dataDeclaration(char name)
+void DoData(char name)
 {
-    if (currentType == ' ')
-        expected("Type declaration");
+    if (CurrentType == ' ')
+        Expected("Type declaration");
     for (;;) {
         printf("Class: %c, Sign: %c, Type: %c, Data: %c\n",
-            currentClass, currentSigned, currentType, name);
+            CurrentClass, CurrentSigned, CurrentType, name);
         if (look != ',')
             break;
-        match(',');
-        name = getName();
+        Match(',');
+        name = GetName();
     }
-    match(';');
+    Match(';');
 }
 
 /* analisa uma declaração */
-void topDeclaration()
+void TopDeclaration()
 {
     char name;
 
-    name = getName();
+    name = GetName();
     if (look == '(')
-        functionDeclaration(name);
+        FunctionDeclaration(name);
     else
-        dataDeclaration(name);
+        DoData(name);
 }
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
 
     while (look != EOF && look != '\n') {
-        getClass();
-        getType();
-        topDeclaration();
+        GetClass();
+        GetType();
+        TopDeclaration();
     }
 
     return 0;

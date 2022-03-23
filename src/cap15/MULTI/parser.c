@@ -6,16 +6,16 @@
 #include "parser.h"
 
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
     if (isdigit(look)) {
-        getNum(num);
-        asmLoadConstant(num);
+        GetNum(num);
+        AsmLoadConst(num);
     } else if (isalpha(look)) {
-        getName(name);
-        asmLoadVariable(name);
+        GetName(name);
+        AsmLoadVar(name);
     } else
-        error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", look);
 }

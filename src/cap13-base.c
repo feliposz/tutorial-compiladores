@@ -16,79 +16,79 @@ Este código é de livre distribuição e uso.
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
-#define SYMTBL_SZ 26
-char symbolTable[SYMTBL_SZ]; /* tabela de símbolos */
+#define SYMBOLTABLE_SIZE 26
+char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
 
 /* rotinas utilitárias */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void emit(char *fmt, ...);
-void undefined(char name);
-void duplicated(char name);
-void unrecognized(char name);
-void notVar(char name);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void EmitLn(char *fmt, ...);
+void Undefined(char name);
+void Duplicate(char name);
+void Unrecognized(char name);
+void NotVar(char name);
 
 /* tratamento da tabela de símbolos */
-char symbolType(char name);
-char inTable(char name);
-void addSymbol(char name, char type);
-void checkVar(char name);
+char SymbolType(char name);
+char InTable(char name);
+void AddEntry(char name, char type);
+void CheckVar(char name);
 
 /* analisador léxico rudimentar */
-int isAddOp(char c);
-int isMulOp(char c);
-void skipWhite();
-void newLine();
-void match(char c);
-char getName();
-char getNum();
+int IsAddOp(char c);
+int IsMulOp(char c);
+void SkipWhite();
+void NewLine();
+void Match(char c);
+char GetName();
+char GetNum();
 
 /* geração de código */
-void asmLoadVar(char name);
-void asmStoreVar(char name);
-void asmAllocVar(char name);
+void AsmLoadVar(char name);
+void AsmStoreVar(char name);
+void AsmAllocVar(char name);
 
 /* analisador sintático */
-void expression();
-void assignment();
-void doBlock();
-void beginBlock();
-void declaration();
-void topDeclarations();
+void Expression();
+void Assignment();
+void DoBlock();
+void BeginBlock();
+void Declaration();
+void TopDeclarations();
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    topDeclarations();
-    beginBlock();
+    Init();
+    TopDeclarations();
+    BeginBlock();
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
     int i;
 
-    for (i = 0; i < SYMTBL_SZ; i++)
-        symbolTable[i] = ' ';
+    for (i = 0; i < SYMBOLTABLE_SIZE; i++)
+        SymbolTable[i] = ' ';
 
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 }
 
 /* lê próximo caracter da entrada em lookahead */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -102,7 +102,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -118,7 +118,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -134,7 +134,7 @@ void expected(char *fmt, ...)
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -148,198 +148,198 @@ void emit(char *fmt, ...)
 }
 
 /* avisa a respeito de um identificador desconhecido */
-void undefined(char name)
+void Undefined(char name)
 {
-    fatal("Undefined identifier %c", name);
+    Abort("Undefined identifier %c", name);
 }
 
 /* avisa a respeito de um identificador desconhecido */
-void duplicated(char name)
+void Duplicate(char name)
 {
-    fatal("Duplicated identifier %c", name);
+    Abort("Duplicated identifier %c", name);
 }
 
 /* avisa a respeito de uma palavra-chave desconhecida */
-void unrecognized(char name)
+void Unrecognized(char name)
 {
-    fatal("Unrecognized keyword %c", name);
+    Abort("Unrecognized keyword %c", name);
 }
 
 /* avisa a respeito de um identificador que não é variável */
-void notVar(char name)
+void NotVar(char name)
 {
-    fatal("'%c' is not a variable", name);
+    Abort("'%c' is not a variable", name);
 }
 
 /* retorna o tipo de um identificador */
-char symbolType(char name)
+char SymbolType(char name)
 {
-    return symbolTable[name - 'A'];
+    return SymbolTable[name - 'A'];
 }
 
 /* verifica se "name" consta na tabela de símbolos */
-char inTable(char name)
+char InTable(char name)
 {
-    return (symbolTable[name - 'A'] != ' ');
+    return (SymbolTable[name - 'A'] != ' ');
 }
 
 /* adiciona novo identificador à tabela de símbolos */
-void addSymbol(char name, char type)
+void AddEntry(char name, char type)
 {
-    if (inTable(name))
-        duplicated(name);
-    symbolTable[name - 'A'] = type;
+    if (InTable(name))
+        Duplicate(name);
+    SymbolTable[name - 'A'] = type;
 }
 
 /* verifica se identificador é variável */
-void checkVar(char name)
+void CheckVar(char name)
 {
-    if (!inTable(name))
-        undefined(name);
-    if (symbolType(name) != 'v')
-        notVar(name);
+    if (!InTable(name))
+        Undefined(name);
+    if (SymbolType(name) != 'v')
+        NotVar(name);
 }
 
 /* testa operadores de adição */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* testa operadores de multiplicação */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (look == ' ' || look == '\t')
-        nextChar();
+        NextChar();
 }
 
 /* reconhece uma quebra de linha */
-void newLine()
+void NewLine()
 {
     if (look == '\n')
-        nextChar();
+        NextChar();
 }
 
 /* verifica se look combina com caracter esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
-    skipWhite();
+        Expected("'%c'", c);
+    NextChar();
+    SkipWhite();
 }
 
 /* analisa e traduz um nome (identificador ou palavra-chave) */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 
     return name;
 }
 
 /* analisa e traduz um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 
     return num;
 }
 
 /* carrega uma variável no registrador primário */
-void asmLoadVar(char name)
+void AsmLoadVar(char name)
 {
-    checkVar(name);
-    emit("MOV AX, WORD PTR %c", name);
+    CheckVar(name);
+    EmitLn("MOV AX, WORD PTR %c", name);
 }
 
 /* armazena registrador primário em variável */
-void asmStoreVar(char name)
+void AsmStoreVar(char name)
 {
-    emit("MOV WORD PTR %c, AX", name);
+    EmitLn("MOV WORD PTR %c, AX", name);
 }
 
 /* aloca espaço de armazenamento para variável */
-void asmAllocVar(char name)
+void AsmAllocVar(char name)
 {
-    if (inTable(name))
-        duplicated(name);
-    addSymbol(name, 'v');
+    if (InTable(name))
+        Duplicate(name);
+    AddEntry(name, 'v');
     printf("%c\tdw 0\n", name);
 }
 
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    asmLoadVar(getName());
+    AsmLoadVar(GetName());
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name;
 
-    name = getName();
-    match('=');
-    expression();
-    asmStoreVar(name);
+    name = GetName();
+    Match('=');
+    Expression();
+    AsmStoreVar(name);
 }
 
 /* analiza e traduz um bloco de comandos */
-void doBlock()
+void DoBlock()
 {
     while (look != 'e') {
-        assignment();
-        newLine();
+        Assignment();
+        NewLine();
     }
 }
 
 /* analiza e traduz um bloco begin */
-void beginBlock()
+void BeginBlock()
 {
-    match('b');
-    newLine();
-    doBlock();
-    match('e');
-    newLine();
+    Match('b');
+    NewLine();
+    DoBlock();
+    Match('e');
+    NewLine();
 }
 
 /* analiza e traduz a declaração de uma variável */
-void declaration()
+void Declaration()
 {
-    match('v');
-    asmAllocVar(getName());
+    Match('v');
+    AsmAllocVar(GetName());
 }
 
 /* analiza e traduz as declarações globais */
-void topDeclarations()
+void TopDeclarations()
 {
     while (look != 'b') {
         switch (look) {
             case 'v':
-                declaration();
+                Declaration();
                 break;
             default:
-                unrecognized(look);
+                Unrecognized(look);
                 break;
         }
-        newLine();
+        NewLine();
     }
 }

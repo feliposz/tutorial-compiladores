@@ -20,20 +20,20 @@ char token; /* código do token atual */
 char value[MAXTOKEN+1]; /* texto do token atual */
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (isspace(look))
-        nextChar();
+        NextChar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -47,7 +47,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -63,7 +63,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -80,7 +80,7 @@ void expected(char *fmt, ...)
 
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -93,79 +93,79 @@ void emit(char *fmt, ...)
     putchar('\n');
 }
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* recebe o nome de um identificador ou palavra-chave */
-void getName()
+void GetName()
 {
     int i;
 
-    skipWhite();
+    SkipWhite();
     if (!isalpha(look))
-        expected("Identifier or Keyword");
+        Expected("Identifier or Keyword");
     for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
         value[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = 'x';
 }
 
 /* recebe um número inteiro */
-void getNum()
+void GetNum()
 {
     int i;
 
-    skipWhite();
+    SkipWhite();
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look) && i < MAXTOKEN; i++) {
         value[i] = look;
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = '#';
 }
 
 /* analisa e traduz um operador */
-void getOp()
+void GetOp()
 {
-    skipWhite();
+    SkipWhite();
     token = look;
     value[0] = look;
     value[1] = '\0';
-    nextChar();
+    NextChar();
 }
 
 /* pega o próximo token de entrada */
-void nextToken()
+void NextToken()
 {
-    skipWhite();
+    SkipWhite();
     if (isalpha(look))
-        getName();
+        GetName();
     else if (isdigit(look))
-        getNum();
+        GetNum();
     else
-        getOp();
+        GetOp();
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    nextChar();
+    NextChar();
 }
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
     do {
-        nextToken();
+        NextToken();
         printf("Token: %c Value: %s\n", token, value);
     } while (token != '.');
 }

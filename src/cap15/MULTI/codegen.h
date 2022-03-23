@@ -1,7 +1,7 @@
 #ifndef _CODEGEN_H
 #define _CODEGEN_H
 
-void asmLoadConstant(char *s);
-void asmLoadVariable(char *s);
+void AsmLoadConst(char *s);
+void AsmLoadVar(char *s);
 
 #endif

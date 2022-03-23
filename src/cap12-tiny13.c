@@ -14,57 +14,57 @@ Este código é de livre distribuição e uso.
 #include <ctype.h>
 #include <string.h>
 
-#define SYMTBL_SZ 1000
-char *symbolTable[SYMTBL_SZ]; /* tabela de símbolos */
-char symbolType[SYMTBL_SZ]; /* tabela de tipos de símbolos */
-int symbolCount; /* número de entradas na tabela de símbolos */
+#define SYMBOLTABLE_SIZE 1000
+char *SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
+char SymbolType[SYMBOLTABLE_SIZE]; /* tabela de tipos de símbolos */
+int SymbolCount; /* número de entradas na tabela de símbolos */
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
-int labelCount; /* Contador usado pelo gerador de rótulos */
+int LabelCount; /* Contador usado pelo gerador de rótulos */
 
-#define KWLIST_SZ 9
+#define KEYWORDLIST_SIZE 9
 
 /* lista de palavras-chave */
-char *kwlist[KWLIST_SZ] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
+char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
                            "READ", "WRITE", "VAR", "END"};
 
 /* códigos de palavras-chave: a ordem deve obedecer a lista de palavras-chave */
-char *kwcode = "ileweRWve";
+char *KeywordCode = "ileweRWve";
 
 #define MAXTOKEN 16
 char value[MAXTOKEN+1]; /* texto do token atual */
 char token; /* código do token atual */
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* pula um campo de comentário */
-void skipComment()
+void SkipComment()
 {
     while (look != '}') {
-        nextChar();
+        NextChar();
         if (look == '{') /* trata comentários aninhados */
-            skipComment();
+            SkipComment();
     }
-    nextChar();
+    NextChar();
 }
 
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (isspace(look) || look == '{') {
         if (look == '{')
-            skipComment();
+            SkipComment();
         else
-            nextChar();
+            NextChar();
     }
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -78,7 +78,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -94,7 +94,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -110,80 +110,80 @@ void expected(char *fmt, ...)
 }
 
 /* avisa a respeito de um identificador desconhecido */
-void undefined(char *name)
+void Undefined(char *name)
 {
-    fatal("Error: Undefined identifier %s\n", name);
+    Abort("Error: Undefined identifier %s\n", name);
 }
 
 /* avisa a respeito de um identificador duplicado */
-void duplicated(char *name)
+void Duplicate(char *name)
 {
-    fatal("Error: Duplicated identifier %s\n", name);
+    Abort("Error: Duplicated identifier %s\n", name);
 }
 
 /* reporta um erro se token NÃO for um identificador */
-void checkIdent()
+void CheckIdent()
 {
     if (token != 'x')
-        expected("Identifier");
+        Expected("Identifier");
 }
 
 /* recebe o nome de um identificador ou palavra-chave */
-void getName()
+void GetName()
 {
     int i;
 
-    skipWhite();
+    SkipWhite();
     if (!isalpha(look))
-        expected("Identifier or Keyword");
+        Expected("Identifier or Keyword");
     for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
         value[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = 'x';
 }
 
 /* recebe um número inteiro */
-void getNum()
+void GetNum()
 {
     int i;
 
-    skipWhite();
+    SkipWhite();
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look) && i < MAXTOKEN; i++) {
         value[i] = look;
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = '#';
 }
 
 /* analisa e traduz um operador */
-void getOp()
+void GetOp()
 {
-    skipWhite();
+    SkipWhite();
     token = look;
     value[0] = look;
     value[1] = '\0';
-    nextChar();
+    NextChar();
 }
 
 /* pega o próximo token de entrada */
-void nextToken()
+void NextToken()
 {
-    skipWhite();
+    SkipWhite();
     if (isalpha(look))
-        getName();
+        GetName();
     else if (isdigit(look))
-        getNum();
+        GetNum();
     else
-        getOp();
+        GetOp();
 }
 
 /* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
-int lookup(char *s, char *list[], int size)
+int Lookup(char *s, char *list[], int size)
 {
     int i;
 
@@ -196,27 +196,27 @@ int lookup(char *s, char *list[], int size)
 }
 
 /* analisador léxico. analisa identificador ou palavra-chave */
-void scan()
+void Scan()
 {
     int kw;
 
     if (token == 'x') {
-        kw = lookup(value, kwlist, KWLIST_SZ);
+        kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
         if (kw >= 0)
-            token = kwcode[kw];
+            token = KeywordCode[kw];
     }
 }
 
 /* verifica se a string combina com o esperado */
-void matchString(char *s)
+void MatchString(char *s)
 {
     if (strcmp(value, s) != 0)
-        expected(s);
-    nextToken();
+        Expected(s);
+    NextToken();
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -230,227 +230,227 @@ void emit(char *fmt, ...)
 }
 
 /* reconhece operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* reconhece operador multiplicativo */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
 /* reconhece um operador OU */
-int isOrOp(char c)
+int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
 /* reconhece operadores relacionais */
-int isRelOp(char c)
+int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
 
 /* verifica se símbolo está na tabela */
-int inTable(char *name)
+int InTable(char *name)
 {
-    return (lookup(name, symbolTable, symbolCount) >= 0);
+    return (Lookup(name, SymbolTable, SymbolCount) >= 0);
 }
 
 /* retorna o endereço do identificador na tabela de símbolos */
-int locate(char *name)
+int Locate(char *name)
 {
-    return lookup(name, symbolTable, symbolCount);
+    return Lookup(name, SymbolTable, SymbolCount);
 }
 
 /* reporta um erro se identificador NÃO constar na tabela de símbolos */
-void checkTable(char *name)
+void CheckTable(char *name)
 {
-    if (!inTable(name))
-        undefined(name);
+    if (!InTable(name))
+        Undefined(name);
 }
 
 /* reporta um erro se identificador JÁ constar na tabela de símbolos */
-void checkDuplicated(char *name)
+void CheckDuplicate(char *name)
 {
-    if (inTable(name))
-        duplicated(name);
+    if (InTable(name))
+        Duplicate(name);
 }
 
 /* adiciona uma nova entrada à tabela de símbolos */
-void addSymbol(char *name, char type)
+void AddEntry(char *name, char type)
 {
     char *newSymbol;
 
-    checkDuplicated(name);
+    CheckDuplicate(name);
 
-    if (symbolCount >= SYMTBL_SZ) {
-        fatal("Symbol table full!");
+    if (SymbolCount >= SYMBOLTABLE_SIZE) {
+        Abort("Symbol table full!");
     }
 
     newSymbol = (char *) malloc(sizeof(char) * (strlen(name) + 1));
     if (newSymbol == NULL)
-        fatal("Out of memory!");
+        Abort("Out of memory!");
 
     strcpy(newSymbol, name);
 
-    symbolTable[symbolCount] = newSymbol;
-    symbolType[symbolCount] = type;
-    symbolCount++;
+    SymbolTable[SymbolCount] = newSymbol;
+    SymbolType[SymbolCount] = type;
+    SymbolCount++;
 }
 
 /* gera um novo rótulo único */
-int newLabel()
+int NewLabel()
 {
-    return labelCount++;
+    return LabelCount++;
 }
 
 /* emite um rótulo */
-void postLabel(int lbl)
+void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 
 /* cabeçalho inicial para o montador */
-void header()
+void AsmHeader()
 {
-    emit(".model small");
-    emit(".stack");
-    emit(".code");
+    EmitLn(".model small");
+    EmitLn(".stack");
+    EmitLn(".code");
     printf("extrn READ:near, WRITE:near\n");
     printf("PROG segment byte public\n");
-    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
 /* emite código para o prólogo de um programa */
-void prolog()
+void AsmProlog()
 {
     printf("MAIN:\n");
-    emit("MOV AX, PROG");
-    emit("MOV DS, AX");
-    emit("MOV ES, AX");
+    EmitLn("MOV AX, PROG");
+    EmitLn("MOV DS, AX");
+    EmitLn("MOV ES, AX");
 }
 
 /* emite código para o epílogo de um programa */
-void epilog()
+void AsmEpilog()
 {
-    emit("MOV AX, 4C00h");
-    emit("INT 21h");
+    EmitLn("MOV AX, 4C00h");
+    EmitLn("INT 21h");
     printf("PROG ends\n");
-    emit("end MAIN");
+    EmitLn("end MAIN");
 }
 
 /* zera o registrador primário */
-void asmClear()
+void AsmClear()
 {
-    emit("XOR AX, AX");
+    EmitLn("XOR AX, AX");
 }
 
 /* negativa o registrador primário */
-void asmNegative()
+void AsmNegate()
 {
-    emit("NEG AX");
+    EmitLn("NEG AX");
 }
 
 /* carrega uma constante numérica no registrador primário */
-void asmLoadConst(char *num)
+void AsmLoadConst(char *num)
 {
-    emit("MOV AX, %s", num);
+    EmitLn("MOV AX, %s", num);
 }
 
 /* carrega uma variável no registrador primário */
-void asmLoadVar(char *name)
+void AsmLoadVar(char *name)
 {
-    emit("MOV AX, WORD PTR %s", name);
+    EmitLn("MOV AX, WORD PTR %s", name);
 }
 
 /* armazena registrador primário em variável */
-void asmStore(char *name)
+void AsmStore(char *name)
 {
-    emit("MOV WORD PTR %s, AX", name);
+    EmitLn("MOV WORD PTR %s, AX", name);
 }
 
 /* coloca registrador primário na pilha */
-void asmPush()
+void AsmPush()
 {
-    emit("PUSH AX");
+    EmitLn("PUSH AX");
 }
 
 /* adiciona o topo da pilha ao registrador primário */
-void asmPopAdd()
+void AsmPopAdd()
 {
-    emit("POP BX");
-    emit("ADD AX, BX");
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* subtrai o registrador primário do topo da pilha */
-void asmPopSub()
+void AsmPopSub()
 {
-    emit("POP BX");
-    emit("SUB AX, BX");
-    emit("NEG AX");
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    EmitLn("NEG AX");
 }
 
 /* multiplica o topo da pilha pelo registrador primário */
-void asmPopMul()
+void AsmPopMul()
 {
-    emit("POP BX");
-    emit("IMUL BX");
+    EmitLn("POP BX");
+    EmitLn("IMUL BX");
 }
 
 /* divide o topo da pilha pelo registrador primário */
-void asmPopDiv()
+void AsmPopDiv()
 {
-    emit("POP BX");
-    emit("XCHG AX, BX");
-    emit("CWD");
-    emit("IDIV BX");
+    EmitLn("POP BX");
+    EmitLn("XCHG AX, BX");
+    EmitLn("CWD");
+    EmitLn("IDIV BX");
 }
 
 /* inverte registrador primário */
-void asmNot()
+void AsmNot()
 {
-    emit("NOT AX");
+    EmitLn("NOT AX");
 }
 
 /* aplica "E" binário ao topo da pilha com registrador primário */
-void asmPopAnd()
+void AsmPopAnd()
 {
-    emit("POP BX");
-    emit("AND AX, BX");
+    EmitLn("POP BX");
+    EmitLn("AND AX, BX");
 }
 
 /* aplica "OU" binário ao topo da pilha com registrador primário */
-void asmPopOr()
+void AsmPopOr()
 {
-    emit("POP BX");
-    emit("OR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("OR AX, BX");
 }
 
 /* aplica "OU-exclusivo" binário ao topo da pilha com registrador primário */
-void asmPopXor()
+void AsmPopXor()
 {
-    emit("POP BX");
-    emit("XOR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("XOR AX, BX");
 }
 
 /* compara topo da pilha com registrador primário */
-void asmPopCompare()
+void AsmPopCompare()
 {
-    emit("POP BX");
-    emit("CMP BX, AX");
+    EmitLn("POP BX");
+    EmitLn("CMP BX, AX");
 }
 
 /* altera registrador primário (e flags, indiretamente) conforme a comparação */
-void asmRelOp(char op)
+void AsmRelOp(char op)
 {
     char *jump;
     int l1, l2;
 
-    l1 = newLabel();
-    l2 = newLabel();
+    l1 = NewLabel();
+    l2 = NewLabel();
 
     switch (op) {
         case '=': jump = "JE"; break;
@@ -461,334 +461,334 @@ void asmRelOp(char op)
         case 'G': jump = "JGE"; break;
     }
 
-    emit("%s L%d", jump, l1);
-    emit("XOR AX, AX");
-    emit("JMP L%d", l2);
-    postLabel(l1);
-    emit("MOV AX, -1");
-    postLabel(l2);
+    EmitLn("%s L%d", jump, l1);
+    EmitLn("XOR AX, AX");
+    EmitLn("JMP L%d", l2);
+    PostLabel(l1);
+    EmitLn("MOV AX, -1");
+    PostLabel(l2);
 }
 
 /* desvio incondicional */
-void asmJmp(int label)
+void AsmBranch(int label)
 {
-    emit("JMP L%d", label);
+    EmitLn("JMP L%d", label);
 }
 
 /* desvio se falso (0) */
-void asmJmpFalse(int label)
+void AsmBranchFalse(int label)
 {
-    emit("JZ L%d", label);
+    EmitLn("JZ L%d", label);
 }
 
 /* lê um valor a partir da entrada e armazena-o no registrador primário */
-void asmRead()
+void AsmRead()
 {
-    emit("CALL READ");
+    EmitLn("CALL READ");
 }
 
 /* mostra valor do registrador primário */
-void asmWrite()
+void AsmWrite()
 {
-    emit("CALL WRITE");
+    EmitLn("CALL WRITE");
 }
 
 /* alocação de memória para uma variável global */
-void allocVar(char *name, int value)
+void AllocVar(char *name, int value)
 {
     printf("%s:\tdw %d\n", name, value);
 }
 
 /* analisa uma lista de declaração de variáveis */
-void declaration()
+void Declaration()
 {
-    nextToken();
-    checkIdent();
-    checkDuplicated(value);
-    addSymbol(value, 'v');
-    allocVar(value, 0);
-    nextToken();
+    NextToken();
+    CheckIdent();
+    CheckDuplicate(value);
+    AddEntry(value, 'v');
+    AllocVar(value, 0);
+    NextToken();
 }
 
 /* reconhece um ponto-e-vírgula opcional */
-void semicolon()
+void Semicolon()
 {
     if (token == ';')
-        matchString(";");
+        MatchString(";");
 }
 
 /* analisa e traduz declarações globais */
-void topDeclarations()
+void TopDeclarations()
 {
-    scan();
+    Scan();
     while (token == 'v') {
         do {
-            declaration();
+            Declaration();
         } while (token == ',');
-        semicolon();
-        scan();
+        Semicolon();
+        Scan();
     }
 }
 
-void boolExpression(); /* declaração adianta */
+void BoolExpression(); /* declaração adianta */
 
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     if (token == '(') {
-        nextToken();
-        boolExpression();
-        matchString(")");
+        NextToken();
+        BoolExpression();
+        MatchString(")");
     } else {
         if (token == 'x') {
-            checkTable(value);
-            asmLoadVar(value);
+            CheckTable(value);
+            AsmLoadVar(value);
         } else if (token == '#')
-            asmLoadConst(value);
+            AsmLoadConst(value);
         else
-            expected("Math Factor");
-        nextToken();
+            Expected("Math Factor");
+        NextToken();
     }
 }
 
 /* reconhece e traduz uma multiplicação */
-void multiply()
+void Multiply()
 {
-    nextToken();
-    factor();
-    asmPopMul();
+    NextToken();
+    Factor();
+    AsmPopMul();
 }
 
 /* reconhece e traduz uma divisão */
-void divide()
+void Divide()
 {
-    nextToken();
-    factor();
-    asmPopDiv();
+    NextToken();
+    Factor();
+    AsmPopDiv();
 }
 
 /* analisa e traduz um termo matemático */
-void term()
+void Term()
 {
-    factor();
-    while (isMulOp(token)) {
-        asmPush();
+    Factor();
+    while (IsMulOp(token)) {
+        AsmPush();
         switch (token) {
           case '*':
-            multiply();
+            Multiply();
             break;
           case '/':
-            divide();
+            Divide();
             break;
         }
     }
 }
 
 /* reconhece e traduz uma adição */
-void add()
+void Add()
 {
-    nextToken();
-    term();
-    asmPopAdd();
+    NextToken();
+    Term();
+    AsmPopAdd();
 }
 
 /* reconhece e traduz uma subtração*/
-void subtract()
+void Subtract()
 {
-    nextToken();
-    term();
-    asmPopSub();
+    NextToken();
+    Term();
+    AsmPopSub();
 }
 
 /* analisa e traduz uma expressão matemática */
-void expression()
+void Expression()
 {
-    if (isAddOp(token))
-        asmClear();
+    if (IsAddOp(token))
+        AsmClear();
     else
-        term();
-    while (isAddOp(token)) {
-        asmPush();
+        Term();
+    while (IsAddOp(token)) {
+        AsmPush();
         switch (token) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
         }
     }
 }
 
 /* analisa e traduz uma relação */
-void relation()
+void Relation()
 {
     char op;
 
-    expression();
-    if (isRelOp(token)) {
+    Expression();
+    if (IsRelOp(token)) {
         op = token;
-        nextToken(); /* só para remover o operador do caminho */
+        NextToken(); /* só para remover o operador do caminho */
         if (op == '<') {
             if (token == '>') { /* trata operador <> */
-                nextToken();
+                NextToken();
                 op = '#';
             } else if (token == '=') { /* trata operador <= */
-                nextToken();
+                NextToken();
                 op = 'L';
             }
         } else if (op == '>' && token == '=') { /* trata operador >= */
-            nextToken();
+            NextToken();
             op = 'G';
         }
-        asmPush();
-        expression();
-        asmPopCompare();
-        asmRelOp(op);
+        AsmPush();
+        Expression();
+        AsmPopCompare();
+        AsmRelOp(op);
     }
 }
 
 /* analisa e traduz um fator booleano com NOT inicial */
-void notFactor()
+void NotFactor()
 {
     if (token == '!') {
-        nextToken();
-        relation();
-        asmNot();
+        NextToken();
+        Relation();
+        AsmNot();
     } else
-        relation();
+        Relation();
 }
 
 /* analisa e traduz um termo booleano */
-void boolTerm()
+void BoolTerm()
 {
-    notFactor();
+    NotFactor();
     while (token == '&') {
-        nextToken();
-        asmPush();
-        notFactor();
-        asmPopAnd();
+        NextToken();
+        AsmPush();
+        NotFactor();
+        AsmPopAnd();
     }
 }
 
 /* reconhece e traduz um "OR" */
-void boolOr()
+void BoolOr()
 {
-    nextToken();
-    boolTerm();
-    asmPopOr();
+    NextToken();
+    BoolTerm();
+    AsmPopOr();
 }
 
 /* reconhece e traduz um "xor" */
-void boolXor()
+void BoolXor()
 {
-    nextToken();
-    boolTerm();
-    asmPopXor();
+    NextToken();
+    BoolTerm();
+    AsmPopXor();
 }
 
 /* analisa e traduz uma expressão booleana */
-void boolExpression()
+void BoolExpression()
 {
-    boolTerm();
-    while (isOrOp(token)) {
-        asmPush();
+    BoolTerm();
+    while (IsOrOp(token)) {
+        AsmPush();
         switch (token) {
           case '|':
-              boolOr();
+              BoolOr();
               break;
           case '~':
-              boolXor();
+              BoolXor();
               break;
         }
     }
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name[MAXTOKEN+1];
 
     strcpy(name, value);
-    checkTable(name);
-    nextToken();
-    matchString("=");
-    boolExpression();
-    asmStore(name);
+    CheckTable(name);
+    NextToken();
+    MatchString("=");
+    BoolExpression();
+    AsmStore(name);
 }
 
-void block();
+void Block();
 
 /* analisa e traduz um comando IF */
-void doIf()
+void DoIf()
 {
     int l1, l2;
 
-    nextToken();
-    boolExpression();
-    l1 = newLabel();
+    NextToken();
+    BoolExpression();
+    l1 = NewLabel();
     l2 = l1;
-    asmJmpFalse(l1);
-    block();
+    AsmBranchFalse(l1);
+    Block();
     if (token == 'l') {
-        nextToken();
-        l2 = newLabel();
-        asmJmp(l2);
-        postLabel(l1);
-        block();
+        NextToken();
+        l2 = NewLabel();
+        AsmBranch(l2);
+        PostLabel(l1);
+        Block();
     }
-    postLabel(l2);
-    matchString("ENDIF");
+    PostLabel(l2);
+    MatchString("ENDIF");
 }
 
 /* analisa e traduz um comando WHILE */
-void doWhile()
+void DoWhile()
 {
     int l1, l2;
 
-    nextToken();
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    boolExpression();
-    asmJmpFalse(l2);
-    block();
-    matchString("ENDWHILE");
-    asmJmp(l1);
-    postLabel(l2);
+    NextToken();
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    BoolExpression();
+    AsmBranchFalse(l2);
+    Block();
+    MatchString("ENDWHILE");
+    AsmBranch(l1);
+    PostLabel(l2);
 }
 
 /* processa um comando READ */
-void doRead()
+void DoRead()
 {
-    nextToken();
-    matchString("(");
+    NextToken();
+    MatchString("(");
     for (;;) {
-        checkIdent();
-        checkTable(value);
-        asmRead();
-        asmStore(value);
-        nextToken();
+        CheckIdent();
+        CheckTable(value);
+        AsmRead();
+        AsmStore(value);
+        NextToken();
         if (token != ',')
             break;
-        nextToken();
+        NextToken();
     }
-    matchString(")");
+    MatchString(")");
 }
 
 /* processa um comando WRITE */
-void doWrite()
+void DoWrite()
 {
-    nextToken();
-    matchString("(");
+    NextToken();
+    MatchString("(");
     for (;;) {
-        expression();
-        asmWrite();
+        Expression();
+        AsmWrite();
         if (token != ',')
             break;
-        nextToken();
+        NextToken();
     }
-    matchString(")");
+    MatchString(")");
 }
 
 /* Remova o comentário para usar o estilo "Pascal" de ponto-e-vírgulas */
@@ -797,63 +797,63 @@ void doWrite()
 #ifdef PASCAL_STYLE
 
 /* analisa e traduz um único comando */
-void statement()
+void Statement()
 {
-    scan();
+    Scan();
     switch (token) {
         case 'i':
-            doIf();
+            DoIf();
             break;
         case 'w':
-            doWhile();
+            DoWhile();
             break;
         case 'R':
-            doRead();
+            DoRead();
             break;
         case 'W':
-            doWrite();
+            DoWrite();
             break;
         case 'x':
-            assignment();
+            Assignment();
             break;
     }
 }
 
 /* analiza e traduz um bloco de comandos estilo "Pascal" */
-void block()
+void Block()
 {
-    statement();
+    Statement();
     while (token == ';') {
-        nextToken();
-        statement();
+        NextToken();
+        Statement();
     }
-    scan();
+    Scan();
 }
 
 #else
 
 /* analisa e traduz um bloco de comandos estilo "C/Ada" */
-void block()
+void Block()
 {
     int follow = 0;
 
     do {
-        scan();
+        Scan();
         switch (token) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'R':
-                doRead();
+                DoRead();
                 break;
             case 'W':
-                doWrite();
+                DoWrite();
                 break;
             case 'x':
-                assignment();
+                Assignment();
                 break;
             case 'e':
             case 'l':
@@ -861,35 +861,35 @@ void block()
                 break;
         }
         if (!follow)
-            semicolon();
+            Semicolon();
     } while (!follow);
 }
 
 #endif
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    symbolCount = 0;
+    SymbolCount = 0;
 
-    nextChar();
-    nextToken();
+    NextChar();
+    NextToken();
 }
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
 
-    matchString("PROGRAM");
-    semicolon();
-    header();
-    topDeclarations();
-    matchString("BEGIN");
-    prolog();
-    block();
-    matchString("END");
-    epilog();
+    MatchString("PROGRAM");
+    Semicolon();
+    AsmHeader();
+    TopDeclarations();
+    MatchString("BEGIN");
+    AsmProlog();
+    Block();
+    MatchString("END");
+    AsmEpilog();
 
     return 0;
 }

@@ -6,157 +6,157 @@
 #include "parser.h"
 
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name[MAXNAME+1];
 
-    getName(name);
-    match('=');
-    expression();
-    asmStoreVariable(name);
+    GetName(name);
+    Match('=');
+    Expression();
+    AsmStoreVar(name);
 }
 
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    signedTerm();
-    while (isAddOp(look)) {
+    SignedTerm();
+    while (IsAddOp(look)) {
         switch (look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
             case '|':
-                boolOr();
+                BoolOr();
                 break;
             case '~':
-                boolXor();
+                BoolXor();
                 break;
         }
     }
 }
 
 /* analisa e traduz um termo */
-void term()
+void Term()
 {
-    notFactor();
-    while (isMulOp(look)) {
+    NotFactor();
+    while (IsMulOp(look)) {
         switch (look) {
             case '*':
-                multiply();
+                Multiply();
                 break;
             case '/':
-                divide();
+                Divide();
                 break;
             case '&':
-                boolAnd();
+                BoolAnd();
                 break;
         }
     }
 }
 
 /* analisa e traduz um termo com um sinal opcional */
-void signedTerm()
+void SignedTerm()
 {
     char sign = look;
-    if (isAddOp(look))
-        nextChar();
-    term();
+    if (IsAddOp(look))
+        NextChar();
+    Term();
     if (sign == '-')
-        asmNegate();
+        AsmNegate();
 }
 
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else if (isdigit(look)) {
-        getNum(num);
-        asmLoadConstant(num);
+        GetNum(num);
+        AsmLoadConst(num);
     } else if (isalpha(look)) {
-        getName(name);
-        asmLoadVariable(name);
+        GetName(name);
+        AsmLoadVar(name);
     } else
-        error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", look);
 }
 
 /* analisa e traduz um fator com NOT opcional */
-void notFactor()
+void NotFactor()
 {
     if (look == '!') {
-        match('!');
-        factor();
-        asmNot();
+        Match('!');
+        Factor();
+        AsmNot();
     } else
-        factor();
+        Factor();
 }
 
 /* analisa e traduz uma operação de soma */
-void add()
+void Add()
 {
-    match('+');
-    asmPush();
-    term();
-    asmPopAdd();
+    Match('+');
+    AsmPush();
+    Term();
+    AsmPopAdd();
 }
 
 /* analisa e traduz uma operação de subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    asmPush();
-    term();
-    asmPopSub();
+    Match('-');
+    AsmPush();
+    Term();
+    AsmPopSub();
 }
 
 /* analisa e traduz uma operação de multiplicação */
-void multiply()
+void Multiply()
 {
-    match('*');
-    asmPush();
-    notFactor();
-    asmPopMul();
+    Match('*');
+    AsmPush();
+    NotFactor();
+    AsmPopMul();
 }
 
 /* analisa e traduz uma operação de divisão */
-void divide()
+void Divide()
 {
-    match('/');
-    asmPush();
-    notFactor();
-    asmPopDiv();
+    Match('/');
+    AsmPush();
+    NotFactor();
+    AsmPopDiv();
 }
 
 /* analisa e traduz uma operação OU booleana */
-void boolOr()
+void BoolOr()
 {
-    match('|');
-    asmPush();
-    term();
-    asmPopOr();
+    Match('|');
+    AsmPush();
+    Term();
+    AsmPopOr();
 }
 
 /* analisa e traduz uma operação OU-exclusivo booleana */
-void boolXor()
+void BoolXor()
 {
-    match('~');
-    asmPush();
-    term();
-    asmPopXor();
+    Match('~');
+    AsmPush();
+    Term();
+    AsmPopXor();
 }
 
 /* analisa e traduz uma operação AND */
-void boolAnd()
+void BoolAnd()
 {
-    match('&');
-    asmPush();
-    notFactor();
-    asmPopAnd();
+    Match('&');
+    AsmPush();
+    NotFactor();
+    AsmPopAnd();
 }

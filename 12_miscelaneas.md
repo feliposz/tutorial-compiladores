@@ -99,39 +99,39 @@ Pra começar, eu tornei as coisas mais fáceis, introduzindo um novo reconhecedo
 
 ~~~c
 /* reconhece um ponto-e-vírgula */
-void semicolon()
+void Semicolon()
 {
-    matchString(";");
+    MatchString(";");
 }
 ~~~
 
-Esta rotina funciona de forma muito parecida com à antiga `match()`. Ela insiste em achar um ponto e vírgula como o próximo token. Tendo encontrado, ela passa para o próximo token.
+Esta rotina funciona de forma muito parecida com à antiga `Match()`. Ela insiste em achar um ponto e vírgula como o próximo token. Tendo encontrado, ela passa para o próximo token.
 
-Como um ponto-e-vírgula segue um comando, a rotina `block()` é praticamente a única que deve ser alterada:
+Como um ponto-e-vírgula segue um comando, a rotina `Block()` é praticamente a única que deve ser alterada:
 
 ~~~c
 /* analisa e traduz um bloco de comandos estilo "C/Ada" */
-void block()
+void Block()
 {
     int follow = 0;
 
     do {
-        scan();
+        Scan();
         switch (token) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'R':
-                doRead();
+                DoRead();
                 break;
             case 'W':
-                doWrite();
+                DoWrite();
                 break;
             case 'x':
-                assignment();
+                Assignment();
                 break;
             case 'e':
             case 'l':
@@ -139,26 +139,26 @@ void block()
                 break;
         }
         if (!follow)
-            semicolon();
+            Semicolon();
     } while (!follow);
 }
 ~~~
 
-Repare cuidadosamente na pequena alteração no comando switch. A chamada a `assignment()` agora é garantida com um teste em token. Isto é para evitar a chamada a `assignment()` quando o token é o ponto-e-vírgula (que pode acontecer se o comando for vazio).
+Repare cuidadosamente na pequena alteração no comando switch. A chamada a `Assignment()` agora é garantida com um teste em token. Isto é para evitar a chamada a `Assignment()` quando o token é o ponto-e-vírgula (que pode acontecer se o comando for vazio).
 
-Como as declarações são comandos também, também devemos adicionar uma chamada a `semicolon()` dentro de `topDeclarations()`:
+Como as declarações são comandos também, também devemos adicionar uma chamada a `Semicolon()` dentro de `TopDeclarations()`:
 
 ~~~c
 /* analisa e traduz declarações */
-void topDeclarations()
+void TopDeclarations()
 {
-    scan();
+    Scan();
     while (token == 'v') {
         do {
-            declaration();
+            Declaration();
         } while (token == ',');
-        semicolon();
-        scan();
+        Semicolon();
+        Scan();
     }
 }
 ~~~
@@ -169,17 +169,17 @@ Finalmente, precisamos de mais uma para o comando PROGRAM.
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
 
-    matchString("PROGRAM");
-    semicolon();
-    header();
-    topDeclarations();
-    matchString("BEGIN");
-    prolog();
-    block();
-    matchString("END");
-    epilog();
+    MatchString("PROGRAM");
+    Semicolon();
+    AsmHeader();
+    TopDeclarations();
+    MatchString("BEGIN");
+    AsmProlog();
+    Block();
+    MatchString("END");
+    AsmEpilog();
 
     return 0;
 }
@@ -187,45 +187,45 @@ int main()
 
 É simples assim. Teste com uma cópia de TINY e veja se você gosta.
 
-A versão Pascal é um pouco mais complicada, mas ainda assim ela requer apenas mudanças menores, e somente para a rotina `block()` . Para manter as coisas o mais simples possível, vou separar a rotina em duas partes. A rotina seguinte trata de apenas um comando:
+A versão Pascal é um pouco mais complicada, mas ainda assim ela requer apenas mudanças menores, e somente para a rotina `Block()` . Para manter as coisas o mais simples possível, vou separar a rotina em duas partes. A rotina seguinte trata de apenas um comando:
 
 ~~~c
 /* analisa e traduz um único comando */
-void statement()
+void Statement()
 {
-    scan();
+    Scan();
     switch (token) {
         case 'i':
-            doIf();
+            DoIf();
             break;
         case 'w':
-            doWhile();
+            DoWhile();
             break;
         case 'R':
-            doRead();
+            DoRead();
             break;
         case 'W':
-            doWrite();
+            DoWrite();
             break;
         case 'x':
-            assignment();
+            Assignment();
             break;
     }
 }
 ~~~
 
-Usando a rotina, podemos agora reescrever `block()` :
+Usando a rotina, podemos agora reescrever `Block()` :
 
 ~~~c
 /* analiza e traduz um bloco de comandos estilo "Pascal" */
-void block()
+void Block()
 {
-    statement();
+    Statement();
     while (token == ';') {
-        nextToken();
-        statement();
+        NextToken();
+        Statement();
     }
-    scan();
+    Scan();
 }
 ~~~
 
@@ -242,10 +242,10 @@ Considere a seguinte versão de "semicolon":
 
 ~~~c
 /* reconhece um ponto-e-vírgula opcional */
-void semicolon()
+void Semicolon()
 {
     if (token == ';')
-        nextToken();
+        NextToken();
 }
 ~~~
 
@@ -265,36 +265,36 @@ Delimitadores de Um Caracter
 
 Aqui está um exemplo. Podemos usar o padrão Turbo Pascal e usar chaves para os comentários. Neste caso, temos delimitadores de um caracter, então o processamento é um pouco mais fácil.
 
-Uma abordagem é eliminar os comentários no instante em que os encontramos na entrada; isto é, na rotina `nextChar()`. Para fazer isto, primeiro altere o nome de `nextChar()` para algo como `nextCharX()`. (**Aviso:** isto será uma mudança temporária, portanto é melhor não fazer isto com sua única cópia de TINY. Eu presumo que você entenda que todas estas experiências devem ser feitas em uma **cópia do programa**, e não no próprio.)
+Uma abordagem é eliminar os comentários no instante em que os encontramos na entrada; isto é, na rotina `NextChar()`. Para fazer isto, primeiro altere o nome de `NextChar()` para algo como `NextCharX()`. (**Aviso:** isto será uma mudança temporária, portanto é melhor não fazer isto com sua única cópia de TINY. Eu presumo que você entenda que todas estas experiências devem ser feitas em uma **cópia do programa**, e não no próprio.)
 
 Agora, vamos precisar de uma rotina que pule os comentários. Então, entre com esta nova rotina:
 
 ~~~c
 /* pula um campo de comentário */
-void skipComment()
+void SkipComment()
 {
     while (look != '}') {
-        nextCharX();
+        NextCharX();
     }
-    nextCharX();
+    NextCharX();
 }
 ~~~
 
 Evidentemente, o que está rotina faz é simplesmente ler e descartar caracteres da entrada, até encontrar uma chave direita ("}"). Então ele lê um caracter a mais e o coloca em "look" como esperado.
 
-Agora podemos escrever uma nova versão de `nextChar()` que usa "skipComment" para remover os comentários:
+Agora podemos escrever uma nova versão de `NextChar()` que usa "skipComment" para remover os comentários:
 
 ~~~c
 /* lê próximo caracter da entrada e pula quaisquer comentários */
-void nextChar()
+void NextChar()
 {
-    nextCharX();
+    NextCharX();
     if (look == '{')
-        skipComment();
+        SkipComment();
 }
 ~~~
 
-Entre com este código e faça um teste. Você vai descobrir que é possível colocar comentários de fato em qualquer lugar que você quiser. Os comentários nem sequer chegam ao analisador sinático... toda chamada a `nextChar()` retorna apenas caracteres que NÃO são parte de um comentário.
+Entre com este código e faça um teste. Você vai descobrir que é possível colocar comentários de fato em qualquer lugar que você quiser. Os comentários nem sequer chegam ao analisador sinático... toda chamada a `NextChar()` retorna apenas caracteres que NÃO são parte de um comentário.
 
 Na verdade, embora esta abordagem faça o trabalho corretamente, e talvez seja perfeitamente satisfatória pra você, ela faz o trabalho bem DEMAIS. Primeiro, a maioria das linguagens de programação especificam que o comentário deve ser tratado como um espaço, de forma que comentários não são permitidos digamos, no meio dos nomes de variávies (exemplo: "VAR{comentário}IÁVEL"). Esta versão atual simplesmente não liga para ONDE você coloca os comentários.
 
@@ -304,17 +304,17 @@ Antes que você torça o nariz para esta solução simplística, eu gostaria de 
 
 Mas se você preferir o tratamento convencional, então temos que mover o ponto de detecção um pouco abaixo.
 
-Para fazer isto, volte à versão anterior de `nextChar()` da forma como ela era antes e altere a chamada em `skipComment()`. Então, vamos adicionar a chave esquerda ("{") como um possível caracter de espaço, alterando a rotina `skipWhite()`:
+Para fazer isto, volte à versão anterior de `NextChar()` da forma como ela era antes e altere a chamada em `SkipComment()`. Então, vamos adicionar a chave esquerda ("{") como um possível caracter de espaço, alterando a rotina `SkipWhite()`:
 
 ~~~c
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (isspace(look) || look == '{') {
         if (look == '{')
-            skipComment();
+            SkipComment();
         else
-            nextChar();
+            NextChar();
     }
 }
 ~~~
@@ -325,18 +325,18 @@ OK, teste este também. Você vai descobrir que é possível usar comentários p
 
 Há mais um item a ser tratado: comentários aninhados. Alguns programadores gostam da idéia de aninhar comentários, já que isto permite comentar código que possui comentários durante a depuração. O código que eu mostrei aqui não permite isto, nem mesmo Pascal ou linguagem C.
 
-Mas para arrumar isto é incrivelmente simples. Tudo o que precisamos fazer é tornar s `skipComment()` recursivo:
+Mas para arrumar isto é incrivelmente simples. Tudo o que precisamos fazer é tornar s `SkipComment()` recursivo:
 
 ~~~c
 /* pula um campo de comentário */
-void skipComment()
+void SkipComment()
 {
     while (look != '}') {
-        nextChar();
+        NextChar();
         if (look == '{') /* trata comentários aninhados */
-            skipComment();
+            SkipComment();
     }
-    nextChar();
+    NextChar();
 }
 ~~~
 
@@ -347,92 +347,92 @@ Delimitadores Multi-caracter
 
 Tudo isto está muito bom para casos onde um comentário é delimitado por caracteres simples, mas e os casos como em C ou Pascal padrão, onde 2 caracteres são necessários? Bem, os princípios são os mesmos, mas temos que mudar nossa abordagem um pouco. Eu tenho certeza que você não ficaria surpreso de saber que as coisas são um pouco mais difíceis neste caso.
 
-Para a situação multi-caracter, a coisa mais fácil a fazer é interceptar o delimitador esquerdo de volta no estágio `nextChar()`. É possível "tokenizá-lo" lá mesmo, trocando-o por um simples caracter.
+Para a situação multi-caracter, a coisa mais fácil a fazer é interceptar o delimitador esquerdo de volta no estágio `NextChar()`. É possível "tokenizá-lo" lá mesmo, trocando-o por um simples caracter.
 
-Vamos assumir que estamos usando os delimitadores de C "/*" e "*/". Primeiro, temos que voltar a abordagem `nextCharX()`. Em outra cópia do compilador, renomeie `nextChar()` para `nextCharX()` e então entre com a nova versão de `nextChar()`:
+Vamos assumir que estamos usando os delimitadores de C "/*" e "*/". Primeiro, temos que voltar a abordagem `NextCharX()`. Em outra cópia do compilador, renomeie `NextChar()` para `NextCharX()` e então entre com a nova versão de `NextChar()`:
 
 ~~~c
 /* lê próximo caracter e intercepta início de comentário*/
-void nextChar()
+void NextChar()
 {
-    if (tempchar != ' ') {
-        look = tempchar;
-        tempchar = ' ';
+    if (TempChar != ' ') {
+        look = TempChar;
+        TempChar = ' ';
     } else {
-        nextCharX();
+        NextCharX();
         if (look == '/') {
-            tempchar = getchar();
-            if (tempchar == '*') {
+            TempChar = getchar();
+            if (TempChar == '*') {
                 look = '{';
-                tempchar = ' ';
+                TempChar = ' ';
             }
         }
     }
 }
 ~~~
 
-Como você pode perceber, o que este procedimento faz é interceptar toda ocorrência de "/". Então ele examina o PRÓXIMO caracter de entrada. Se o caracter é um "*", então encontramos o início de um comentário, e `nextChar()` vai retornar um substituto de um só caracter para ele. (Por simplicidade, estou usando o caracter "{" como eu fiz para os comentários da versão Pascal. Se você estiver escrevendo um compilador C, sem dúvida você iria preferir escolher algum outro caracter que não é usado em nenhum outro lugar em C. Escolhe qualquer um da sua preferência... mesmo que seja o caracter ASCII 255 por exemplo, qualquer coisa que seja única.)
+Como você pode perceber, o que este procedimento faz é interceptar toda ocorrência de "/". Então ele examina o PRÓXIMO caracter de entrada. Se o caracter é um "*", então encontramos o início de um comentário, e `NextChar()` vai retornar um substituto de um só caracter para ele. (Por simplicidade, estou usando o caracter "{" como eu fiz para os comentários da versão Pascal. Se você estiver escrevendo um compilador C, sem dúvida você iria preferir escolher algum outro caracter que não é usado em nenhum outro lugar em C. Escolhe qualquer um da sua preferência... mesmo que seja o caracter ASCII 255 por exemplo, qualquer coisa que seja única.)
 
-Se o caracter após o "/" não for um "*", então `nextChar()` o coloca em "tempchar" e retorna o "/".
+Se o caracter após o "/" não for um "*", então `NextChar()` o coloca em "TempChar" e retorna o "/".
 
 Repare que é preciso declarar esta nova variável global e inicializá-la com um espaço.
 
 ~~~c
-char tempchar = ' ';
+char TempChar = ' ';
 ~~~
 
-Agora, precisamos de uma nova versão de `skipComment()`:
+Agora, precisamos de uma nova versão de `SkipComment()`:
 
 ~~~c
 /* pula um campo de comentário */
-void skipComment()
+void SkipComment()
 {
     do {
         do {
-            nextCharX();
+            NextCharX();
         } while (look != '*');
-        nextCharX();
+        NextCharX();
     } while (look != '/');
-    nextCharX();
+    NextCharX();
 }
 ~~~
 
-Algumas coisas a notar: primeiro, a rotina "skipWhite" não precisa ser alterada, já que `nextChar()` continua retornando o token "{". Se você alterar este caracter de token, é claro que você também deve alterar o caracter nesta rotina.
+Algumas coisas a notar: primeiro, a rotina "skipWhite" não precisa ser alterada, já que `NextChar()` continua retornando o token "{". Se você alterar este caracter de token, é claro que você também deve alterar o caracter nesta rotina.
 
-Segundo, repare que "skipComment" não chama `nextChar()` em seu laço, e sim `nextCharX()`. Isto significa que o "/" não é interceptado e é visto por `skipComment()`. Terceiro, apesar de `nextChar()` ser a rotina que faz o trabalho, ainda podemos tratar dos caracteres de comentário dentro de uma string entre aspas, chamando `nextCharX()` ao invés de `nextChar()` enquanto estivermos dentro da string. Finalmente, repare que podemos novamente prover comentários aninhados simplesmente adicionando uma chamada recursiva em `skipComment()`, da mesma forma que antes.
+Segundo, repare que "skipComment" não chama `NextChar()` em seu laço, e sim `NextCharX()`. Isto significa que o "/" não é interceptado e é visto por `SkipComment()`. Terceiro, apesar de `NextChar()` ser a rotina que faz o trabalho, ainda podemos tratar dos caracteres de comentário dentro de uma string entre aspas, chamando `NextCharX()` ao invés de `NextChar()` enquanto estivermos dentro da string. Finalmente, repare que podemos novamente prover comentários aninhados simplesmente adicionando uma chamada recursiva em `SkipComment()`, da mesma forma que antes.
 
 Comentários de Uma Linha
 ------------------------
 
-Até aqui eu mostrei como tratar de todo tipo de comentários delimitados pela esquerda e direita. Isto só deixa de lado os comentários de linha, como aqueles de linguagem Assembly (`;`), Ada (`--`) ou mesmo os de C++ (`//`), que são terminados pelo final da linha. De certa forma, este caso é até mais simples. A única rotina que deve ser alterada é `skipComent()`, que agora deve terminar no final da linha:
+Até aqui eu mostrei como tratar de todo tipo de comentários delimitados pela esquerda e direita. Isto só deixa de lado os comentários de linha, como aqueles de linguagem Assembly (`;`), Ada (`--`) ou mesmo os de C++ (`//`), que são terminados pelo final da linha. De certa forma, este caso é até mais simples. A única rotina que deve ser alterada é `SkipComment()`, que agora deve terminar no final da linha:
 
 ~~~c
 /* pula um campo de comentário de uma só linha*/
-void skipComment()
+void SkipComment()
 {
     do {
-        nextCharX();
+        NextCharX();
     } while (look != '\n');
-    nextChar();
+    NextChar();
 }
 ~~~
 
-Se o caracter de início do comentário é único, como ";" de assembly, é praticamente isto. Basta alterar `skipWhite()` para usá-lo. Repare que você não pode usar o ";" propriamente dito na nossa versão atual de TINY por razões óbvias. Como alternativa, podemos experimentar "#".
+Se o caracter de início do comentário é único, como ";" de assembly, é praticamente isto. Basta alterar `SkipWhite()` para usá-lo. Repare que você não pode usar o ";" propriamente dito na nossa versão atual de TINY por razões óbvias. Como alternativa, podemos experimentar "#".
 
 ~~~c
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (isspace(look) || look == '#') {
         if (look == '#')
-            skipComment();
+            SkipComment();
         else
-            nextChar();
+            NextChar();
     }
 }
 ~~~
 
-Se for um token de dois caracteres, como "--" de Ada, precisamos apenas alterar os testes dentro de `nextChar()`. Nos dois casos, é um problema mais simples que o caso balanceado.
+Se for um token de dois caracteres, como "--" de Ada, precisamos apenas alterar os testes dentro de `NextChar()`. Nos dois casos, é um problema mais simples que o caso balanceado.
 
 Conclusão
 ---------

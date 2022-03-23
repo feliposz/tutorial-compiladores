@@ -19,20 +19,20 @@ Antes de começar a programar, certifique-se de ter uma cópia do "berço" que v
 
 ~~~c
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    emit("MOV AX, %c", getNum());
+    EmitLn("MOV AX, %c", GetNum());
 }
 ~~~
 
-Não esqueça de adicionar o protótipo desta função ao programa. Depois adicione a chamada a `expression()` no programa principal, de forma que fique assim:
+Não esqueça de adicionar o protótipo desta função ao programa. Depois adicione a chamada a `Expression()` no programa principal, de forma que fique assim:
 
 ~~~c
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    expression();
+    Init();
+    Expression();
 
     return 0;
 }
@@ -44,7 +44,7 @@ Agora execute o programa. Tente um dígito único qualquer como entrada. Você d
 
 OK, eu garanto que ele é bastante limitado. Mas não o tome por pouca coisa. Este pequeno "compilador" faz, em uma escala bastante limitada, o que todo compilador de porte faz: ele corretamente reconhece instruções válidas na "linguagem" de entrada definida, e produz código executável assembly correto e apropriado para montagem (assembling) em um formato objeto. Tão importante quanto isso, ele reconhece corretamente instruções INVÁLIDAS e dá uma mensagem de erro compreensível. Quem esperava mais que isso? Conforme expandimos nosso analisador, é melhor ter certeza que estas duas características permaneçam verdadeiras.
 
-Há outras características deste pequeno programa que valem a pena mencionar. Primeiro, você pode notar que nós não separamos a geração de código da análise... uma vez que o analisador sabe o que nós queremos que seja feito, ele gera o código objeto diretamente. Em um compilador real, as leituras na função `nextChar()` vão ser de um arquivo em disco, e a saída vai ser para outro arquivo, mas deste jeito é melhor enquanto estamos apenas experimentando.
+Há outras características deste pequeno programa que valem a pena mencionar. Primeiro, você pode notar que nós não separamos a geração de código da análise... uma vez que o analisador sabe o que nós queremos que seja feito, ele gera o código objeto diretamente. Em um compilador real, as leituras na função `NextChar()` vão ser de um arquivo em disco, e a saída vai ser para outro arquivo, mas deste jeito é melhor enquanto estamos apenas experimentando.
 
 Observe também que a expressão (MOV) tem que deixar o resultado em algum lugar. Eu escolhi o registrador AX. Eu poderia ter escolhido outro, mas este faz sentido.
 
@@ -57,25 +57,25 @@ Agora que já contamos com isso, vamos continuar. Assumidamente, uma "expressão
     ou então, <termo> +/- <termo>
     (Isto é um "pouco" de Backus-Naur Form, ou BNF)
 
-Para fazer isso, precisamos de uma rotina que reconhece um termo e deixa seu resultado em algum lugar, e outra que reconhece e sabe diferenciar um "+" e um "-" e gera o código apropriado. Mas se `expression()` vai deixar seu resultado em AX, onde `term()` (a função que analisa os termos) deve deixar seu resultado? Resposta: no mesmo lugar. Nós precisamos salvar o primeiro resultado de `term()` em algum outro lugar antes de pegar o segundo.
+Para fazer isso, precisamos de uma rotina que reconhece um termo e deixa seu resultado em algum lugar, e outra que reconhece e sabe diferenciar um "+" e um "-" e gera o código apropriado. Mas se `Expression()` vai deixar seu resultado em AX, onde `Term()` (a função que analisa os termos) deve deixar seu resultado? Resposta: no mesmo lugar. Nós precisamos salvar o primeiro resultado de `Term()` em algum outro lugar antes de pegar o segundo.
 
-OK, basicamente o que nós queremos é que a rotina `term()` faça o que a rotina `expression()` estava fazendo anteriormente, portanto, nós vamos apenas RENOMEAR a rotina `expression()` para `term()`, e entrar com a seguinte nova versão de `expression()`:
+OK, basicamente o que nós queremos é que a rotina `Term()` faça o que a rotina `Expression()` estava fazendo anteriormente, portanto, nós vamos apenas RENOMEAR a rotina `Expression()` para `Term()`, e entrar com a seguinte nova versão de `Expression()`:
 
 ~~~c
 /* reconhece e traduz uma expressão */
-void expression()
+void Expression()
 {
-    term();
-    emit("MOV BX, AX");
+    Term();
+    EmitLn("MOV BX, AX");
     switch (look) {
         case '+':
-            add();
+            Add();
             break;
         case '-':
-            subtract();
+            Subtract();
             break;
         default:
-            expected("AddOp");
+            Expected("AddOp");
             break;
     }
 }
@@ -85,28 +85,28 @@ Adicione também as seguintes rotinas:
 
 ~~~c
 /* reconhece e traduz uma adição */
-void add()
+void Add()
 {
-    match('+');
-    term();
-    emit("ADD AX, BX");
+    Match('+');
+    Term();
+    EmitLn("ADD AX, BX");
 }
 
 /* reconhece e traduz uma subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    term();
-    emit("SUB AX, BX");
+    Match('-');
+    Term();
+    EmitLn("SUB AX, BX");
 }
 ~~~
 
 Você deverá ter então as seguintes rotinas novas:
 
-- `term()` (antiga `expression()`)
-- `add()`
-- `subtract()`
-- `expression()`
+- `Term()` (antiga `Expression()`)
+- `Add()`
+- `Subtract()`
+- `Expression()`
 
 A ordem delas não importa, desde que os protótipos estejam propriamente declarados.
 
@@ -123,16 +123,16 @@ Dê uma olhada no código objeto gerado. Há duas observações que podemos faze
 
 Há uma lição a se tirar disso: o código gerado pelo nosso compilador é menos eficiente que o código que escreveríamos manualmente. Acostume-se com isso. Isto será válido no decorrer da série. É válido para a maioria dos compiladores de certa forma. Cientistas da computação tem devotado vidas inteiras ao problema de otimização de código, e há de fato algo que pode ser feito para melhorar a qualidade do código gerado. Alguns compiladores fazem isto muito bem, mas há um preço muito alto a ser pago em complexidade, e é uma batalha perdida de qualquer forma... provavelmente nunca vai haver um tempo em que um bom programador assembly não consiga produzir código melhor que um compilador. Antes de terminar esta seção eu vou mostrar brevemente algumas maneiras de fazer uma pequena otimização, apenas pra mostrar que nós podemos otimizar as coisas sem muitos problemas. Mas lembre-se, estamos aqui pra aprender, não pra ver quão otimizado o código objeto pode ficar. Por enquanto, e na verdade por toda a série de artigos, vamos ignorar a otimização e concentrar-nos em gerar código que funciona.
 
-Falando nisso: o nosso NÃO FUNCIONA! O código está ERRADO! Conforme as coisas estão funcionando agora, o processo de subtração está subtraindo BX (que é o PRIMEIRO argumento na verdade) de AX (que é o segundo). Este é o jeito errado! Portanto, nós acabamos com o sinal errado para o resultado. Vamos arrumar o procedimento `subtract()` com uma mudança de sinal, de forma que fique:
+Falando nisso: o nosso NÃO FUNCIONA! O código está ERRADO! Conforme as coisas estão funcionando agora, o processo de subtração está subtraindo BX (que é o PRIMEIRO argumento na verdade) de AX (que é o segundo). Este é o jeito errado! Portanto, nós acabamos com o sinal errado para o resultado. Vamos arrumar o procedimento `Subtract()` com uma mudança de sinal, de forma que fique:
 
 ~~~c
 /* reconhece e traduz uma subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    term();
-    emit("SUB AX, BX");
-    emit("NEG AX");
+    Match('-');
+    Term();
+    EmitLn("SUB AX, BX");
+    EmitLn("NEG AX");
 }
 ~~~
 
@@ -140,7 +140,7 @@ Agora o código está menos eficiente ainda, mas pelo menos ele dá a resposta c
 
 OK, neste momento temos um analisador que reconhece a soma e a diferença entre dois dígitos. Antes, nós só conseguíamos reconhecer um único dígito. Mas expressões de verdade podem ter ambas as formas (ou uma infinidade de outras). Só pra ter certeza, volte e rode o programa com um único dígito: "1".
 
-Não deu certo, deu? E por que deveria? Nós acabamos de dizer ao nosso analisador que o único tipo de expressão que ele deve aceitar são aquelas com dois termos. Nós temos que reescrever a rotina `expression()` de forma que ela seja mais abrangente, e é aqui que as coisas começam a tomar a forma de um analisador de verdade.
+Não deu certo, deu? E por que deveria? Nós acabamos de dizer ao nosso analisador que o único tipo de expressão que ele deve aceitar são aquelas com dois termos. Nós temos que reescrever a rotina `Expression()` de forma que ela seja mais abrangente, e é aqui que as coisas começam a tomar a forma de um analisador de verdade.
 
 ## Expressões gerais
 
@@ -150,31 +150,31 @@ No mundo real, uma expressão pode consistir de um ou mais termos, separados por
     <expression> ::= <term> [<addop> <term>]*
 ~~~
 
-Nós podemos acomodar esta definição de uma expressão com a adição de um simples laço de repetição na rotina `expression()`:
+Nós podemos acomodar esta definição de uma expressão com a adição de um simples laço de repetição na rotina `Expression()`:
 
 ~~~c
 /* reconhece e traduz uma expressão */
-void expression()
+void Expression()
 {
-    term();
+    Term();
     while (look == '+' || look == '-') {
-        emit("MOV BX, AX");
+        EmitLn("MOV BX, AX");
         switch(look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
             default:
-                expected("AddOp");
+                Expected("AddOp");
                 break;
         }
     }
 }
 ~~~
 
-AGORA nós estamos chegando a algum lugar! Esta versão consegue lidar com qualquer número de termos, e só nos custou algumas linhas extras de código. Conforme nós continuamos, você vai perceber que isto é característico de analisadores top-down... você só precisa de algumas linhas de código para acomodar extensões à linguagem. É isto que torna nossa abordagem incremental possível. Note, também, como o código da rotina `expression()` combina com a definição em BNF. Isto, também, é característico do método. Conforme você se torna proficiente na abordagem, vai notar que é possível transformar BNF em código do analisador tão rápido quando você consegue digitar!
+AGORA nós estamos chegando a algum lugar! Esta versão consegue lidar com qualquer número de termos, e só nos custou algumas linhas extras de código. Conforme nós continuamos, você vai perceber que isto é característico de analisadores top-down... você só precisa de algumas linhas de código para acomodar extensões à linguagem. É isto que torna nossa abordagem incremental possível. Note, também, como o código da rotina `Expression()` combina com a definição em BNF. Isto, também, é característico do método. Conforme você se torna proficiente na abordagem, vai notar que é possível transformar BNF em código do analisador tão rápido quando você consegue digitar!
 
 OK, então compile a nova versão do nosso analisador, e faça alguns testes. Como de costume, verifique que o "compilador" consegue lidar com qualquer expressão válida e que ele vai dar uma mensagem de erro para qualquer expressão inválida. Legal, não é? Você vai notar em sua versão de teste que toda mensagem de erro acaba embutida no meio do código já gerado. Mas lembre-se, isto é apenas por estarmos usando o vídeo como "arquivo de saída" para estas experiências. Em uma versão final, as duas saídas devem ser separadas: uma para um arquivo de saída e outra pra tela.
 
@@ -193,46 +193,46 @@ Felizmente, há uma solução simples. Como todo processador moderno, o 80x86 po
     POP registrador
 ~~~
 
-Portando, vamos alterar as funções `expression()`, `add()` e `subtract()`, de forma que fiquem assim:
+Portando, vamos alterar as funções `Expression()`, `Add()` e `Subtract()`, de forma que fiquem assim:
 
 ~~~c
 /* reconhece e traduz uma expressão */
-void expression()
+void Expression()
 {
-    term();
+    Term();
     while (look == '+' || look == '-') {
-        emit("PUSH AX");
+        EmitLn("PUSH AX");
         switch(look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
             default:
-                expected("AddOp");
+                Expected("AddOp");
                 break;
         }
     }
 }
 
 /* reconhece e traduz uma adição */
-void add()
+void Add()
 {
-    match('+');
-    term();
-    emit("POP BX");
-    emit("ADD AX, BX");
+    Match('+');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* reconhece e traduz uma subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    term();
-    emit("POP BX");
-    emit("SUB AX, BX");
-    emit("NEG AX");
+    Match('-');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    EmitLn("NEG AX");
 }
 ~~~
 
@@ -262,85 +262,85 @@ Note a simetria: um termo tem a mesma forma de uma expressão. Nós podemos adic
 
 ~~~c
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
-    emit("MOV AX, %c", getNum());
+    EmitLn("MOV AX, %c", GetNum());
 }
 
 /* reconhece e traduz uma multiplicação */
-void multiply()
+void Multiply()
 {
-    match('*');
-    factor();
-    emit("POP BX");
-    emit("IMUL BX");
+    Match('*');
+    Factor();
+    EmitLn("POP BX");
+    EmitLn("IMUL BX");
 }
 
 /* reconhece e traduz uma divisão */
-void divide()
+void Divide()
 {
-    match('/');
-    factor();
-    emit("POP BX");
-    emit("XCHG AX, BX");
-    emit("CWD");
-    emit("IDIV BX");
+    Match('/');
+    Factor();
+    EmitLn("POP BX");
+    EmitLn("XCHG AX, BX");
+    EmitLn("CWD");
+    EmitLn("IDIV BX");
 }
 
 /* analisa e traduz um termo */
-void term()
+void Term()
 {
-    factor();
+    Factor();
     while (look == '*' || look == '/') {
-        emit("PUSH AX");
+        EmitLn("PUSH AX");
         switch(look) {
             case '*':
-                multiply();
+                Multiply();
                 break;
             case '/':
-                divide();
+                Divide();
                 break;
             default:
-                expected("MulOp");
+                Expected("MulOp");
                 break;
         }
     }
 }
 
 /* reconhece e traduz uma adição */
-void add()
+void Add()
 {
-    match('+');
-    term();
-    emit("POP BX");
-    emit("ADD AX, BX");
+    Match('+');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* reconhece e traduz uma subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    term();
-    emit("POP BX");
-    emit("SUB AX, BX");
-    emit("NEG AX");
+    Match('-');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    EmitLn("NEG AX");
 }
 
 /* reconhece e traduz uma expressão */
-void expression()
+void Expression()
 {
-    term();
+    Term();
     while (look == '+' || look == '-') {
-        emit("PUSH AX");
+        EmitLn("PUSH AX");
         switch(look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
             default:
-                expected("AddOp");
+                Expected("AddOp");
                 break;
         }
     }
@@ -367,18 +367,18 @@ A chave para incorporar parênteses em nosso analisador é perceber que não imp
 
 É aqui que a recursão entra em ação. Uma expressão pode conter um fator, que pode conter outra expressão, que pode conter um fator, e assim por diante, infinitamente.
 
-Complicado ou não, podemos cuidar disso ajustando apenas umas poucas linhas do programa na rotina factor():
+Complicado ou não, podemos cuidar disso ajustando apenas umas poucas linhas do programa na rotina Factor():
 
 ~~~c
 /* analisa e traduz um fator */
-void factor()
+void Factor()
 {
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else
-        emit("MOV AX, %c", getNum());
+        EmitLn("MOV AX, %c", GetNum());
 }
 ~~~
 
@@ -392,31 +392,31 @@ Neste ponto, temos um analisador que consegue lidar com qualquer expressão, cer
 
     -1
 
-OPA! Não funcionou, funcionou? A rotina `expression()` espera que tudo comece com um inteiro, então ela indica um erro quando acha o sinal de menos inicial. Você vai perceber que "+3" também não vai funcionar, nem algo como:
+OPA! Não funcionou, funcionou? A rotina `Expression()` espera que tudo comece com um inteiro, então ela indica um erro quando acha o sinal de menos inicial. Você vai perceber que "+3" também não vai funcionar, nem algo como:
 
     -(3-2)
 
-Há várias formas de resolver o problema. A mais fácil (embora não a melhor) é usar um zero imaginário na frente da expressão: então -3, se torna 0-3. Podemos colocar isto facilmente em nossa versão de `expression()`:
+Há várias formas de resolver o problema. A mais fácil (embora não a melhor) é usar um zero imaginário na frente da expressão: então -3, se torna 0-3. Podemos colocar isto facilmente em nossa versão de `Expression()`:
 
 ~~~c
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    if (isAddOp(look))
-        emit("XOR AX, AX");
+    if (IsAddOp(look))
+        EmitLn("XOR AX, AX");
     else
-        term();
-    while (isAddOp(look)) {
-        emit("PUSH AX");
+        Term();
+    while (IsAddOp(look)) {
+        EmitLn("PUSH AX");
         switch(look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
             default:
-                expected("AddOp");
+                Expected("AddOp");
                 break;
         }
     }
@@ -425,17 +425,17 @@ void expression()
 
 (O XOR AX, AX vai fazer o trabalho de colocar o nosso zero imaginário em AX. Eu poderia usar MOV AX, 0 mas XOR AX, AX é um pouco mais econômico.)
 
-Eu DISSE que fazer mudanças era fácil! Desta vez foram mudadas apenas 3 linhas de código. Note a nova referência à função `isAddOp()`. Como o teste para saber se é um operador de soma aparece duas vezes, eu decidi colocá-lo em uma função separada. A forma de `isAddOp()` deve ser assim:
+Eu DISSE que fazer mudanças era fácil! Desta vez foram mudadas apenas 3 linhas de código. Note a nova referência à função `IsAddOp()`. Como o teste para saber se é um operador de soma aparece duas vezes, eu decidi colocá-lo em uma função separada. A forma de `IsAddOp()` deve ser assim:
 
 ~~~c
 /* reconhece operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 ~~~
 
-OK, faça estas mudanças no programa e recompile-o. Você deve incluir `isAddOp()` também à sua copia reserva do "berço". Nós vamos usá-la novamente mais tarde. Agora tente a entrada -1 novamente. UAU! A eficiência do código está bem pobre... 6 linhas de código pra ler uma simples constante... mas pelo menos está certo. Lembre-se, não estamos tentando derrubar a Borland, nem a Microsoft aqui.
+OK, faça estas mudanças no programa e recompile-o. Você deve incluir `IsAddOp()` também à sua copia reserva do "berço". Nós vamos usá-la novamente mais tarde. Agora tente a entrada -1 novamente. UAU! A eficiência do código está bem pobre... 6 linhas de código pra ler uma simples constante... mas pelo menos está certo. Lembre-se, não estamos tentando derrubar a Borland, nem a Microsoft aqui.
 
 Neste ponto estamos quase no fim da estrutura do nosso analisador de expressões. Esta versão do programa deve analisar e compilar quase toda expressão que você tentar. Ela ainda está um pouco limitada, pois ainda só podemos tratar de fatores envolvendo dígitos decimais simples. Mas espero que você esteja começando a entender que podemos acomodar mais extensões com apenas mudanças simples no analisador. Você provavelmente não ficaria surpreso de saber que uma variável ou mesmo uma chamada de função é apenas outra forma de fator.
 
@@ -455,7 +455,7 @@ Há duas abordagens básicas que podemos tomar:
 
 2. Tentar gerar código melhor desde o início:
 
-    Esta abordagem nos leva a procurar casos especiais ANTES de emití-los. Como um exemplo trivial, nós deveríamos estar preparados para identificar uma constante de valor zero e emitir um XOR AX, AX ao invés de um MOV AX, 0, ou mesmo não fazer nada, no caso de uma soma com zero, por exemplo. Se nós tivéssemos escolhido reconhecer o menos unário em `factor()` ao invés de em `expression()`, poderíamos tratar constantes como -1 como constantes comuns, ao invés de gerar o valor do 1 positivo e depois inverter o sinal. Nenhuma destas coisas é tão difícil de fazer... elas apenas adicionam testes adicionais no código, e é por isso que eu não as inclui em nosso programa. Da forma como eu vejo, uma vez que cheguemos ao ponto em que temos um compilador funcional, gerando código executável útil, nós podemos sempre voltar e melhorá-lo para produzir código mais eficiente. É por isso que existem "Versões 2.0" no mundo.
+    Esta abordagem nos leva a procurar casos especiais ANTES de emití-los. Como um exemplo trivial, nós deveríamos estar preparados para identificar uma constante de valor zero e emitir um XOR AX, AX ao invés de um MOV AX, 0, ou mesmo não fazer nada, no caso de uma soma com zero, por exemplo. Se nós tivéssemos escolhido reconhecer o menos unário em `Factor()` ao invés de em `Expression()`, poderíamos tratar constantes como -1 como constantes comuns, ao invés de gerar o valor do 1 positivo e depois inverter o sinal. Nenhuma destas coisas é tão difícil de fazer... elas apenas adicionam testes adicionais no código, e é por isso que eu não as inclui em nosso programa. Da forma como eu vejo, uma vez que cheguemos ao ponto em que temos um compilador funcional, gerando código executável útil, nós podemos sempre voltar e melhorá-lo para produzir código mais eficiente. É por isso que existem "Versões 2.0" no mundo.
 
     Há outro técnica de otimização que vale a pena mencionar, que parece produzir código eficiente sem muito trabalho. É minha "invenção" no sentido de que eu nunca a vi sendo sugerida em qualquer lugar, apesar de eu não ter a ilusão de que é originalmente minha.
 
@@ -463,7 +463,7 @@ Há duas abordagens básicas que podemos tomar:
 
 >**Nota de tradução:** A idéia original do autor era aplicar esta técnica num processador Motorola 68000, que possui um esquema de registradores e operações diferentes da usada em computadores 80x86. Se você deseja usar esta técnica, use-a cuidadosamente, pois instruções como DIV e LOOP, entre outras, podem fazer uso de outros registradores, comprometendo os valores armazenados previamente. De qualquer forma, uma descrição traduzida e adaptada da técnica segue abaixo, mas sem prestar atenção a estes cuidados.
 
-Bem, o 8086 e 8088 possuem 4 registradores gerais (AX, BX, CX, DX) e mais alguns outros registradores que podem ser usados com cuidado (SI, DI, BP). CPUs mais avançadas como o 80386 possuem mais registradores ainda e algumas máquinas diferentes do padrão 80x86 possuem dezenas de registradores adicionais. Por que não usá-los como uma espécie de pilha particular? A chave é reconhecer que, a qualquer ponto no processamento, o analisador SABE quantos itens estão na pilha, de forma que ele é capaz de organizá-la de forma apropriada. Nós podemos definir um "ponteiro de pilha" privado que mantém o controle sobre o nível da pilha em que estamos, e associar o registrador correspondente. A rotina `factor()`, por exemplo, não iria fazer com que os dados fossem lidos no registrador AX, mas sim, no registrador que é no momento o "topo da pilha".
+Bem, o 8086 e 8088 possuem 4 registradores gerais (AX, BX, CX, DX) e mais alguns outros registradores que podem ser usados com cuidado (SI, DI, BP). CPUs mais avançadas como o 80386 possuem mais registradores ainda e algumas máquinas diferentes do padrão 80x86 possuem dezenas de registradores adicionais. Por que não usá-los como uma espécie de pilha particular? A chave é reconhecer que, a qualquer ponto no processamento, o analisador SABE quantos itens estão na pilha, de forma que ele é capaz de organizá-la de forma apropriada. Nós podemos definir um "ponteiro de pilha" privado que mantém o controle sobre o nível da pilha em que estamos, e associar o registrador correspondente. A rotina `Factor()`, por exemplo, não iria fazer com que os dados fossem lidos no registrador AX, mas sim, no registrador que é no momento o "topo da pilha".
 
 O que estamos fazendo é trocar o uso da memória RAM da pilha por uma pilha local controlada e feita de registradores. Para a maioria das expressões, o nível de pilha não vai exceder mais que 8, então conseguiríamos código de boa qualidade. No entanto, devemos continuar tratando os casos em que o nível da pilha excede o número de registradores disponíveis. Mas isto também não é problema. Nós simplesmente deixamos a pilha crescer na direção da pilha da CPU. Para níveis acima disto, o código não vai ser pior do que o que estávamos gerando, e para níveis menores, será consideravelmente melhor.
 

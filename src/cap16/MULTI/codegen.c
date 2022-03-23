@@ -2,89 +2,89 @@
 #include "codegen.h"
 
 /* carrega uma constante no registrador primário */
-void asmLoadConstant(char *s)
+void AsmLoadConst(char *s)
 {
-    emit("MOV AX, %s", s);
+    EmitLn("MOV AX, %s", s);
 }
 
 /* carrega uma variável no registrador primário */
-void asmLoadVariable(char *s)
+void AsmLoadVar(char *s)
 {
-    emit("MOV AX, %s", s);
+    EmitLn("MOV AX, %s", s);
 }
 
 /* armazena valor do registrador primário em variável */
-void asmStoreVariable(char *s)
+void AsmStoreVar(char *s)
 {
-    emit("MOV %s, AX", s);
+    EmitLn("MOV %s, AX", s);
 }
 
 /* inverte sinal de registrador primário */
-void asmNegate()
+void AsmNegate()
 {
-    emit("NEG AX");
+    EmitLn("NEG AX");
 }
 
 /* coloca registrador primário na pilha */
-void asmPush()
+void AsmPush()
 {
-    emit("PUSH AX");
+    EmitLn("PUSH AX");
 }
 
 /* adiciona topo da pilha ao registrador primário */
-void asmPopAdd()
+void AsmPopAdd()
 {
-    emit("POP BX");
-    emit("ADD AX, BX");
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* subtrai do topo da pilha o registrador primário */
-void asmPopSub()
+void AsmPopSub()
 {
-    emit("POP BX");
-    emit("SUB AX, BX");
-    asmNegate();
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    AsmNegate();
 }
 
 /* multiplica topo da pilha e registrador primário */
-void asmPopMul()
+void AsmPopMul()
 {
-    emit("POP BX");
-    emit("IMUL BX");
+    EmitLn("POP BX");
+    EmitLn("IMUL BX");
 }
 
 /* divide o topo da pilha pelo registrador primário */
-void asmPopDiv()
+void AsmPopDiv()
 {
-    emit("POP BX");
-    emit("XCHG AX, BX");
-    emit("CWD");
-    emit("IDIV BX");
+    EmitLn("POP BX");
+    EmitLn("XCHG AX, BX");
+    EmitLn("CWD");
+    EmitLn("IDIV BX");
 }
 
 /* aplica OU com topo da pilha a registrador primário */
-void asmPopOr()
+void AsmPopOr()
 {
-    emit("POP BX");
-    emit("OR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("OR AX, BX");
 }
 
 /* aplica OU-exclusivo com topo da pilha a registrador primário */
-void asmPopXor()
+void AsmPopXor()
 {
-    emit("POP BX");
-    emit("XOR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("XOR AX, BX");
 }
 
 /* aplica AND com topo da pilha e registrador primário */
-void asmPopAnd()
+void AsmPopAnd()
 {
-    emit("POP BX");
-    emit("AND AX, BX");
+    EmitLn("POP BX");
+    EmitLn("AND AX, BX");
 }
 
 /* aplica NOT ao registrador primário */
-void asmNot()
+void AsmNot()
 {
-    emit("NOT AX");
+    EmitLn("NOT AX");
 }

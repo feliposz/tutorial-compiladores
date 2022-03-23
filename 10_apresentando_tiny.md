@@ -47,63 +47,63 @@ Dada a BNF acima, vamos criar o analisador que reconhece apenas os limitadores.
 
 ~~~c
 /* analisa e traduz um programa completo */
-void program()
+void Program()
 {
-    match('p');
-    header();
-    prolog();
-    match('.');
-    epilog();
+    Match('p');
+    AsmHeader();
+    AsmProlog();
+    Match('.');
+    AsmEpilog();
 }
 ~~~
 
-A rotina `header()` apenas emite o código inicial necessário para o montador:
+A rotina `AsmHeader()` apenas emite o código inicial necessário para o montador:
 
 ~~~c
 /* cabeçalho inicial para o montador */
-void header()
+void AsmHeader()
 {
-    emit(".model small");
-    emit(".stack");
-    emit(".code");
+    EmitLn(".model small");
+    EmitLn(".stack");
+    EmitLn(".code");
     printf("PROG segment byte public\n");
-    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 ~~~
 
-As rotinas `prolog()` e `epilog()` emitem código o código que identifica o programa principal. O epilogo contém algum código de inicialização e o prólogo código para retornar ao sistema operacional:
+As rotinas `AsmProlog()` e `AsmEpilog()` emitem código o código que identifica o programa principal. O epilogo contém algum código de inicialização e o prólogo código para retornar ao sistema operacional:
 
 ~~~c
 /* emite código para o prólogo de um programa */
-void prolog()
+void AsmProlog()
 {
     printf("MAIN:\n");
-    emit("MOV AX, PROG");
-    emit("MOV DS, AX");
-    emit("MOV ES, AX");
+    EmitLn("MOV AX, PROG");
+    EmitLn("MOV DS, AX");
+    EmitLn("MOV ES, AX");
 }
 
 /* emite código para o epílogo de um programa */
-void epilog()
+void AsmEpilog()
 {
-    emit("MOV AX,4C00h");
-    emit("INT 21h");
+    EmitLn("MOV AX,4C00h");
+    EmitLn("INT 21h");
     printf("PROG ends\n");
-    emit("end MAIN");
+    EmitLn("end MAIN");
 }
 ~~~
 
-O programa principal apenas chama `program()`, e verifica se o final está correto:
+O programa principal apenas chama `Program()`, e verifica se o final está correto:
 
 ~~~c
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    program();
+    Init();
+    Program();
 
     if (look != '\n')
-        fatal("Unexpected data after \'.\'");
+        Abort("Unexpected data after \'.\'");
 
     return 0;
 }
@@ -136,16 +136,16 @@ Outra solução para o problema de "onde está a rotina principal" pode ser obri
 
 similar à convenção de Modula 2. Isto adiciona um pouco de "açúcar sintático" à linguagem. Coisas como esta são fáceis de adicionar ou alterar da forma que você preferir, se o projeto da linguagem está em suas mãos.
 
-Para processar a definição de um bloco principal, altere a rotina `program()`:
+Para processar a definição de um bloco principal, altere a rotina `Program()`:
 
 ~~~c
 /* analisa e traduz um programa completo */
-void program()
+void Program()
 {
-    match('p');
-    header();
-    mainBlock();
-    match('.');
+    Match('p');
+    AsmHeader();
+    MainBlock();
+    Match('.');
 }
 ~~~
 
@@ -153,12 +153,12 @@ Depois adicione a nova rotina:
 
 ~~~c
 /* analisa e traduz o bloco principal */
-void mainBlock()
+void MainBlock()
 {
-    match('b');
-    prolog();
-    match('e');
-    epilog();
+    Match('b');
+    AsmProlog();
+    Match('e');
+    AsmEpilog();
 }
 ~~~
 
@@ -182,17 +182,17 @@ Por enquanto só podem haver declarações de variáveis, identificadas pela pal
 
 Note que, como só há um tipo de variável, não há necessidade de declarar o tipo. Mais tarde, para a versão completa de KISS, podemos facilmente adicionar uma declaração de tipo.
 
-A rotina `program()` fica:
+A rotina `Program()` fica:
 
 ~~~c
 /* analisa e traduz um programa completo */
-void program()
+void Program()
 {
-    match('p');
-    header();
-    topDeclarations();
-    mainBlock();
-    match('.');
+    Match('p');
+    AsmHeader();
+    TopDeclarations();
+    MainBlock();
+    Match('.');
 }
 ~~~
 
@@ -200,30 +200,30 @@ Agora adicione estas duas rotinas:
 
 ~~~c
 /* analisa uma declaração de variável */
-void declaration()
+void Declaration()
 {
-    match('v');
-    nextChar();
+    Match('v');
+    NextChar();
 }
 
 /* analisa e traduz declarações globais */
-void topDeclarations()
+void TopDeclarations()
 {
     while (look != 'b') {
         switch (look) {
             case 'v':
-                declaration();
+                Declaration();
                 break;
             default:
-                error("Unrecognized keyword.");
-                expected("BEGIN");
+                Error("Unrecognized keyword.");
+                Expected("BEGIN");
                 break;
         }
     }
 }
 ~~~
 
-Repare que por enquanto, `declaration()` não faz muita coisa. Não gera nenhum código, e não processa uma lista... cada variável deve ocorrer num comando VAR separado.
+Repare que por enquanto, `Declaration()` não faz muita coisa. Não gera nenhum código, e não processa uma lista... cada variável deve ocorrer num comando VAR separado.
 
 Certo, agora podemos ter qualquer número de declarações de dados, cada uma começando com um "v" de VAR, antes do bloco principal. Tente alguns casos e veja o que acontece.
 
@@ -232,22 +232,22 @@ Declarações e Símbolos
 
 Isto parece interessante, mas continuamos gerando apenas o programa vazio como saída. Um compilador real iria gerar diretivas assembly para alocar memória para as variáveis. Já é hora de fazermos o mesmo.
 
-Com algum código extra, é algo fácil de fazer na rotina `declaration()`. Modifique-a como segue:
+Com algum código extra, é algo fácil de fazer na rotina `Declaration()`. Modifique-a como segue:
 
 ~~~c
 /* analisa uma declaração de variável */
-void declaration()
+void Declaration()
 {
-    match('v');
-    allocVar(getName());
+    Match('v');
+    AllocVar(GetName());
 }
 ~~~
 
-A rotina `allocVar()` simplesmente emite o comando assembly para alocar memória:
+A rotina `AllocVar()` simplesmente emite o comando assembly para alocar memória:
 
 ~~~c
 /* emite código de alocação de memória para uma variável */
-void allocVar(char name)
+void AllocVar(char name)
 {
     printf("%c:\tdw 0\n", name);
 }
@@ -269,18 +269,18 @@ A BNF para a lista de variáveis é:
     <var-list> ::= <ident> (, <ident>)*
 ~~~
 
-Adicionando esta sintaxe a `declaration()` temos sua nova versão:
+Adicionando esta sintaxe a `Declaration()` temos sua nova versão:
 
 ~~~c
 /* analisa uma lista de declaração de variáveis */
-void declaration()
+void Declaration()
 {
-    match('v');
+    Match('v');
     for (;;) {
-        allocVar(getName());
+        AllocVar(GetName());
         if (look != ',')
             break;
-        match(',');
+        Match(',');
     }
 }
 ~~~
@@ -297,17 +297,17 @@ Como estamos tratando de declarações de dados, uma coisa que sempre me incomod
     <var> ::= <ident> [ = <integer> ]
 ~~~
 
-Altere `allocVar()` desta forma:
+Altere `AllocVar()` desta forma:
 
 ~~~c
 /* alocação de memória para uma variável global */
-void allocVar(char name)
+void AllocVar(char name)
 {
     char value = '0';
 
     if (look == '=') {
-        match('=');
-        value = getNum();
+        Match('=');
+        value = GetNum();
     }
 
     printf("%c:\tdw %c\n", name, value);
@@ -320,44 +320,44 @@ Ok, tente esta versão de TINY e verifique que é possível, de fato, dar às va
 
 Isto está começando a parecer real! É claro que ainda não faz nada, mas parece bom, não parece?
 
-Antes de deixar esta seção, eu devo lembrá-lo que já usamos duas versões de `getNum()`. Uma, a primeira, retorna um valor em caracter, um dígito único. A outra aceita valores inteiros multi-dígitos e retorna um valor inteiro. Qualquer uma funcionaria aqui, bastaria alterar "%c" para "%d" em `printf()`. Mas não há razão para nos limitarmos ao dígito único aqui, então vamos corrigir esta versão e retornar inteiros. Aqui está:
+Antes de deixar esta seção, eu devo lembrá-lo que já usamos duas versões de `GetNum()`. Uma, a primeira, retorna um valor em caracter, um dígito único. A outra aceita valores inteiros multi-dígitos e retorna um valor inteiro. Qualquer uma funcionaria aqui, bastaria alterar "%c" para "%d" em `printf()`. Mas não há razão para nos limitarmos ao dígito único aqui, então vamos corrigir esta versão e retornar inteiros. Aqui está:
 
 ~~~c
 /* recebe um número inteiro */
-int getNum()
+int GetNum()
 {
     int num;
 
     num = 0;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
 
     while (isdigit(look)) {
         num *= 10;
         num += look - '0';
-        nextChar();
+        NextChar();
     }
 
     return num;
 }
 ~~~
 
-De fato, deveríamos permitir expressões completas no lugar do analisador, ou pelo menos valores negativos. Por enquanto, vamos permitir apenas valores negativos alterando `allocVar()` como segue (repare também nas pequenas alterações para a nova versão de `getNum()`):
+De fato, deveríamos permitir expressões completas no lugar do analisador, ou pelo menos valores negativos. Por enquanto, vamos permitir apenas valores negativos alterando `AllocVar()` como segue (repare também nas pequenas alterações para a nova versão de `GetNum()`):
 
 ~~~c
 /* alocação de memória para uma variável global */
-void allocVar(char name)
+void AllocVar(char name)
 {
     int value = 0, signal = 1;
 
     if (look == '=') {
-        match('=');
+        Match('=');
         if (look == '-') {
-            match('-');
+            Match('-');
             signal = -1;
         }
-        value = signal * getNum();
+        value = signal * GetNum();
     }    
 
     printf("%c:\tdw %d\n", name, value);
@@ -381,45 +381,45 @@ Portanto, mesmo não possuindo uma tabela de símbolos para armazenar os tipos d
 
 ~~~c
 /* tabela de símbolos */
-#define VARTBL_SZ 26
-char vartbl[VARTBL_SZ];
+#define VARTABLE_SIZE 26
+char VarTable[VARTABLE_SIZE];
 ~~~
 
 E adicione a seguinte função:
 
 ~~~c
 /* verifica se símbolo está na tabela */
-int inTable(char name)
+int InTable(char name)
 {
-    return (vartbl[name - 'A'] != ' ');
+    return (VarTable[name - 'A'] != ' ');
 }
 ~~~
 
-Também temos que inicializar a tabela com espaços. Adicione a inicialização em `init()`:
+Também temos que inicializar a tabela com espaços. Adicione a inicialização em `Init()`:
 
 ~~~c
 /* inicialização do compilador */
-void init()
+void Init()
 {
     int i = 0;
 
-    for (i = 0; i < VARTBL_SZ; i++)
-        vartbl[i] = ' ';
+    for (i = 0; i < VARTABLE_SIZE; i++)
+        VarTable[i] = ' ';
 
-    nextChar();
+    NextChar();
 }
 ~~~
 
-Finalmente, insira estas linhas no começo de `allocVar()`:
+Finalmente, insira estas linhas no começo de `AllocVar()`:
 
 ~~~c
-    if (inTable(name))
-        fatal("Duplicate variable name: %c", name);
+    if (InTable(name))
+        Abort("Duplicate variable name: %c", name);
     else
-        vartbl[name - 'A'] = 'v';
+        VarTable[name - 'A'] = 'v';
 ~~~
 
-Isto deve bastar. O compilador agora vai reconhecer declarações duplicadas. Mais tarde, também podemos usar `inTable()` quando gerar referências às variáveis.
+Isto deve bastar. O compilador agora vai reconhecer declarações duplicadas. Mais tarde, também podemos usar `InTable()` quando gerar referências às variáveis.
 
 Comandos executáveis
 --------------------
@@ -444,16 +444,16 @@ Vamos começar as coisas adicionando um analisador para o bloco. Vamos começar 
 
 ~~~c
 /* avalia um comando de atribuição */
-void assignment()
+void Assignment()
 {
-    nextChar();
+    NextChar();
 }
 
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     while (look != 'e')
-        assignment();
+        Assignment();
 }
 ~~~
 
@@ -461,13 +461,13 @@ Modifique a rotina "mainBlock" para chamar "block" conforme abaixo:
 
 ~~~c
 /* analisa e traduz o bloco principal */
-void mainBlock()
+void MainBlock()
 {
-    match('b');
-    prolog();
-    block();
-    match('e');
-    epilog();
+    Match('b');
+    AsmProlog();
+    Block();
+    Match('e');
+    AsmEpilog();
 }
 ~~~
 
@@ -481,90 +481,90 @@ Para fazer isto, insira as seguintes rotinas de "geração de código":
 
 ~~~c
 /* zera o registrador primário */
-void asmClear()
+void AsmClear()
 {
-    emit("XOR AX, AX");
+    EmitLn("XOR AX, AX");
 }
 
 /* negativa o registrador primário */
-void asmNegative()
+void AsmNegate()
 {
-    emit("NEG AX");
+    EmitLn("NEG AX");
 }
 
 /* carrega uma constante numérica no registrador primário */
-void asmLoadConst(int i)
+void AsmLoadConst(int i)
 {
-    emit("MOV AX, %d", i);
+    EmitLn("MOV AX, %d", i);
 }
 
 /* carrega uma variável no registrador primário */
-void asmLoadVar(char name)
+void AsmLoadVar(char name)
 {
-    if (!inTable(name))
-        undefined(name);
-    emit("MOV AX, WORD PTR %c", name);
+    if (!InTable(name))
+        Undefined(name);
+    EmitLn("MOV AX, WORD PTR %c", name);
 }
 
 /* armazena registrador primário em variável */
-void asmStore(char name)
+void AsmStore(char name)
 {
-    if (!inTable(name))
-        undefined(name);
-    emit("MOV WORD PTR %c, AX", name);
+    if (!InTable(name))
+        Undefined(name);
+    EmitLn("MOV WORD PTR %c, AX", name);
 }
 
 /* coloca registrador primário na pilha */
-void asmPush()
+void AsmPush()
 {
-    emit("PUSH AX");
+    EmitLn("PUSH AX");
 }
 
 /* adiciona o topo da pilha ao registrador primário */
-void asmPopAdd()
+void AsmPopAdd()
 {
-    emit("POP BX");
-    emit("ADD AX, BX");
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* subtrai o registrador primário do topo da pilha */
-void asmPopSub()
+void AsmPopSub()
 {
-    emit("POP BX");
-    emit("SUB AX, BX");
-    emit("NEG AX");
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    EmitLn("NEG AX");
 }
 
 /* multiplica o topo da pilha pelo registrador primário */
-void asmPopMul()
+void AsmPopMul()
 {
-    emit("POP BX");
-    emit("IMUL BX");
+    EmitLn("POP BX");
+    EmitLn("IMUL BX");
 }
 
 /* divide o topo da pilha pelo registrador primário */
-void asmPopDiv()
+void AsmPopDiv()
 {
-    emit("POP BX");
-    emit("XCHG AX, BX");
-    emit("CWD");
-    emit("IDIV BX");
+    EmitLn("POP BX");
+    EmitLn("XCHG AX, BX");
+    EmitLn("CWD");
+    EmitLn("IDIV BX");
 }
 ~~~
 
 A parte boa desta abordagem, logicamente, é que podemos redirecionar a saída do compilador para uma nova CPU simplesmente reescrevendo estas rotinas de geração de código. Além disso, vamos descobrir mais tarde que podemos melhor a qualidade do código simplesmente melhorando estas rotinas um pouco, sem ter que alterar o próprio compilador.
 
-Repare que tanto `asmLoadVar()` quanto `asmStore()` verificam a tabela de símbolos para ter certeza de que a variável está definida. O tratador de erros "undefined" simplesmente mostra o erro e saí, da mesma forma que "expect":
+Repare que tanto `AsmLoadVar()` quanto `AsmStore()` verificam a tabela de símbolos para ter certeza de que a variável está definida. O tratador de erros "undefined" simplesmente mostra o erro e saí, da mesma forma que "expect":
 
 ~~~c
 /* avisa a respeito de um identificador desconhecido */
-void undefined(char name)
+void Undefined(char name)
 {
-    fatal("Error: Undefined identifier %c\n", name);
+    Abort("Error: Undefined identifier %c\n", name);
 }
 ~~~
 
-Certo, finalmente estamos prontos para começar a adicionar código executável. Faremos isto substituindo a versão vazia de `assignment()`.
+Certo, finalmente estamos prontos para começar a adicionar código executável. Faremos isto substituindo a versão vazia de `Assignment()`.
 
 Isto deve ser familiar pra você a esta altura, pois é algo que já fizemos várias vezes. Na verdade, exceto pelas alterações associadas ao código gerado, poderíamos simplesmente copiar as rotinas da parte 7. Como estamos fazendo algumas alterações, eu não vou simplesmente copiá-las, mas vamos seguir um pouco mais rápido que o normal.
 
@@ -586,135 +586,135 @@ De qualquer forma, o código a seguir implementa a BNF:
 
 ~~~c
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else if (isalpha(look))
-        asmLoadVar(getName());
+        AsmLoadVar(GetName());
     else
-        asmLoadConst(getNum());
+        AsmLoadConst(GetNum());
 }
 
 /* analisa e traduz um fator negativo */
-void negFactor()
+void NegFactor()
 {
-    match('-');
+    Match('-');
     if (isdigit(look))
-        asmLoadConst(-getNum());
+        AsmLoadConst(-GetNum());
     else {
-        factor();
-        asmNegative();
+        Factor();
+        AsmNegate();
     }
 }
 
 /* analisa e traduz um fator inicial */
-void firstFactor()
+void FirstFactor()
 {
     switch (look) {
         case '+':
-            match('+');
-            factor();
+            Match('+');
+            Factor();
             break;
         case '-':
-            negFactor();
+            NegFactor();
             break;
         default:
-            factor();
+            Factor();
             break;
     }
 }
 
 /* reconhece e traduz uma multiplicação */
-void multiply()
+void Multiply()
 {
-    match('*');
-    factor();
-    asmPopMul();
+    Match('*');
+    Factor();
+    AsmPopMul();
 }
 
 /* reconhece e traduz uma divisão */
-void divide()
+void Divide()
 {
-    match('/');
-    factor();
-    asmPopDiv();
+    Match('/');
+    Factor();
+    AsmPopDiv();
 }
 
 /* código comum usado por "term" e "firstTerm" */
-void termCommon()
+void TermCommon()
 {
-    while (isMulOp(look)) {
-        asmPush();
+    while (IsMulOp(look)) {
+        AsmPush();
         switch (look) {
           case '*':
-            multiply();
+            Multiply();
             break;
           case '/':
-            divide();
+            Divide();
             break;
         }
     }
 }
 
 /* analisa e traduz um termo matemático */
-void term()
+void Term()
 {
-    factor();
-    termCommon();
+    Factor();
+    TermCommon();
 }
 
 /* analisa e traduz um termo inicial */
-void firstTerm()
+void FirstTerm()
 {
-    firstFactor();
-    termCommon();
+    FirstFactor();
+    TermCommon();
 }
 
 /* reconhece e traduz uma adição */
-void add()
+void Add()
 {
-    match('+');
-    term();
-    asmPopAdd();
+    Match('+');
+    Term();
+    AsmPopAdd();
 }
 
 /* reconhece e traduz uma subtração*/
-void subtract()
+void Subtract()
 {
-    match('-');
-    term();
-    asmPopSub();
+    Match('-');
+    Term();
+    AsmPopSub();
 }
 
 /* analisa e traduz uma expressão matemática */
-void expression()
+void Expression()
 {
-    firstTerm();
-    while (isAddOp(look)) {
-        asmPush();
+    FirstTerm();
+    while (IsAddOp(look)) {
+        AsmPush();
         switch (look) {
           case '+':
-            add();
+            Add();
             break;
           case '-':
-            subtract();
+            Subtract();
             break;
         }
     }
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name;
 
-    name = getName();
-    match('=');
-    expression();
-    asmStore(name);
+    name = GetName();
+    Match('=');
+    Expression();
+    AsmStore(name);
 }
 ~~~
 
@@ -723,19 +723,19 @@ Agora que você já inseriu todo este código, compile-o e verifique o resultado
 Expressões Booleanas
 --------------------
 
-O próximo passo também deve ser familiar pra você. Temos que incluir expressões booleanas e operadores relacionais. Novamente, como já lidamos com isto mais de uma vez, eu não vou elaborar muito em cima deles, exceto onde existirem diferenças do que já fizemos. Novamente, nós não vamos simplesmente copiar de outros arquivos pois eu mudei um pouco as coisas. A maioria da mudanças envolveram apenas encapsular a parte dependente de máquina como fizemos para as operações aritméticas. Eu também modifiquei a rotina `notFactor()`, para ficar semelhante à estrutura de `firstFactor()`.
+O próximo passo também deve ser familiar pra você. Temos que incluir expressões booleanas e operadores relacionais. Novamente, como já lidamos com isto mais de uma vez, eu não vou elaborar muito em cima deles, exceto onde existirem diferenças do que já fizemos. Novamente, nós não vamos simplesmente copiar de outros arquivos pois eu mudei um pouco as coisas. A maioria da mudanças envolveram apenas encapsular a parte dependente de máquina como fizemos para as operações aritméticas. Eu também modifiquei a rotina `NotFactor()`, para ficar semelhante à estrutura de `FirstFactor()`.
 
 Para começar, vamos precisar de mais alguns reconhecedores:
 
 ~~~c
 /* reconhece um operador OU */
-int isOrOp(char c)
+int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
 /* reconhece operadores relacionais */
-int isRelOp(char c)
+int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
@@ -745,47 +745,47 @@ Também vamos precisar de mais rotinas de geração de código:
 
 ~~~c
 /* inverte registrador primário */
-void asmNot()
+void AsmNot()
 {
-    emit("NOT AX");
+    EmitLn("NOT AX");
 }
 
 /* aplica "E" binário ao topo da pilha com registrador primário */
-void asmPopAnd()
+void AsmPopAnd()
 {
-    emit("POP BX");
-    emit("AND AX, BX");
+    EmitLn("POP BX");
+    EmitLn("AND AX, BX");
 }
 
 /* aplica "OU" binário ao topo da pilha com registrador primário */
-void asmPopOr()
+void AsmPopOr()
 {
-    emit("POP BX");
-    emit("OR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("OR AX, BX");
 }
 
 /* aplica "OU-exclusivo" binário ao topo da pilha com registrador primário */
-void asmPopXor()
+void AsmPopXor()
 {
-    emit("POP BX");
-    emit("XOR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("XOR AX, BX");
 }
 
 /* compara topo da pilha com registrador primário */
-void asmPopCompare()
+void AsmPopCompare()
 {
-    emit("POP BX");
-    emit("CMP BX, AX");
+    EmitLn("POP BX");
+    EmitLn("CMP BX, AX");
 }
 
 /* altera registrador primário (e flags, indiretamente) conforme a comparação */
-void asmRelOp(char op)
+void AsmRelOp(char op)
 {
     char *jump;
     int l1, l2;
 
-    l1 = newLabel();
-    l2 = newLabel();
+    l1 = NewLabel();
+    l2 = NewLabel();
 
     switch (op) {
         case '=': jump = "JE"; break;
@@ -794,16 +794,16 @@ void asmRelOp(char op)
         case '>': jump = "JG"; break;
     }
 
-    emit("%s L%d", jump, l1);
-    emit("XOR AX, AX");
-    emit("JMP L%d", l2);
-    postLabel(l1);
-    emit("MOV AX, -1");
-    postLabel(l2);
+    EmitLn("%s L%d", jump, l1);
+    EmitLn("XOR AX, AX");
+    EmitLn("JMP L%d", l2);
+    PostLabel(l1);
+    EmitLn("MOV AX, -1");
+    PostLabel(l2);
 }
 ~~~
 
-Estas são as ferramentas de que precisamos. Repare que eu substitui as rotinas dos operadores relacionais por uma só rotina para todos. Desta forma evitamos duplicar o código. Insira também a declaração de `labelCount`, `newLabel()`, `postLabel()` das seções anteriores já que são necessárias nesta rotina.
+Estas são as ferramentas de que precisamos. Repare que eu substitui as rotinas dos operadores relacionais por uma só rotina para todos. Desta forma evitamos duplicar o código. Insira também a declaração de `LabelCount`, `NewLabel()`, `PostLabel()` das seções anteriores já que são necessárias nesta rotina.
 
 A BNF para expressões booleanas é:
 
@@ -831,81 +831,81 @@ Certo, assumindo que estamos satisfeitos com a sintaxe acima, o código correspo
 
 ~~~c
 /* analisa e traduz uma relação */
-void relation()
+void Relation()
 {
     char op;
 
-    expression();
-    if (isRelOp(look)) {
+    Expression();
+    if (IsRelOp(look)) {
         op = look;
-        match(op); /* só para remover o operador do caminho */
-        asmPush();
-        expression();
-        asmPopCompare();
-        asmRelOp(op);
+        Match(op); /* só para remover o operador do caminho */
+        AsmPush();
+        Expression();
+        AsmPopCompare();
+        AsmRelOp(op);
     }
 }
 
 /* analisa e traduz um fator booleano com NOT inicial */
-void notFactor()
+void NotFactor()
 {
     if (look == '!') {
-        match('!');
-        relation();
-        asmNot();
+        Match('!');
+        Relation();
+        AsmNot();
     } else
-        relation();
+        Relation();
 }
 
 /* analisa e traduz um termo booleano */
-void boolTerm()
+void BoolTerm()
 {
-    notFactor();
+    NotFactor();
     while (look == '&') {
-        asmPush();
-        match('&');
-        notFactor();
-        asmPopAnd();
+        AsmPush();
+        Match('&');
+        NotFactor();
+        AsmPopAnd();
     }
 }
 
 /* reconhece e traduz um "OR" */
-void boolOr()
+void BoolOr()
 {
-    match('|');
-    boolTerm();
-    asmPopOr();
+    Match('|');
+    BoolTerm();
+    AsmPopOr();
 }
 
 /* reconhece e traduz um "xor" */
-void boolXor()
+void BoolXor()
 {
-    match('~');
-    boolTerm();
-    asmPopXor();
+    Match('~');
+    BoolTerm();
+    AsmPopXor();
 }
 
 /* analisa e traduz uma expressão booleana */
-void boolExpression()
+void BoolExpression()
 {
-    boolTerm();
-    while (isOrOp(look)) {
-        asmPush();
+    BoolTerm();
+    while (IsOrOp(look)) {
+        AsmPush();
         switch (look) {
           case '|':
-              boolOr();
+              BoolOr();
               break;
           case '~':
-              boolXor();
+              BoolXor();
               break;
         }
     }
 }
 ~~~
 
-Repare que eu alterei `relation()` para refletir a estrutura usada por `asmRelOp()`. No fim acabamos economizando 8 rotinas e não duplicamos código.
+Repare que eu alterei `Relation()` para refletir a estrutura usada por `AsmRelOp()`. No fim acabamos economizando 8 rotinas e não duplicamos código.
 
-Para juntar tudo, não esqueça de alterar as referências para `expression()` nas rotinas `factor()` e `assignment()` para que elas chamem `boolExpression()` agora.
+Para juntar tudo, não esqueça de alterar as referências para `Expression()` nas rotinas `Factor()` e `Assignment()` para que elas chamem `BoolExpression()` agora.
 
 OK, se você já entrou com tudo isto, compile e faça um teste. Primeiro, certifique-se que ainda é possível usar expressões aritméticas. Então, teste uma booleana. Finalmente, certifique-se que é possível atribuir o resultado de relações. Tente, por exemplo:
 
@@ -956,15 +956,15 @@ Certo, com esta explicação, vamos prosseguir. Como de costume, vamos precisar 
 
 ~~~c
 /* desvio incondicional */
-void asmJmp(int label)
+void AsmBranch(int label)
 {
-    emit("JMP L%d", label);
+    EmitLn("JMP L%d", label);
 }
 
 /* desvio se falso (0) */
-void asmJmpFalse(int label)
+void AsmBranchFalse(int label)
 {
-    emit("JZ L%d", label);
+    EmitLn("JZ L%d", label);
 }
 ~~~
 
@@ -972,42 +972,42 @@ Exceto pela encapsulação da geração de código, as rotinas para analisar as 
 
 ~~~c
 /* analisa e traduz um comando IF */
-void doIf()
+void DoIf()
 {
     int l1, l2;
 
-    match('i');
-    boolExpression();
-    l1 = newLabel();
+    Match('i');
+    BoolExpression();
+    l1 = NewLabel();
     l2 = l1;
-    asmJmpFalse(l1);
-    block();
+    AsmBranchFalse(l1);
+    Block();
     if (look == 'l') {
-        match('l');
-        l2 = newLabel();
-        asmJmp(l2);
-        postLabel(l1);
-        block();
+        Match('l');
+        l2 = NewLabel();
+        AsmBranch(l2);
+        PostLabel(l1);
+        Block();
     }
-    postLabel(l2);
-    match('e');
+    PostLabel(l2);
+    Match('e');
 }
 
 /* analisa e traduz um comando WHILE */
-void doWhile()
+void DoWhile()
 {
     int l1, l2;
 
-    match('w');
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    boolExpression();
-    asmJmpFalse(l2)
-    block();
-    match('e');
-    asmJmp(l1);
-    postLabel(l2);
+    Match('w');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    BoolExpression();
+    AsmBranchFalse(l2)
+    Block();
+    Match('e');
+    AsmBranch(l1);
+    PostLabel(l2);
 }
 ~~~
 
@@ -1022,24 +1022,24 @@ O código correspondente é:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     int follow = 0;
 
     while (!follow) {
         switch (look) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'e':
             case 'l':
                 follow = 1;
                 break;
             default:
-                assignment();
+                Assignment();
                 break;
         }
     }
@@ -1063,7 +1063,7 @@ Análise Léxica
 
 É claro que você sabe o que vem depois: Temos que converter o programa para que ele trate de palavras-chave multi-caracter, quebras de linha, e espaços em branco. Nós já passamos por tudo isto na [parte 7](07_analise_lexica.md). Vamos usar a técnica de análise distribuída que eu mostrei naquele capítulo. A implementação atual é um pouco diferente por causa da forma que eu vou tratar das quebras de linha.
 
-Para começar, vamos simplesmente permitir espaços em branco. Isto envolve apenas adicionar chamadas a `skipWhite()` no fim das três rotinas, `getName()`, `getNum()` e `match()`. Um chamada a `skipWhite()` em `init()` remove os espaços em branco iniciais. Podemos então entrar com um programa que é mais compreensível, como: 
+Para começar, vamos simplesmente permitir espaços em branco. Isto envolve apenas adicionar chamadas a `SkipWhite()` no fim das três rotinas, `GetName()`, `GetNum()` e `Match()`. Um chamada a `SkipWhite()` em `Init()` remove os espaços em branco iniciais. Podemos então entrar com um programa que é mais compreensível, como: 
 
     p vx b x=1 e.
 
@@ -1073,35 +1073,35 @@ Insira a rotina:
 
 ~~~c
 /* captura caracteres de nova linha */
-void newLine()
+void NewLine()
 {
     while (look == '\n') {
-        nextChar();
-        skipWhite();
+        NextChar();
+        SkipWhite();
     }
 }
 ~~~
 
 Note que já vimos esta rotina antes mas numa forma diferente. Eu agora alterei o código para permitir múltiplas quebras de linha e linhas que só possuem espaços.
 
-O próximo passo é inserir a chamada a `newLine()` onde quer que seja permitido uma nova linha. Como eu já disse antes, isto pode ser muito diferente dependendo da linguagem. Em TINY, eu decidi que é possível colocar quebras de linha virtualmente em qualquer lugar. Isto significa que precisamos de chamadas a `newLine()` no INÍCIO (não no fim, como `skipWhite()` das rotinas `getName()`, `getNum()` e `match()`.
+O próximo passo é inserir a chamada a `NewLine()` onde quer que seja permitido uma nova linha. Como eu já disse antes, isto pode ser muito diferente dependendo da linguagem. Em TINY, eu decidi que é possível colocar quebras de linha virtualmente em qualquer lugar. Isto significa que precisamos de chamadas a `NewLine()` no INÍCIO (não no fim, como `SkipWhite()` das rotinas `GetName()`, `GetNum()` e `Match()`.
 
-Para rotinas que possuem laços while, como `topDeclarations()`, precisamos de uma chamada a `newLine()` no início da rotina e no fim de cada repetição. Desta forma podemos garantir que `newLine()` foi chamada no início de cada passagem do laço. Também é necessário adicionar `newLine()` antes dos testes diretos de `look`, como em `factor()` e `allocVar()`.
+Para rotinas que possuem laços while, como `TopDeclarations()`, precisamos de uma chamada a `NewLine()` no início da rotina e no fim de cada repetição. Desta forma podemos garantir que `NewLine()` foi chamada no início de cada passagem do laço. Também é necessário adicionar `NewLine()` antes dos testes diretos de `look`, como em `Factor()` e `AllocVar()`.
 
-Se você já fez tudo isto, teste o programa e verifique que ele realmente trata de espaços em branco e quebras de linha. Tente todas as possibilidades que vierem à sua mente. Se alguma delas não funcionar é possível que você tenha esquecido de algum `newLine()`. Basta verificar em que construção ocorrereu o problema e procurar a mesma no código.
+Se você já fez tudo isto, teste o programa e verifique que ele realmente trata de espaços em branco e quebras de linha. Tente todas as possibilidades que vierem à sua mente. Se alguma delas não funcionar é possível que você tenha esquecido de algum `NewLine()`. Basta verificar em que construção ocorrereu o problema e procurar a mesma no código.
 
 Se tudo estiver correto, estamos prontos para tratar dos tokens multi-caracter e palavras-chave. Para começar, adicione as declarações adicionais (cópias quase idênticas da [parte 7](07_analise_lexica.md)):
 
 ~~~c
 #define MAXTOKEN 16
-#define KWLIST_SZ 9
+#define KEYWORDLIST_SIZE 9
 
 /* lista de palavras-chave */
-char *kwlist[KWLIST_SZ] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
+char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
                "VAR", "BEGIN", "END", "PROGRAM"};
 
 /* a ordem deve obedecer a lista de palavras-chave */
-char *kwcode = "ilewevbep";
+char *KeywordCode = "ilewevbep";
 
 char token; /* código do token atual */
 char value[MAXTOKEN+1]; /* texto do token atual */
@@ -1111,7 +1111,7 @@ Em seguida, adicione as três rotinas, também da [parte 7](07_analise_lexica.md
 
 ~~~c
 /* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
-int lookup(char *s, char *list[], int size)
+int Lookup(char *s, char *list[], int size)
 {
     int i;
 
@@ -1124,208 +1124,208 @@ int lookup(char *s, char *list[], int size)
 }
 
 /* analisador léxico */
-void scan()
+void Scan()
 {
     int kw;
 
-    getName();
-    kw = lookup(value, kwlist, KWLIST_SZ);
+    GetName();
+    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
     if (kw == -1)
         token = 'x';
     else
-        token = kwcode[kw];
+        token = KeywordCode[kw];
 }
 
 /* verifica se a string combina com o esperado */
-void matchString(char *s)
+void MatchString(char *s)
 {
     if (strcmp(value, s) != 0)
-        expected(s);
+        Expected(s);
 }
 ~~~
 
-Agora, nós temos um número grande de pequenas mudanças a serem feitas às rotinas restantes. Primeiro, temos que alterar a rotina `getName()` para ser um procedimento, como fizemos na parte 7:
+Agora, nós temos um número grande de pequenas mudanças a serem feitas às rotinas restantes. Primeiro, temos que alterar a rotina `GetName()` para ser um procedimento, como fizemos na parte 7:
 
 ~~~c
 /* recebe o nome de um identificador */
-void getName()
+void GetName()
 {
     int i;
 
-    newLine();
+    NewLine();
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
         value[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = 'x';
-    skipWhite();
+    SkipWhite();
 }
 ~~~
 
 Repare que esta rotina deixa seu resultado na variável global `value`.
 
-Depois, temos que alterar cada referência a `getName()` para refletir sua nova forma. Elas ocorrem em `factor()`, `assignment()` e `declaration()`:
+Depois, temos que alterar cada referência a `GetName()` para refletir sua nova forma. Elas ocorrem em `Factor()`, `Assignment()` e `Declaration()`:
 
 ~~~c
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
-    newLine();
+    NewLine();
     if (look == '(') {
-        match('(');
-        boolExpression();
-        match(')');
+        Match('(');
+        BoolExpression();
+        Match(')');
     } else if (isalpha(look)) {
-        getName();
-        asmLoadVar(value[0]);
+        GetName();
+        AsmLoadVar(value[0]);
     } else
-        asmLoadConst(getNum());
+        AsmLoadConst(GetNum());
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name;
 
     name = value[0];
-    match('=');
-    boolExpression();
-    asmStore(name);
+    Match('=');
+    BoolExpression();
+    AsmStore(name);
 }
 
 /* analisa uma lista de declaração de variáveis */
-void declaration()
+void Declaration()
 {
-    newLine();
+    NewLine();
     for (;;) {
-        getName();
-        allocVar(value[0]);
-        newLine();
+        GetName();
+        AllocVar(value[0]);
+        NewLine();
         if (look != ',')
             break;
-        match(',');
-        newLine();
+        Match(',');
+        NewLine();
     }
 }
 ~~~
 
 (Repare que ainda estamos nos limitando a variáveis com nomes de uma só letra, então vamos usar apenas o primeiro caracter da string como uma saída fácil por enquanto.)
 
-Finalmente, temos que fazer as alterações para usar "token" ao invés de `look` como caracter de teste e chamar `scan()` nos lugares apropriados. Na maioria, isto envolve remover chamadas a `match()`, ocasionalmente trocando chamadas de `match()` por chamadas a `matchString()`, e trocando chamadas a `newLine()` por chamadas a `scan()`. Aqui estão as rotinas afetadas:
+Finalmente, temos que fazer as alterações para usar "token" ao invés de `look` como caracter de teste e chamar `Scan()` nos lugares apropriados. Na maioria, isto envolve remover chamadas a `Match()`, ocasionalmente trocando chamadas de `Match()` por chamadas a `MatchString()`, e trocando chamadas a `NewLine()` por chamadas a `Scan()`. Aqui estão as rotinas afetadas:
 
 ~~~c
 /* analisa e traduz um comando IF */
-void doIf()
+void DoIf()
 {
     int l1, l2;
 
-    boolExpression();
-    l1 = newLabel();
+    BoolExpression();
+    l1 = NewLabel();
     l2 = l1;
-    asmJmpFalse(l1);
-    block();
+    AsmBranchFalse(l1);
+    Block();
     if (token == 'l') {
-        l2 = newLabel();
-        asmJmp(l2);
-        postLabel(l1);
-        block();
+        l2 = NewLabel();
+        AsmBranch(l2);
+        PostLabel(l1);
+        Block();
     }
-    postLabel(l2);
-    matchString("ENDIF");
+    PostLabel(l2);
+    MatchString("ENDIF");
 }
 
 /* analisa e traduz um comando WHILE */
-void doWhile()
+void DoWhile()
 {
     int l1, l2;
 
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    boolExpression();
-    asmJmpFalse(l2);
-    block();
-    matchString("ENDWHILE");
-    asmJmp(l1);
-    postLabel(l2);
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    BoolExpression();
+    AsmBranchFalse(l2);
+    Block();
+    MatchString("ENDWHILE");
+    AsmBranch(l1);
+    PostLabel(l2);
 }
 
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     int follow = 0;
 
     do {
-        scan();
+        Scan();
         switch (token) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'e':
             case 'l':
                 follow = 1;
                 break;
             default:
-                assignment();
+                Assignment();
                 break;
         }
     } while (!follow);
 }
 
 /* analisa e traduz declarações globais */
-void topDeclarations()
+void TopDeclarations()
 {
-    scan();
+    Scan();
     while (token != 'b') {
         switch (token) {
             case 'v':
-                declaration();
+                Declaration();
                 break;
             default:
-                error("Unrecognized keyword.");
-                expected("BEGIN");
+                Error("Unrecognized keyword.");
+                Expected("BEGIN");
                 break;
         }
-        scan();
+        Scan();
     }
 }
 
 /* analisa e traduz o bloco principal */
-void mainBlock()
+void MainBlock()
 {
-    matchString("BEGIN");
-    prolog();
-    block();
-    matchString("END");
-    epilog();
+    MatchString("BEGIN");
+    AsmProlog();
+    Block();
+    MatchString("END");
+    AsmEpilog();
 }
 
 /* analisa e traduz um programa completo */
-void program()
+void Program()
 {
-    matchString("PROGRAM");
-    header();
-    topDeclarations();
-    mainBlock();
-    match('.');
+    MatchString("PROGRAM");
+    AsmHeader();
+    TopDeclarations();
+    MainBlock();
+    Match('.');
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
     int i = 0;
 
-    for (i = 0; i < VARTBL_SZ; i++)
-        vartbl[i] = ' ';
+    for (i = 0; i < VARTABLE_SIZE; i++)
+        VarTable[i] = ' ';
 
-    nextChar();
-    scan();
+    NextChar();
+    Scan();
 }
 ~~~
 
@@ -1340,106 +1340,106 @@ Uma das coisas a melhorar é com relação à restrição de nomes de variáveis
 
 Já fizemos isto antes. Desta vez, como de costume, eu vou fazê-lo de uma forma um pouco diferente. Eu acho que a abordagem aqui mantém as coisas tão simples quanto possível.
 
-A forma natural de implementar uma tabela de símbolos é declarar uma estrutura (struct), e fazer da tabela de símbolos um vetor destas estruturas. Porém, aqui não precisamos realmente de um campo de tipo (afinal, só existe um tipo de entrada até aqui), portanto só precisamos de um vetor de símbolos. A vantagem é que podemos usar a rotina existente `lookup()` para procurar na tabela de símbolos e também na lista de palavras-chave. No entando, mesmo quando precisarmos de mais campos poderíamos usar a mesma abordagem, simplesmente armazenando os outros campos em vetores separados.
+A forma natural de implementar uma tabela de símbolos é declarar uma estrutura (struct), e fazer da tabela de símbolos um vetor destas estruturas. Porém, aqui não precisamos realmente de um campo de tipo (afinal, só existe um tipo de entrada até aqui), portanto só precisamos de um vetor de símbolos. A vantagem é que podemos usar a rotina existente `Lookup()` para procurar na tabela de símbolos e também na lista de palavras-chave. No entando, mesmo quando precisarmos de mais campos poderíamos usar a mesma abordagem, simplesmente armazenando os outros campos em vetores separados.
 
 Certo, aqui estão as mudanças necessárias.  Primeiro adicione:
 
 ~~~c
-int symbolCount; /* número de entradas na tabela de símbolos */
+int SymbolCount; /* número de entradas na tabela de símbolos */
 ~~~
 
-Então remova a definição de "vartbl" e acrescente a nova tabela de símbolos:
+Então remova a definição de "VarTable" e acrescente a nova tabela de símbolos:
 
 ~~~c
-#define SYMTBL_SZ 1000
-char *symbolTable[SYMTBL_SZ]; /* tabela de símbolos */
+#define SYMBOLTABLE_SIZE 1000
+char *SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
 ~~~
 
-Em seguida, alteramos a definição de `inTable()`:
+Em seguida, alteramos a definição de `InTable()`:
 
 ~~~c
 /* verifica se símbolo está na tabela */
-int inTable(char *name)
+int InTable(char *name)
 {
-    return (lookup(name, symbolTable, symbolCount) >= 0);
+    return (Lookup(name, SymbolTable, SymbolCount) >= 0);
 }
 ~~~
 
-Também precisamos de uma nova rotina, `addSymbol()`, que adiciona uma nova entrada à tabela de símbolos:
+Também precisamos de uma nova rotina, `AddEntry()`, que adiciona uma nova entrada à tabela de símbolos:
 
 ~~~c
 /* adiciona uma nova entrada à tabela de símbolos */
-void addSymbol(char *name)
+void AddEntry(char *name)
 {
     char *newSymbol;
 
-    if (inTable(name)) {
-        fatal("Duplicated variable name: %s", name);
+    if (InTable(name)) {
+        Abort("Duplicated variable name: %s", name);
     }
 
-    if (symbolCount >= SYMTBL_SZ) {
-        fatal("Symbol table full!");
+    if (SymbolCount >= SYMBOLTABLE_SIZE) {
+        Abort("Symbol table full!");
     }
 
     newSymbol = (char *) malloc(sizeof(char) * (strlen(name) + 1));
     if (newSymbol == NULL)
-        fatal("Out of memory!");
+        Abort("Out of memory!");
     strcpy(newSymbol, name);
 
-    symbolTable[symbolCount++] = newSymbol;
+    SymbolTable[SymbolCount++] = newSymbol;
 }
 ~~~
 
-Esta rotina é chamada por `allocVar()`, repare também nas outras alterações:
+Esta rotina é chamada por `AllocVar()`, repare também nas outras alterações:
 
 ~~~c
 /* analisa e traduz uma declaração */
-void allocVar(char *name)
+void AllocVar(char *name)
 {
     int value = 0, signal = 1;
 
-    addSymbol(name);
+    AddEntry(name);
 
-    newLine();
+    NewLine();
     if (look == '=') {
-        match('=');
-        newLine();
+        Match('=');
+        NewLine();
         if (look == '-') {
-                match('-');
+                Match('-');
                 signal = -1;
         }
-        value = signal * getNum();
+        value = signal * GetNum();
     }    
 
     printf("%s:\tdw %d\n", name, value);
 }
 ~~~
 
-Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caracter único. Elas incluem `asmLoadVar()`, `asmStore()`, `undefined()` (apenas alteramos o tipo de `char` para `char *` e `%c` para `%s` nos `printf`'s), `factor()`, `declaration()` (alteramos `value[0]` para `value`). Em `assignment()` a mudança é um pouco diferente, mas nada complicada:
+Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caracter único. Elas incluem `AsmLoadVar()`, `AsmStore()`, `Undefined()` (apenas alteramos o tipo de `char` para `char *` e `%c` para `%s` nos `printf`'s), `Factor()`, `Declaration()` (alteramos `value[0]` para `value`). Em `Assignment()` a mudança é um pouco diferente, mas nada complicada:
 
 ~~~c
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name[MAXTOKEN+1];
 
     strcpy(name, value);
-    match('=');
-    boolExpression();
-    asmStore(name);
+    Match('=');
+    BoolExpression();
+    AsmStore(name);
 }
 ~~~
 
-Uma última alteração na rotina `init()`:
+Uma última alteração na rotina `Init()`:
 
 ~~~c
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    symbolCount = 0;
+    SymbolCount = 0;
 
-    nextChar();
-    scan();
+    NextChar();
+    Scan();
 }
 ~~~
 
@@ -1454,45 +1454,45 @@ Se você se lembrar, na [parte 7](07_analise_lexica.md) eu disse que a maneira c
 
 Eu mencionei então que ainda podemos nos livrar disto, já que os operadores relacionais são tão poucos e tão limitados em seu uso. É fácil tratar deles apenas como casos especiais e lidar com eles de uma forma **ad hoc**.
 
-As mudanças necessárias afetam apenas as rotina de geração de códigos `asmRelOp()` e `relation()`:
+As mudanças necessárias afetam apenas as rotina de geração de códigos `AsmRelOp()` e `Relation()`:
 
 ~~~c
 /* analisa e traduz uma relação */
-void relation()
+void Relation()
 {
     char op;
 
-    expression();
-    if (isRelOp(look)) {
+    Expression();
+    if (IsRelOp(look)) {
         op = look;
-        match(op); /* só para remover o operador do caminho */
+        Match(op); /* só para remover o operador do caminho */
         if (op == '<') {
             if (look == '>') { /* trata operador <> */
-                match('>');
+                Match('>');
                 op = '#';
             } else if (look == '=') { /* trata operador <= */
-                match('=');
+                Match('=');
                 op = 'L';
             }
         } else if (op == '>' && look == '=') { /* trata operador >= */
-            match('=');
+            Match('=');
             op = 'G';
         }
-        asmPush();
-        expression();
-        asmPopCompare();
-        asmRelOp(op);
+        AsmPush();
+        Expression();
+        AsmPopCompare();
+        AsmRelOp(op);
     }
 }
 
 /* altera registrador primário (e flags, indiretamente) conforme a comparação */
-void asmRelOp(char op)
+void AsmRelOp(char op)
 {
     char *jump;
     int l1, l2;
 
-    l1 = newLabel();
-    l2 = newLabel();
+    l1 = NewLabel();
+    l2 = NewLabel();
 
     switch (op) {
         case '=': jump = "JE"; break;
@@ -1503,16 +1503,16 @@ void asmRelOp(char op)
         case 'G': jump = "JGE"; break;
     }
 
-    emit("%s L%d", jump, l1);
-    emit("XOR AX, AX");
-    emit("JMP L%d", l2);
-    postLabel(l1);
-    emit("MOV AX, -1");
-    postLabel(l2);
+    EmitLn("%s L%d", jump, l1);
+    EmitLn("XOR AX, AX");
+    EmitLn("JMP L%d", l2);
+    PostLabel(l1);
+    EmitLn("MOV AX, -1");
+    PostLabel(l2);
 }
 ~~~
 
-(Repare que estou utilizando "G" e "L" para indicar os operadores ">=" e "<=" na passagem para `asmRelOp()`. Repare também como é tratado o operador "<>".)
+(Repare que estou utilizando "G" e "L" para indicar os operadores ">=" e "<=" na passagem para `AsmRelOp()`. Repare também como é tratado o operador "<>".)
 
 Isto deve bastar. Agora é possível processar todo tipo de operador relacional. Faça alguns testes.
 
@@ -1529,15 +1529,15 @@ Como de costume, para isto precisamos de mais rotinas de geração de código. P
 
 ~~~c
 /* lê um valor a partir da entrada e armazena-o no registrador primário */
-void asmRead()
+void AsmRead()
 {
-    emit("CALL READ");
+    EmitLn("CALL READ");
 }
 
 /* mostra valor do registrador primário */
-void asmWrite()
+void AsmWrite()
 {
-    emit("CALL WRITE");
+    EmitLn("CALL WRITE");
 }
 ~~~
 
@@ -1553,14 +1553,14 @@ Mas isto é certamente separado do projeto do compilador. Por enquanto vamos faz
 Isto deve ser o suficiente. Agora, também devemos reconhecer os comandos de leitura e escrita. Podemos fazer isto adicionando mais duas palavras-chave à nossa lista:
 
 ~~~c
-#define KWLIST_SZ 11
+#define KEYWORDLIST_SIZE 11
 
 /* lista de palavras-chave */
-char *kwlist[KWLIST_SZ] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
+char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
                "READ", "WRITE", "VAR", "BEGIN", "END", "PROGRAM"};
 
 /* a ordem deve obedecer a lista de palavras-chave */
-char *kwcode = "ileweRWvbep";
+char *KeywordCode = "ileweRWvbep";
 ~~~
 
 (Repare como estou usando letras maiúsculas nos códigos para evitar conflitos com o "w" de "WHILE".)
@@ -1569,34 +1569,34 @@ Em seguida, precisamos das rotinas para processar os comandos em si e sua lista 
 
 ~~~c
 /* processa um comando READ */
-void doRead()
+void DoRead()
 {
-    match('(');
+    Match('(');
     for (;;) {
-        getName();
-        asmRead();
-        asmStore(value);
-        newLine();
+        GetName();
+        AsmRead();
+        AsmStore(value);
+        NewLine();
         if (look != ',')
             break;
-        match(',');
+        Match(',');
     }
-    match(')');
+    Match(')');
 }
 
 /* processa um comando WRITE */
-void doWrite()
+void DoWrite()
 {
-    match('(');
+    Match('(');
     for (;;) {
-        expression();
-        asmWrite();
-        newLine();
+        Expression();
+        AsmWrite();
+        NewLine();
         if (look != ',')
             break;
-        match(',');
+        Match(',');
     }
-    match(')');
+    Match(')');
 }
 ~~~
 
@@ -1604,49 +1604,49 @@ Finalmente, temos que expandir "block" para tratar dos novos comandos:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     int follow = 0;
 
     do {
-        scan();
+        Scan();
         switch (token) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'R':
-                doRead();
+                DoRead();
                 break;
             case 'W':
-                doWrite();
+                DoWrite();
                 break;
             case 'e':
             case 'l':
                 follow = 1;
                 break;
             default:
-                assignment();
+                Assignment();
                 break;
         }
     } while (!follow);
 }
 ~~~
 
-Se você tentar montar o código gerado agora com as rotinas READ e WRITE vai obter uma mensagem de erro, dizendo que não encontrou tais rotinas no código. Como elas são rotinas externas (da biblioteca), precisamos avisar o montador a respeito disso, altere `header()`:
+Se você tentar montar o código gerado agora com as rotinas READ e WRITE vai obter uma mensagem de erro, dizendo que não encontrou tais rotinas no código. Como elas são rotinas externas (da biblioteca), precisamos avisar o montador a respeito disso, altere `AsmHeader()`:
 
 ~~~c
 /* cabeçalho inicial para o montador */
-void header()
+void AsmHeader()
 {
-    emit(".model small");
-    emit(".stack");
-    emit(".code");
+    EmitLn(".model small");
+    EmitLn(".stack");
+    EmitLn(".code");
     printf("extrn READ:near, WRITE:near\n");
     printf("PROG segment byte public\n");
-    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 ~~~
 

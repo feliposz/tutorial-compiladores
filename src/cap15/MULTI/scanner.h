@@ -4,11 +4,11 @@
 #define MAXNAME 30
 #define MAXNUM 5
 
-int isAddOp(char c);
-int isMulOp(char c);
+int IsAddOp(char c);
+int IsMulOp(char c);
 
-void match(char c);
-void getName(char *name);
-void getNum(char *num);
+void Match(char c);
+void GetName(char *name);
+void GetNum(char *num);
 
 #endif

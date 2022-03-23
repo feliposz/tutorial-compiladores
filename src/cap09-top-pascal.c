@@ -16,19 +16,19 @@ Este código é de livre distribuição e uso.
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    nextChar();
+    NextChar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -42,7 +42,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -58,7 +58,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -74,41 +74,41 @@ void expected(char *fmt, ...)
 }
 
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
+    NextChar();
 
     return name;
 }
 
 /* recebe um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
+    NextChar();
 
     return num;
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -123,110 +123,110 @@ void emit(char *fmt, ...)
 
 /* funções de declaração pascal */
 
-void labels()
+void Labels()
 {
-    match('l');
+    Match('l');
 }
 
-void constants()
+void Constants()
 {
-    match('c');
+    Match('c');
 }
 
-void types()
+void Types()
 {
-    match('t');
+    Match('t');
 }
 
-void variables()
+void Variables()
 {
-    match('v');
+    Match('v');
 }
 
-void procedure()
+void Procedure()
 {
-    match('p');
+    Match('p');
 }
 
-void function()
+void Function()
 {
-    match('f');
+    Match('f');
 }
 
 /* analisa e traduz declarações pascal */
-void declarations()
+void Declarations()
 {
     int valid;
 
     do {
         valid = 1;
         switch (look) {
-            case 'l': labels(); break;
-            case 'c': constants(); break;
-            case 't': types(); break;
-            case 'v': variables(); break;
-            case 'p': procedure(); break;
-            case 'f': function(); break;
+            case 'l': Labels(); break;
+            case 'c': Constants(); break;
+            case 't': Types(); break;
+            case 'v': Variables(); break;
+            case 'p': Procedure(); break;
+            case 'f': Function(); break;
             default: valid = 0; break;
         }
     } while (valid);
 }
 
 /* analisa e traduz um bloco de comandos pascal */
-void statements()
+void Statements()
 {
-    match('b');
+    Match('b');
     while (look != 'e')
-        nextChar();
-    match('e');
+        NextChar();
+    Match('e');
 }
 
 /* analisa e traduz um bloco Pascal */
-void block(char name)
+void Block(char name)
 {
-    declarations();
+    Declarations();
     printf("%c:\n", name);
-    statements();
+    Statements();
 }
 
 /* emite código para o prólogo de um programa */
-void prolog()
+void AsmProlog()
 {
-    emit(".model small");
-    emit(".stack");
-    emit(".code");
+    EmitLn(".model small");
+    EmitLn(".stack");
+    EmitLn(".code");
     printf("PROG segment byte public\n");
-    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
 /* emite código para o epílogo de um programa */
-void epilog(char name)
+void AsmEpilog(char name)
 {
-    printf("exit_prog:");
-    emit("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
-    emit("INT 21h       ; chamada de sistema DOS");
+    printf("exit_prog:\n");
+    EmitLn("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
+    EmitLn("INT 21h       ; chamada de sistema DOS");
     printf("PROG ends\n");
-    emit("end %c", name);
+    EmitLn("end %c", name);
 }
 
 /* analisa e traduz um programa Pascal */
-void program()
+void Program()
 {
     char name;
 
-    match('p'); /* trata do cabeçalho do programa */
-    name = getName();
-    prolog();
-    block(name);
-    match('.');
-    epilog(name);
+    Match('p'); /* trata do cabeçalho do programa */
+    name = GetName();
+    AsmProlog();
+    Block(name);
+    Match('.');
+    AsmEpilog(name);
 }
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    program();
+    Init();
+    Program();
 
     return 0;
 }

@@ -71,34 +71,34 @@ Apesar de ter prometido que, em algum lugar do capítulo 14, que nós nunca mais
 
 Apesar de toda esta reescrita do módulo de análise, eu só consegui incluir uma parte no último capítulo. Por causa disto, nosso herói, o analisador sintático, quando visto pela última vez, era apenas uma sombra de sua versão anterior, consistindo apenas de código suficiente para analisar e processar fatores consistindo de uma variável ou constante. O principal objetivo deste capítulo será ajudar o analisador a alcançar sua glória inicial. No processo, eu espero que você me acompanhe enquanto cobrimos um território que já foi tratado há muito tempo.
 
-Em primeiro lugar, vamos tratar de um problema que já vimos anteriormente: nossa versão atual do procedimento "factor", conforme a deixamos no capítulo 15, não pode tratar de argumentos negativos. Para arrumar isto, vamos introduzir o procedimento `signedFactor()`:
+Em primeiro lugar, vamos tratar de um problema que já vimos anteriormente: nossa versão atual do procedimento "factor", conforme a deixamos no capítulo 15, não pode tratar de argumentos negativos. Para arrumar isto, vamos introduzir o procedimento `SignedFactor()`:
 
 ~~~c
 /* analisa e traduz um fator com um sinal opcional */
-void signedFactor()
+void SignedFactor()
 {
     char sign = look;
-    if (isAddOp(look))
-        nextChar();
-    factor();
+    if (IsAddOp(look))
+        NextChar();
+    Factor();
     if (sign == '-')
-        asmNegate();
+        AsmNegate();
 }
 ~~~
 
-Repare que este procedimento chama uma nova rotina de geração de código, `asmNegate()`:
+Repare que este procedimento chama uma nova rotina de geração de código, `AsmNegate()`:
 
 ~~~c
 /* inverte sinal de registrador primário */
-void asmNegate()
+void AsmNegate()
 {
-    emit("NEG AX");
+    EmitLn("NEG AX");
 }
 ~~~
 
 (Aqui, e em todo lugar nesta série, eu só vou lhe mostrar as novas rotinas. Eu espero que você as coloque no módulo apropriado, e eu tenho certeza de que você normalmente não terá problema em identificar. Não esqueça de adicionar o protótipo da função ao cabeçalho de cada módulo.)
 
-No programa principal, simplesmente altere o procedimento chamado para `signedFactor()` e faça um teste.
+No programa principal, simplesmente altere o procedimento chamado para `SignedFactor()` e faça um teste.
 
 Sim, eu sei que o código não é muito eficiente. Se colocarmos um número, como -3, o código gerado será:
 
@@ -107,7 +107,7 @@ Sim, eu sei que o código não é muito eficiente. Se colocarmos um número, com
     NEG AX
 ~~~
 
-o que é realmente estúpido. Podemos fazer melhor, é claro, simplesmente adicionando um sinal de menos à string passada para `asmLoadConstant()`, mas isto adiciona algumas linhas de código a `signedFactor()`, e eu estou aplicando a filosofia KISS muito agressivamente aqui. Além disso, pra falar a verdade, eu acho que eu estou de forma subconsciente gostando de gerar código "realmente estúpido", para que eu tenha o prazer de vê-lo ficar dramaticamente melhor quando chegarmos aos métodos de otimização.
+o que é realmente estúpido. Podemos fazer melhor, é claro, simplesmente adicionando um sinal de menos à string passada para `AsmLoadConst()`, mas isto adiciona algumas linhas de código a `SignedFactor()`, e eu estou aplicando a filosofia KISS muito agressivamente aqui. Além disso, pra falar a verdade, eu acho que eu estou de forma subconsciente gostando de gerar código "realmente estúpido", para que eu tenha o prazer de vê-lo ficar dramaticamente melhor quando chegarmos aos métodos de otimização.
 
 Creio que a maioria de vocês nunca ouviu falar de John Spray, então permitam-me apresentá-lo. John é da Nova Zelândia, e costumava ensinar ciência da computação em uma das universidades de lá. John escreveu um compilador para o processador Motorola 6809, baseado em uma fantástica linguagem que ele mesmo criou, parecida com Pascal, chamada "Whimsical". Mais tarde ele portou o compilador para o 68000, e por um tempo este foi o único compilador que eu possuia em meu sistema doméstico.
 
@@ -125,7 +125,7 @@ Meu teste consiste em medir o tempo necessário para compilar e "linkar", e o ta
 
 Fazendo o compilador gerar código para um arquivo de inclusão (uma espécie de módulo ou biblioteca) ao invés de um programa executável independente, John conseguiu cortar o tamanho, de dois bytes para zero! É meio difícil ganhar de um arquivo-objeto vazio, você não acha?
 
-Não é necessário dizer que, eu considero John uma espécie de especialista em otimização de código, e gosto do que ele tem para dizer: "A melhor forma de otimizar é não ter que otimizar nada. Ao invés disso produzir código de boa qualidade já da primeira vez." Palavras com as quais devemos conviver. Quando começarmos com otimização, vamos seguir o conselho de John, e nosso primeiro passo não será adicionar um otimizador "peephole" ou outro mecanismo *a posteriori*, mas sim melhorar a qualidade do código emitido antes da otimização. Portanto, tome nota a respeito de `signedFactor()` como sendo um bom candidato para nossa primeira tentativa, e por enquanto vamos deixá-lo como está.
+Não é necessário dizer que, eu considero John uma espécie de especialista em otimização de código, e gosto do que ele tem para dizer: "A melhor forma de otimizar é não ter que otimizar nada. Ao invés disso produzir código de boa qualidade já da primeira vez." Palavras com as quais devemos conviver. Quando começarmos com otimização, vamos seguir o conselho de John, e nosso primeiro passo não será adicionar um otimizador "peephole" ou outro mecanismo *a posteriori*, mas sim melhorar a qualidade do código emitido antes da otimização. Portanto, tome nota a respeito de `SignedFactor()` como sendo um bom candidato para nossa primeira tentativa, e por enquanto vamos deixá-lo como está.
 
 Termos e Expressões
 -------------------
@@ -144,16 +144,16 @@ Mas no momento vamos continuar fazendo as coisas uma de cada vez, e considerar e
 
 ~~~c
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    signedFactor();
-    while (isAddOp(look)) {
+    SignedFactor();
+    while (IsAddOp(look)) {
         switch (look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
         }
     }
@@ -164,143 +164,143 @@ Este procedimento chama outros procedimento para processar as operações:
 
 ~~~c
 /* analisa e traduz uma operação de soma */
-void add()
+void Add()
 {
-    match('+');
-    asmPush();
-    factor();
-    asmPopAdd();
+    Match('+');
+    AsmPush();
+    Factor();
+    AsmPopAdd();
 }
 
 /* analisa e traduz uma operação de subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    asmPush();
-    factor();
-    asmPopSub();
+    Match('-');
+    AsmPush();
+    Factor();
+    AsmPopSub();
 }
 ~~~
 
-Os três procedimentos `asmPush()`, `asmPopAdd()` e `asmPopSub()` são novas rotinas de geração de código. Como o próprio nome implica, o procedimento `asmPush()` gera código para colocar o registrador primário (AX, em nossa implementação) na pilha. `asmPopAdd()` e `asmPopSub()` removem o valor do topo da pilha, e adicionam, ou subtraem dele o registrador primário. O código é mostrado a seguir:
+Os três procedimentos `AsmPush()`, `AsmPopAdd()` e `AsmPopSub()` são novas rotinas de geração de código. Como o próprio nome implica, o procedimento `AsmPush()` gera código para colocar o registrador primário (AX, em nossa implementação) na pilha. `AsmPopAdd()` e `AsmPopSub()` removem o valor do topo da pilha, e adicionam, ou subtraem dele o registrador primário. O código é mostrado a seguir:
 
 ~~~c
 /* coloca registrador primário na pilha */
-void asmPush()
+void AsmPush()
 {
-    emit("PUSH AX");
+    EmitLn("PUSH AX");
 }
 
 /* adiciona topo da pilha ao registrador primário */
-void asmPopAdd()
+void AsmPopAdd()
 {
-    emit("POP BX");
-    emit("ADD AX, BX");
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* subtrai do topo da pilha o registrador primário */
-void asmPopSub()
+void AsmPopSub()
 {
-    emit("POP BX");
-    emit("SUB AX, BX");
-    asmNegate();
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    AsmNegate();
 }
 ~~~
 
-Adicione estas rotinas aos módulos "parser" e "codegen", e mude o programa principal para chamar `expression()`. Voilà!
+Adicione estas rotinas aos módulos "parser" e "codegen", e mude o programa principal para chamar `Expression()`. Voilà!
 
-O próximo passo, é claro, é adicionar capacidade para tratar de termos multiplicativos. Para isto, vamos adicionar um procedimento `term()`, e os procedimentos de geração de código `asmPopMul()` e `asmPopDiv()`.
+O próximo passo, é claro, é adicionar capacidade para tratar de termos multiplicativos. Para isto, vamos adicionar um procedimento `Term()`, e os procedimentos de geração de código `AsmPopMul()` e `AsmPopDiv()`.
 
 ~~~c
 /* multiplica topo da pilha e registrador primário */
-void asmPopMul()
+void AsmPopMul()
 {
-    emit("POP BX");
-    emit("IMUL BX");
+    EmitLn("POP BX");
+    EmitLn("IMUL BX");
 }
 
 /* divide o topo da pilha pelo registrador primário */
-void asmPopDiv()
+void AsmPopDiv()
 {
-    emit("POP BX");
-    emit("XCHG AX, BX");
-    emit("CWD");
-    emit("IDIV BX");
+    EmitLn("POP BX");
+    EmitLn("XCHG AX, BX");
+    EmitLn("CWD");
+    EmitLn("IDIV BX");
 }
 ~~~
 
 Eu admito que a rotina de divisão está um pouco "cheia", mas não há muita saída. Infelizmente os registradores acabam com os valores na ordem inversa, por isso é preciso invertê-los. Além disso precisamos fazer a extensão de sinal de AX (pois se o divisor é de 16-bits, BX, o dividendo deve ter 32-bits, DX:AX). Repare que estou usando a multiplicação e divisão com sinal. Estamos assumindo que nossas variáveis serão inteiros de 16-bits. Esta decisão vai voltar a nos assombrar mais tarde, quando começarmos a tratar de múltiplos tipos de dados, conversão de tipos, etc.
 
-Nosso procedimentos `term()` é virtualmente um clone de `expression()` e se parece com isto:
+Nosso procedimentos `Term()` é virtualmente um clone de `Expression()` e se parece com isto:
 
 ~~~c
 /* analisa e traduz um termo */
-void term()
+void Term()
 {
-    factor();
-    while (isMulOp(look)) {
+    Factor();
+    while (IsMulOp(look)) {
         switch (look) {
             case '*':
-                multiply();
+                Multiply();
                 break;
             case '/':
-                divide();
+                Divide();
                 break;
         }
     }
 }
 ~~~
 
-Nosso próximo passo é alterar alguns nomes. `signedFactor()` agora torna-se `signedTerm()`, e as atuais chamadas a `factor()`, serão alteradas para `term()`:
+Nosso próximo passo é alterar alguns nomes. `SignedFactor()` agora torna-se `SignedTerm()`, e as atuais chamadas a `Factor()`, serão alteradas para `Term()`:
 
 ~~~c
 /* analisa e traduz um termo com um sinal opcional */
-void signedTerm()
+void SignedTerm()
 {
     char sign = look;
-    if (isAddOp(look))
-        nextChar();
-    term();
+    if (IsAddOp(look))
+        NextChar();
+    Term();
     if (sign == '-')
-        asmNegate();
+        AsmNegate();
 }
 
 /* analisa e traduz uma operação de soma */
-void add()
+void Add()
 {
-    match('+');
-    asmPush();
-    term();
-    asmPopAdd();
+    Match('+');
+    AsmPush();
+    Term();
+    AsmPopAdd();
 }
 
 /* analisa e traduz uma operação de subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    asmPush();
-    term();
-    asmPopSub();
+    Match('-');
+    AsmPush();
+    Term();
+    AsmPopSub();
 }
 
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    signedTerm();
-    while (isAddOp(look)) {
+    SignedTerm();
+    while (IsAddOp(look)) {
         switch (look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
         }
     }
 }
 ~~~
 
-Se não me falha a memória, antes nós tinhamos tanto `signedFactor()` quanto `signedTerm()`. Eu tinha razões para manter as duas daquela vez... tinha a ver com o tratamento da álgebra booleana e, em particular, a função booleana "NOT". Mas certamente, para operações aritméticas, a duplicação não é necessária. Em uma expressão como:
+Se não me falha a memória, antes nós tinhamos tanto `SignedFactor()` quanto `SignedTerm()`. Eu tinha razões para manter as duas daquela vez... tinha a ver com o tratamento da álgebra booleana e, em particular, a função booleana "NOT". Mas certamente, para operações aritméticas, a duplicação não é necessária. Em uma expressão como:
 
     -x*y
 
@@ -308,26 +308,26 @@ Se não me falha a memória, antes nós tinhamos tanto `signedFactor()` quanto `
 
 Teste este novo código. Agora você deve ser capaz de tratar das quatro operações aritméticas.
 
-Nossa última tarefa, com relação às expressões, é modificar o procedimento `factor()` para permitir expressões entre parênteses. Usando uma chamada recursiva a `expression()`, é possível reduzir o código necessário a quase nada. Algumas linhas de código adicionadas a `factor()` resolvem isso:
+Nossa última tarefa, com relação às expressões, é modificar o procedimento `Factor()` para permitir expressões entre parênteses. Usando uma chamada recursiva a `Expression()`, é possível reduzir o código necessário a quase nada. Algumas linhas de código adicionadas a `Factor()` resolvem isso:
 
 ~~~c
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
 
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else if (isdigit(look)) {
-        getNum(num);
-        asmLoadConstant(num);
+        GetNum(num);
+        AsmLoadConst(num);
     } else if (isalpha(look)) {
-        getName(name);
-        asmLoadVariable(name);
+        GetName(name);
+        AsmLoadVar(name);
     } else
-        error("Unrecognized character: '%c'", look);
+        Error("Unrecognized character: '%c'", look);
 }
 ~~~
 
@@ -340,14 +340,14 @@ Já que chegamos até aqui, podemos criar também o código para comandos de atr
 
 ~~~c
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name[MAXNAME+1];
 
-    getName(name);
-    match('=');
-    expression();
-    asmStoreVariable(name);
+    GetName(name);
+    Match('=');
+    Expression();
+    AsmStoreVar(name);
 }
 ~~~
 
@@ -355,13 +355,13 @@ A atribuição precisa de mais uma rotina de geração de código:
 
 ~~~c
 /* armazena valor do registrador primário em variável */
-void asmStoreVariable(char *name)
+void AsmStoreVar(char *name)
 {
-    emit("MOV %s, AX", name);
+    EmitLn("MOV %s, AX", name);
 }
 ~~~
 
-Agora, altere a chamada no programa principal para `assignment()`, e você deverá ver um comando completo de atribuição sendo processado corretamente. Legal, não? E indolor, também.
+Agora, altere a chamada no programa principal para `Assignment()`, e você deverá ver um comando completo de atribuição sendo processado corretamente. Legal, não? E indolor, também.
 
 No passado, eu tentei mostrar as relações BNF para definir a sintaxe que estávamos desenvolvendo. Eu ainda não fiz isto, e já está na hora de fazê-lo. Aí está:
 
@@ -386,11 +386,11 @@ Em retrospecto, isto não parece uma razão muito boa para adicionar diversas ca
 
 Vamos começar tudo outra vez, usando uma abordagem mais próxima do Pascal, tratando os operadores booleaos com o mesmo nível de precedência dos aritméticos. Vamos ver até onde chegamos. Se parecer algo muito estranho podemos voltar à abordagem anterior.
 
-Vamos começar modificando `isAddOp()` para incluir os dois operadores extra: `|` para OU e `~` para OU-exclusivo:
+Vamos começar modificando `IsAddOp()` para incluir os dois operadores extra: `|` para OU e `~` para OU-exclusivo:
 
 ~~~c
 /* reconhece um operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-' || c == '|' || c == '~');
 }
@@ -400,47 +400,47 @@ Em seguida, temos que incluir a análise destas operações em "expression":
 
 ~~~c
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    signedTerm();
-    while (isAddOp(look)) {
+    SignedTerm();
+    while (IsAddOp(look)) {
         switch (look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
             case '|':
-                boolOr();
+                BoolOr();
                 break;
             case '~':
-                boolXor();
+                BoolXor();
                 break;
         }
     }
 }
 ~~~
 
-Em seguida, as rotinas `boolOr()` e `boolXor()`:
+Em seguida, as rotinas `BoolOr()` e `BoolXor()`:
 
 ~~~c
 /* analisa e traduz uma operação OU booleana */
-void boolOr()
+void BoolOr()
 {
-    match('|');
-    asmPush();
-    term();
-    asmPopOr();
+    Match('|');
+    AsmPush();
+    Term();
+    AsmPopOr();
 }
 
 /* analisa e traduz uma operação OU-exclusivo booleana */
-void boolXor()
+void BoolXor()
 {
-    match('~');
-    asmPush();
-    term();
-    asmPopXor();
+    Match('~');
+    AsmPush();
+    Term();
+    AsmPopXor();
 }
 ~~~
 
@@ -448,21 +448,21 @@ E, finalmente, as novas rotinas de geração de código:
 
 ~~~c
 /* aplica OU com topo da pilha a registrador primário */
-void asmPopOr()
+void AsmPopOr()
 {
-    emit("POP BX");
-    emit("OR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("OR AX, BX");
 }
 
 /* aplica OU-exclusivo com topo da pilha a registrador primário */
-void asmPopXor()
+void AsmPopXor()
 {
-    emit("POP BX");
-    emit("XOR AX, BX");
+    EmitLn("POP BX");
+    EmitLn("XOR AX, BX");
 }
 ~~~
 
-Agora, vamos testar o tradutor (talvez você queira trocar a chamada no programa principal para `expression()`, apenas para evitar ter que digitar "x=" para uma atribuição o tempo todo).
+Agora, vamos testar o tradutor (talvez você queira trocar a chamada no programa principal para `Expression()`, apenas para evitar ter que digitar "x=" para uma atribuição o tempo todo).
 
 Até aqui tudo bem. O analisador trata corretamente de expressões da forma:
 
@@ -511,13 +511,13 @@ Tudo isto serve como uma explicação para a minha decisão a respeito de preven
 "AND" lógico
 --------------
 
-Com esta discussão filosófica fora do nosso caminho, podemos continuar com o operador AND, que entra no procedimento `term()`. A esta altura, você provavelmente já consegue fazer isto sem mim, mas aqui está o código de qualquer forma:
+Com esta discussão filosófica fora do nosso caminho, podemos continuar com o operador AND, que entra no procedimento `Term()`. A esta altura, você provavelmente já consegue fazer isto sem mim, mas aqui está o código de qualquer forma:
 
 No analisador léxico:
 
 ~~~c
 /* reconhece um operador multiplicativo */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/' || c == '&');
 }
@@ -527,31 +527,31 @@ No analisador sintático:
 
 ~~~c
 /* analisa e traduz um termo */
-void term()
+void Term()
 {
-    factor();
-    while (isMulOp(look)) {
+    Factor();
+    while (IsMulOp(look)) {
         switch (look) {
             case '*':
-                multiply();
+                Multiply();
                 break;
             case '/':
-                divide();
+                Divide();
                 break;
             case '&':
-                boolAnd();
+                BoolAnd();
                 break;
         }
     }
 }
 
 /* analisa e traduz uma operação AND */
-void boolAnd()
+void BoolAnd()
 {
-    match('&');
-    asmPush();
-    factor();
-    asmPopAnd();
+    Match('&');
+    AsmPush();
+    Factor();
+    AsmPopAnd();
 }
 ~~~
 
@@ -559,10 +559,10 @@ E no gerador de código:
 
 ~~~c
 /* aplica AND com topo da pilha e registrador primário */
-void asmPopAnd()
+void AsmPopAnd()
 {
-    emit("POP BX");
-    emit("AND AX, BX");
+    EmitLn("POP BX");
+    EmitLn("AND AX, BX");
 }
 ~~~
 
@@ -609,28 +609,28 @@ Se você tem acompanhado os níveis de precedência, esta definição coloca o "
 
 Olhando para esta lista, certamente não é difícil ver porque teríamos problemas usando "~" como o símbolo para NOT!
 
-Então, como implementar as regras? Da mesma forma que fizemos com `signedTerm()`, mas no nível do fator. Vamos definir um procedimento `notFactor()`:
+Então, como implementar as regras? Da mesma forma que fizemos com `SignedTerm()`, mas no nível do fator. Vamos definir um procedimento `NotFactor()`:
 
 ~~~c
 /* analisa e traduz um fator com NOT opcional */
-void notFactor()
+void NotFactor()
 {
     if (look == '!') {
-        match('!');
-        factor();
-        asmNot();
+        Match('!');
+        Factor();
+        AsmNot();
     } else
-        factor();
+        Factor();
 }
 ~~~
 
-Coloque uma chamada a esta rotina em todos os lugares onde `factor()` era chamada. Note a nova rotina de geração de código:
+Coloque uma chamada a esta rotina em todos os lugares onde `Factor()` era chamada. Note a nova rotina de geração de código:
 
 ~~~c
 /* aplica NOT a registrador primário */
-void asmNot()
+void AsmNot()
 {
-    emit("NOT AX");
+    EmitLn("NOT AX");
 }
 ~~~
 

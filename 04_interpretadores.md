@@ -55,71 +55,71 @@ O Interpretador
 
 Agora que você sabe PORQUE iremos ver tudo isso, vamos lá. Apenas para praticar vamos começar com um novo "berço" e criar o tradutor desde o começo. Desta vez podemos ir mais rápido, claro.
 
-Como desta vez vamos fazer aritmética, a primeira coisa a fazer é alterar a função `getNum()`, pois até agora ela estava retornando um caracter (ou uma string) e agora é melhor que ela retorne um inteiro. FAÇA UMA CÓPIA do [berço](src/cap01-craddle.c) (não altere o berço em si!) e modifique `getNum()` como segue:
+Como desta vez vamos fazer aritmética, a primeira coisa a fazer é alterar a função `GetNum()`, pois até agora ela estava retornando um caracter (ou uma string) e agora é melhor que ela retorne um inteiro. FAÇA UMA CÓPIA do [berço](src/cap01-craddle.c) (não altere o berço em si!) e modifique `GetNum()` como segue:
 
 ~~~c
 /* recebe um número inteiro */
-int getNum()
+int GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
+    NextChar();
 
     return num - '0';
 }
 ~~~
 
-Agora escreva a seguinte versão de `expression()`:
+Agora escreva a seguinte versão de `Expression()`:
 
 ~~~c
 /* avalia o resultado de uma expressão */
-int expression()
+int Expression()
 {
-    return getNum();
+    return GetNum();
 }
 ~~~
 
 Finalmente, insira o seguinte comando no programa principal:
 
 ~~~c
-    printf("%d\n", expression());
+    printf("%d\n", Expression());
 ~~~
 
 Então compile e teste.
 
 Tudo o que este programa faz é "analisar" e traduzir uma simples "expressão" inteira. Como sempre, certifique-se de que ele faz isso com os dígitos de 0 a 9 e dá mensagens de erro com qualquer outra coisa. Não vai lhe custar muito tempo!
 
-Vamos estender isso para incluir operadores de adição. Mude `expression()` pra ficar assim:
+Vamos estender isso para incluir operadores de adição. Mude `Expression()` pra ficar assim:
 
 ~~~c
 /* reconhece operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* avalia o resultado de uma expressão */
-int expression()
+int Expression()
 {
     int val;
 
-    if (isAddOp(look))
+    if (IsAddOp(look))
         val = 0;
     else
-        val = getNum();
+        val = GetNum();
 
-    while (isAddOp(look)) {
+    while (IsAddOp(look)) {
         switch (look) {
             case '+':
-                match('+');
-                val += getNum();
+                Match('+');
+                val += GetNum();
                 break;
             case '-':
-                match('-');
-                val -= getNum();
+                Match('-');
+                val -= GetNum();
                 break;
         }
     }
@@ -128,26 +128,26 @@ int expression()
 }
 ~~~
 
-A estrutura de `expression()` combina com o que fizemos antes, então não vamos ter tanto problema depurando. Porém, houve um desenvolvimento SIGNIFICATIVO, não é mesmo? As rotinas `add()` e `subtract()` ficaram de fora. A razão é que a ação a ser tomada requer os dois argumentos da operação. Eu poderia ter escolhido manter as rotinas e passar o valor da expressão já calculado (que é o `val`) mas ficou mais claro pra mim que é melhor manter este valor como uma variável local, o que significa que o código de `add()` e `subtract()` deveriam ser colocados dentro da função. Isto significa que, apesar da estrutura que desenvolvemos ser boa e limpa para nosso esquema de tradução simplista, provavelmente não vai ser tão bom para a avaliação "preguiçosa" vista anteriormente. Isto é algo que é bom manter em mente pra mais tarde.
+A estrutura de `Expression()` combina com o que fizemos antes, então não vamos ter tanto problema depurando. Porém, houve um desenvolvimento SIGNIFICATIVO, não é mesmo? As rotinas `Add()` e `Subtract()` ficaram de fora. A razão é que a ação a ser tomada requer os dois argumentos da operação. Eu poderia ter escolhido manter as rotinas e passar o valor da expressão já calculado (que é o `val`) mas ficou mais claro pra mim que é melhor manter este valor como uma variável local, o que significa que o código de `Add()` e `Subtract()` deveriam ser colocados dentro da função. Isto significa que, apesar da estrutura que desenvolvemos ser boa e limpa para nosso esquema de tradução simplista, provavelmente não vai ser tão bom para a avaliação "preguiçosa" vista anteriormente. Isto é algo que é bom manter em mente pra mais tarde.
 
-E então? O tradutor funcionou? Vamos para o próximo passo. Não deve ser difícil descobrir como a rotina `term()` deveria ser agora. Troque as chamadas a `getNum()` em `expression()` por uma chamada a `term()` e entre com o seguinte código:
+E então? O tradutor funcionou? Vamos para o próximo passo. Não deve ser difícil descobrir como a rotina `Term()` deveria ser agora. Troque as chamadas a `GetNum()` em `Expression()` por uma chamada a `Term()` e entre com o seguinte código:
 
 ~~~c
 /* avalia um termo */
-int term()
+int Term()
 {
     int val;
 
-    val = getNum();
-    while (isMulOp(look)) {
+    val = GetNum();
+    while (IsMulOp(look)) {
         switch (look) {
             case '*':
-                match('*');
-                val *= getNum();
+                Match('*');
+                val *= GetNum();
                 break;
             case '/':
-                match('/');
-                val /= getNum();
+                Match('/');
+                val /= GetNum();
                 break;
         }
     }
@@ -158,43 +158,43 @@ int term()
 
 Agora faça o teste. Mas não se esqueça de duas coisas. Em primeiro lugar, estamos lidando com divisão de inteiros, portanto, 1/3 deve ser zero. Segundo, mesmo podendo emitir resultados de mais de um dígito nossa entrada ainda é limitada a apenas um único dígito.
 
-Isto parece ser uma restrição boba neste ponto, logo que nós já sabemos como é simples estender a função `getNum()`. Então vamos arrumá-la agora mesmo:
+Isto parece ser uma restrição boba neste ponto, logo que nós já sabemos como é simples estender a função `GetNum()`. Então vamos arrumá-la agora mesmo:
 
 ~~~c
 /* recebe um número inteiro */
-int getNum()
+int GetNum()
 {
     int i;
 
     i = 0;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
 
     while (isdigit(look)) {
         i *= 10;
         i += look - '0';
-        nextChar();
+        NextChar();
     }
 
     return i;
 }
 ~~~
 
-Se você compilou e testou esta versão do interpretador, o próximo passo é acrescentar a função `factor()`, completa com as expressões entre parênteses. Por enquanto vamos ficar um pouco mais sem os nomes de variáveis. Primeiro, altere as referências a `getNum()`, na função `term()`, de forma que elas passem a ser referências a `factor()`. Então crie a seguinte versão de `factor()`:
+Se você compilou e testou esta versão do interpretador, o próximo passo é acrescentar a função `Factor()`, completa com as expressões entre parênteses. Por enquanto vamos ficar um pouco mais sem os nomes de variáveis. Primeiro, altere as referências a `GetNum()`, na função `Term()`, de forma que elas passem a ser referências a `Factor()`. Então crie a seguinte versão de `Factor()`:
 
 ~~~c
 /* avalia um fator */
-int factor()
+int Factor()
 {
     int val;
 
     if (look == '(') {
-        match('(');
-        val = expression();
-        match(')');
+        Match('(');
+        val = Expression();
+        Match(')');
     } else
-        val = getNum();
+        val = GetNum();
 
     return val;
 }
@@ -215,13 +215,13 @@ Uma coisa parecida está acontecendo com nosso interpretador acima. Você simple
 
 Finalmente, em livros-texto sobre compiladores, há uma diversidade de lugares onde pilhas e outras estruturas são discutidas. Em outros métodos de análise preditiva (LR), uma pilha explícita é usada. De fato, a técnica é muito parecida com a velha maneira como fazemos cálculos de expressões aritméticas. Outro conceito importante, é de uma árvore de análise sintática. Os autores gostam de desenhar diagramas de tokens de um comando, conectados em uma árvore de operadores nos nós internos. Mais uma vez, onde estão as árvores e pilhas na nossa técnica? Nós não vimos nenhuma. A resposta em todos os casos é que as estruturas estão implícitas, não explícitas. Em qualquer linguagem de computadores, há uma pilha envolvida toda vez que você faz uma chamada a uma sub-rotina. Sempre que uma sub-rotina é chamada, o endereço de retorno é colocado na pilha da CPU. No fim da sub-rotina, o endereço é tirado da pilha e o controle é devolvido no lugar onde parou. Em uma linguagem recursiva como Pascal, os dados locais da sub-rotina também podem ser colocados na pilha, e estes dados também retornam quando necessários.
 
-Por exemplo, a função `expression()` contém uma variável local chamada `val`, que é preenchida pela chamada a `term()`. Suponha, que na próxima chamada a `term()` para o segundo argumento da expressão, `term()` chama `factor()`, que faz uma chamada recursiva a `expression()`. Esta nova "instância" de `expression()` obtém outro valor para sua própria cópia de `val`. O que aconteceu com o primeiro `val`? Resposta: ele ainda está na pilha, e estará lá outra vez quando retornarmos da nossa sequência de chamadas.
+Por exemplo, a função `Expression()` contém uma variável local chamada `val`, que é preenchida pela chamada a `Term()`. Suponha, que na próxima chamada a `Term()` para o segundo argumento da expressão, `Term()` chama `Factor()`, que faz uma chamada recursiva a `Expression()`. Esta nova "instância" de `Expression()` obtém outro valor para sua própria cópia de `val`. O que aconteceu com o primeiro `val`? Resposta: ele ainda está na pilha, e estará lá outra vez quando retornarmos da nossa sequência de chamadas.
 
 Em outras palavras, a razão pela qual as coisas pareceram tão fáceis até agora, é que nós fizemos o uso máximo dos recursos da linguagem. Os níveis hierárquicos e a árvore de análise estão lá, corretos, mas estão escondidos na estrutura do analisador, e são tratados pela ordem como as várias rotinas são chamadas. Agora que você já viu como fizemos, é difícil de imaginar qualquer outra forma de fazê-lo. Mas eu posso lhe dizer que levou muitos anos para os programadores de compiladores se darem conta disso. Os primeiros compiladores eram complexos demais para imaginar. Engraçado como as coisas ficam fáceis com um pouco de prática.
 
 As razões pelas quais eu trouxe isto à tona são uma lição e um aviso. A lição: as coisas podem ser fáceis quando você as faz certas. O aviso: preste atenção no que você está fazendo. Se, quando você estiver pesquisando por si só, você começar a encontrar uma razão real para ter uma pilha ou uma estrutura de árvore separada, talvez seja hora de se perguntar se você está olhando as coisas da forma correta. Talvez você não esteja fazendo uso efetivo das facilidades da linguagem tão bem quanto poderia.
 
-O próximo passo é adicionar nomes de variáveis. Agora, porém, temos um pequeno problema. Para o compilador, não tivemos problemas em tratar do nome das variáveis... apenas deixamos o problema dos nomes para o montador e deixamos o resto do programa alocar espaço de armazenamento para elas. Aqui, por outro lado, temos que buscar os valores das variáveis e retorná-los como valores de `factor()`. Nós temos que criar um mecanismo para armazenar estas variáveis.
+O próximo passo é adicionar nomes de variáveis. Agora, porém, temos um pequeno problema. Para o compilador, não tivemos problemas em tratar do nome das variáveis... apenas deixamos o problema dos nomes para o montador e deixamos o resto do programa alocar espaço de armazenamento para elas. Aqui, por outro lado, temos que buscar os valores das variáveis e retorná-los como valores de `Factor()`. Nós temos que criar um mecanismo para armazenar estas variáveis.
 
 Nos primórdios da computação pessoal, vivia o "Tiny BASIC". Ele tinha um grande total de 26 variáveis possíveis: uma para cada letra do alfabeto. Isto encaixa-se bem no nosso conceito de tokens de um só caracter, então vamos usar o mesmo truque. No começo de nosso interpretador, após a declaração de "look", insira as seguintes declarações:
 
@@ -234,7 +234,7 @@ Também precisamos inicializar a matriz, então adicione isto:
 
 ~~~c
 /* inicializa variáveis */
-void initVar()
+void InitVar()
 {
     int i;
 
@@ -243,24 +243,24 @@ void initVar()
 }
 ~~~
 
-Adicione uma chamada a `initVar()` em `init()`. Não esqueça de fazer isto, ou o resultado pode surpreender você!
+Adicione uma chamada a `InitVar()` em `Init()`. Não esqueça de fazer isto, ou o resultado pode surpreender você!
 
-Agora que temos uma matriz de variáveis, podemos modificar `factor()` para usá-la.  Como ainda não temos uma forma de alterar as variáveis, `factor()` sempre vai retornar zero para o valor delas, mas vamos fazê-lo de qualquer forma. Aqui está a nova versão:
+Agora que temos uma matriz de variáveis, podemos modificar `Factor()` para usá-la.  Como ainda não temos uma forma de alterar as variáveis, `Factor()` sempre vai retornar zero para o valor delas, mas vamos fazê-lo de qualquer forma. Aqui está a nova versão:
 
 ~~~c
 /* avalia um fator */
-int factor()
+int Factor()
 {
     int val;
 
     if (look == '(') {
-        match('(');
-        val = expression();
-        match(')');
+        Match('(');
+        val = Expression();
+        Match(')');
     } else if (isalpha(look))
-        val = var[getName() - 'A'];
+        val = var[GetName() - 'A'];
     else
-        val = getNum();
+        val = GetNum();
 
     return val;
 }
@@ -274,19 +274,19 @@ O comando de atribuição combina com o que fizemos antes:
 
 ~~~c
 /* avalia um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name;
 
-    name = getName();
-    match('=');
-    var[name - 'A'] = expression();
+    name = GetName();
+    Match('=');
+    var[name - 'A'] = Expression();
 }
 ~~~
 
 Para testar isto eu adicionei um comando temporário no programa principal pra mostrar o valor da variável A. Então eu testei com várias atribuições.
 
-É claro que um interpretador que só aceita uma única linha de programa não é de muito valor. Portando vamos querer tratar de múltiplos comandos. Devemos simplesmente colocar um laço de repetição em `assignment()`. Então vamos fazer isto, mas qual deve ser o critério de saída do laço? Ainda bem que você perguntou, porque isto nos faz reparar em algo que pudemos ignorar até agora.
+É claro que um interpretador que só aceita uma única linha de programa não é de muito valor. Portando vamos querer tratar de múltiplos comandos. Devemos simplesmente colocar um laço de repetição em `Assignment()`. Então vamos fazer isto, mas qual deve ser o critério de saída do laço? Ainda bem que você perguntou, porque isto nos faz reparar em algo que pudemos ignorar até agora.
 
 Uma das coisas mais complicadas de lidar em qualquer tradutor é como determinar quando sair de uma determinada construção e procurar por outra coisa. Isto não foi um problema até agora pois nós só permitimos um tipo de construção... uma expressão ou um comando de atribuição. Quando começamos a adicionar laços e outros tipos de construções, temos que tomar cuidado para que as coisas terminem apropriadamente. Se colocarmos nosso interpretador em um laço de repetição, precisamos de um método para interrompê-lo. Terminar numa nova linha não é bom, pois isso é o que nos faz ir para a próxima linha de código. Podemos também fazer com que um caracter desconhecido nos coloque pra fora, mas isso vai fazer com que cada execução termine com uma mensagem de erro, e isso não parece legal.
 
@@ -294,10 +294,10 @@ O que nós precisamos é de um caracter delimitador. Eu voto para o ponto final 
 
 ~~~c
 /* captura um caracter de nova linha */
-void newLine()
+void NewLine()
 {
     if (look == '\n')
-        nextChar();
+        NextChar();
 }
 ~~~
 
@@ -307,17 +307,17 @@ Insira esta rotina em um lugar conveniente no seu programa. Agora reescreva o pr
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
     do {
-        assignment();
-        newLine();
+        Assignment();
+        NewLine();
     } while (look != '.');
 
     return 0;
 }
 ~~~
 
-Note que o teste para fim de linha se foi e agora não há testes de erro na rotina `newLine()`. Tudo bem, porém, todo caracter deixado de lado, por ser um caracter estranho, vai ser pego como erro no começo do próximo comando de atribuição.
+Note que o teste para fim de linha se foi e agora não há testes de erro na rotina `NewLine()`. Tudo bem, porém, todo caracter deixado de lado, por ser um caracter estranho, vai ser pego como erro no começo do próximo comando de atribuição.
 
 Bem, agora nós temos um interpretador funcional. Não é lá muito útil porém, uma vez que não há como ler dados do usuário ou mostrá-los. Certamente iria ajudar se tivéssemos entrada e saída!
 
@@ -325,25 +325,25 @@ Vamos completar isso, adicionando rotinas de entrada e saída. Como estamos mant
 
 ~~~c
 /* interpreta um comando de entrada */
-void input()
+void Input()
 {
     char name;
     char buffer[20];
 
-    match('?');
-    name = getName();
+    Match('?');
+    name = GetName();
     printf("%c? ", name);
     fgets(buffer, 20, stdin);
     var[name - 'A'] = atoi(buffer);
 }
 
 /* interpreta um comando de saída */
-void output()
+void Output()
 {
     char name;
 
-    match('!');
-    name = getName();
+    Match('!');
+    name = GetName();
     printf("%c -> %d\n", name, var[name - 'A']);
 }
 ~~~
@@ -356,20 +356,20 @@ As mudanças correspondentes no programa principal são mostradas abaixo. Note q
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
     do {
         switch (look) {
             case '?':
-                input();
+                Input();
                 break;
             case '!':
-                output();
+                Output();
                 break;
             default:
-                assignment();
+                Assignment();
                 break;
         }
-        newLine();
+        NewLine();
     } while (look != '.');
 
     return 0;

@@ -6,7 +6,7 @@
 
 extern char look;
 
-void initInput();
-void nextChar();
+void InitInput();
+void NextChar();
 
 #endif

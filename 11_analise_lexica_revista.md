@@ -21,7 +21,7 @@ Mas eu sei que muitos de vocês, como eu, se acostumaram com eles, e portanto eu
 
 Bem, acontece que começou a parecer que eles não eram tão fáceis de adicionar. Na verdade parecia bem difícil.
 
-Eu acho que eu deveria ter percebido que algo estava errado, por causa do problema das quebras de linha. Nos últimos capítulos nós tratamos deste problema, e eu mostrei como tratar de quebras de linha com uma rotina chamada, apropriadamente, `newLine()`. Em TINY Versão 1.0, eu espalhei chamadas a esta rotina em pontos estratégicos do código.
+Eu acho que eu deveria ter percebido que algo estava errado, por causa do problema das quebras de linha. Nos últimos capítulos nós tratamos deste problema, e eu mostrei como tratar de quebras de linha com uma rotina chamada, apropriadamente, `NewLine()`. Em TINY Versão 1.0, eu espalhei chamadas a esta rotina em pontos estratégicos do código.
 
 Mas parece que cada vez que eu trato do problema de quebras de linha, ele parece ser complicado, e o analisador resultante acaba ficando meio frágil... algo adicionado aqui ou ali e as coisas começavam a dar errado. Olhando novamente para o problema, eu percebi que havia uma mensagem ali que eu não estava prestando atenção.
 
@@ -36,44 +36,44 @@ Ironicamente, o novo analisador léxico é muito mais convencional do que o anti
 O Problema
 ----------
 
-O problema começa a se apresentar na rotina `block()`, que eu reproduzi abaixo:
+O problema começa a se apresentar na rotina `Block()`, que eu reproduzi abaixo:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     int follow = 0;
 
     do {
-        scan();
+        Scan();
         switch (token) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'R':
-                doRead();
+                DoRead();
                 break;
             case 'W':
-                doWrite();
+                DoWrite();
                 break;
             case 'e':
             case 'l':
                 follow = 1;
                 break;
             default:
-                assignment();
+                Assignment();
                 break;
         }
     } while (!follow);
 }
 ~~~
 
-Como você pode ver, `block()` é orientado a comandos individuais do programa. A cada passagem do laço, sabemos que estamos no início de um novo comando. Nós saímos do bloco quando encontramos um END ou um ELSE.
+Como você pode ver, `Block()` é orientado a comandos individuais do programa. A cada passagem do laço, sabemos que estamos no início de um novo comando. Nós saímos do bloco quando encontramos um END ou um ELSE.
 
-Mas suponha que um ponto-e-vírgula seja encontrado. A rotina, como ela está agora, não é capaz de tratar dele, pois a rotina `scan()` espera, e só consegue aceitar, tokens que começam com uma letra.
+Mas suponha que um ponto-e-vírgula seja encontrado. A rotina, como ela está agora, não é capaz de tratar dele, pois a rotina `Scan()` espera, e só consegue aceitar, tokens que começam com uma letra.
 
 Eu fiquei pensando por um tempo no problema e tentando arrumar alguma solução. Eu achei muitas abordagens possíveis, mas nenhuma era muito satisfatória. Eu finalmente descobri a razão.
 
@@ -83,7 +83,7 @@ Esta convenção fixa e simples nos foi muito útil quando tínhamos tokens de u
 
 Mas quando chegamos em análise sintática, eu comecei a violar aquela regra simples. O analisador sintático da [parte 10](10_apresentando_tiny.md) de fato avançava para o próximo token se encontrasse um identificador ou palavra-chave, mas NÃO fazia isto se encontrasse um retorno de linha, um caracter de espaço, ou um operador.
 
-Agora, este tipo de operação "misturada" nos causa sérios problemas na rotina `block()`, pois o fato da entrada ter avançado ou não depende do tipo de token encontrado. Se for uma palavra-chave ou o alvo de um comando de atribuição, o "cursor", conforme definido pelo conteúdo de `look`, avança para o próximo token OU para o começo de um espaço em branco. Se, por outro lado, o token é um ponto-e-vírgula, ou se emitimos uma quebra de linha, o cursor NÃO avança.
+Agora, este tipo de operação "misturada" nos causa sérios problemas na rotina `Block()`, pois o fato da entrada ter avançado ou não depende do tipo de token encontrado. Se for uma palavra-chave ou o alvo de um comando de atribuição, o "cursor", conforme definido pelo conteúdo de `look`, avança para o próximo token OU para o começo de um espaço em branco. Se, por outro lado, o token é um ponto-e-vírgula, ou se emitimos uma quebra de linha, o cursor NÃO avança.
 
 É desnecessário dizer que podemos adicionar lógica necessária para nos manter na mesma linha. Mas é complicado, e faz o analisador todo ficar muito frágil.
 
@@ -98,32 +98,32 @@ Vamos começar a arrumar o problema reintroduzindo as duas rotinas:
 
 ~~~c
 /* recebe o nome de um identificador ou palavra-chave */
-void getName()
+void GetName()
 {
     int i;
 
-    skipWhite();
+    SkipWhite();
     if (!isalpha(look))
-        expected("Identifier or Keyword");
+        Expected("Identifier or Keyword");
     for (i = 0; isalnum(look) && i < MAXTOKEN; i++) {
         value[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = 'x';
 }
 
 /* recebe um número inteiro */
-void getNum()
+void GetNum()
 {
     int i;
 
-    skipWhite();
+    SkipWhite();
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look) && i < MAXTOKEN; i++) {
         value[i] = look;
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = '#';
@@ -136,7 +136,7 @@ Podemos fazer o mesmo para operadores, mesmo multi-caracter, com uma rotina como
 
 ~~~c
 /* analisa e traduz um operador */
-void getOp()
+void GetOp()
 {
     int i;
 
@@ -149,38 +149,38 @@ void getOp()
 }
 ~~~
 
-Repare que `getOp()` retorna, como seu token codificado, o PRIMEIRO caracter do operador. Isto é importante, pois significa que podemos usar este caracter para orientar o analisador, ao invés de `look`.
+Repare que `GetOp()` retorna, como seu token codificado, o PRIMEIRO caracter do operador. Isto é importante, pois significa que podemos usar este caracter para orientar o analisador, ao invés de `look`.
 
 Temos que juntar estas rotinas em uma rotina única que trata dos três casos. A rotina seguinte lê qualquer um dos três tipos e sempre deixa a entrada posicionada depois do token:
 
 ~~~c
 /* pega o próximo token de entrada */
-void nextToken()
+void NextToken()
 {
-    skipWhite();
+    SkipWhite();
     if (isalpha(look))
-        getName();
+        GetName();
     else if (isdigit(look))
-        getNum();
+        GetNum();
     else
-        getOp();
+        GetOp();
 }
 ~~~
 
-(Repare que eu coloquei `skipWhite()` ANTES das chamadas ao invés de depois. Isto significa que, em geral, a variável `look` NÃO vai conter um valor muito útil, e portanto NÃO devemos usá-la como um valor de teste na análise, como temos feito até aqui. Está é a grande diferença em relação à nossa abordagem normal.)
+(Repare que eu coloquei `SkipWhite()` ANTES das chamadas ao invés de depois. Isto significa que, em geral, a variável `look` NÃO vai conter um valor muito útil, e portanto NÃO devemos usá-la como um valor de teste na análise, como temos feito até aqui. Está é a grande diferença em relação à nossa abordagem normal.)
 
-Agora, lembre-se que antes eu estava cuidadosamente NÃO tratando a quebra de linha como um caracter de espaço. Isto porque, com `skipWhite()` sendo chamado por último no analisador léxico, o encontro com o retorno de linha iria gerar mais um comando de leitura. Se estivéssemos na última linha do programa, não poderíamos sair até entrar com uma nova linha com no mínimo um caracter. É por isso que precisávamos da segunda rotina, `newLine()`, para tratar das quebras de linha.
+Agora, lembre-se que antes eu estava cuidadosamente NÃO tratando a quebra de linha como um caracter de espaço. Isto porque, com `SkipWhite()` sendo chamado por último no analisador léxico, o encontro com o retorno de linha iria gerar mais um comando de leitura. Se estivéssemos na última linha do programa, não poderíamos sair até entrar com uma nova linha com no mínimo um caracter. É por isso que precisávamos da segunda rotina, `NewLine()`, para tratar das quebras de linha.
 
-Mas agora, com a chamada a `skipWhite()` no início, é exatamente o comportamento que queremos. O compilador deve saber que há outro token em seguida ou ele não vai chamar `nextChar()`. Em outras palavras, se ele não encontrou o END final ainda, vamos insistir em ler mais dados até encontrar algo.
+Mas agora, com a chamada a `SkipWhite()` no início, é exatamente o comportamento que queremos. O compilador deve saber que há outro token em seguida ou ele não vai chamar `NextChar()`. Em outras palavras, se ele não encontrou o END final ainda, vamos insistir em ler mais dados até encontrar algo.
 
-Isto significa que podemos simplificar muito o programa e os conceitos, tratando a quebra de linha como um caracter de espaço, e eliminando `newLine()`. Apenas trocamos o teste em `skipWhite()`:
+Isto significa que podemos simplificar muito o programa e os conceitos, tratando a quebra de linha como um caracter de espaço, e eliminando `NewLine()`. Apenas trocamos o teste em `SkipWhite()`:
 
 ~~~c
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (isspace(look))
-        nextChar();
+        NextChar();
 }
 ~~~
 
@@ -198,15 +198,15 @@ char token; /* código do token atual */
 char value[MAXTOKEN+1]; /* texto do token atual */
 ~~~
 
-- Por último, chame `nextToken()` com o seguinte programa:
+- Por último, chame `NextToken()` com o seguinte programa:
 
 ~~~c
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
     do {
-        nextToken();
+        NextToken();
         printf("Token: %c Value: %s\n", token, value);
     } while (token != '.');
 }
@@ -216,21 +216,21 @@ Compile e verifique que é possível separar um programa em uma série de tokens
 
 Isto QUASE funciona, mas não totalmente. Há dois problemas potenciais: Primeiro, em KISS/TINY quase todo operador é de um só caracter. As únicas exceções são os operadores >=, <= e <>. Parece uma vergonha tratar todo operador como strings e fazer comparação de strings, quando apenas uma comparação de caracter seria quase sempre suficiente. Segundo, e mais importante, a coisa não FUNCIONA quando dois operadores aparecem juntos, como em (a+b)*(c+d). Aqui a string depois de "b" seria interpretada como um único operador ")*(".
 
-É possível resolver isto. Por exemplo, poderíamos dar a `getOp()` uma lista dos caracteres válidos, e poderíamos tratar parênteses como tipos de operadores diferentes dos outros. Mas a coisa começa a virar bagunça.
+É possível resolver isto. Por exemplo, poderíamos dar a `GetOp()` uma lista dos caracteres válidos, e poderíamos tratar parênteses como tipos de operadores diferentes dos outros. Mas a coisa começa a virar bagunça.
 
-Felizmente, há uma forma melhor de resolver todos estes problemas. Como quase todo operador é de um único caracter, vamos simplesmente tratá-los desta forma, e permitir que `getOp()` pegue apenas um caracter no momento. Isto não só simplifica `getOp()`, mas também acelera as coisas um pouco. Ainda temos o problema dos operadores relacionais, mas estamos tratando deles como casos especiais de qualquer maneira.
+Felizmente, há uma forma melhor de resolver todos estes problemas. Como quase todo operador é de um único caracter, vamos simplesmente tratá-los desta forma, e permitir que `GetOp()` pegue apenas um caracter no momento. Isto não só simplifica `GetOp()`, mas também acelera as coisas um pouco. Ainda temos o problema dos operadores relacionais, mas estamos tratando deles como casos especiais de qualquer maneira.
 
-Aqui está a versão final de `getOp()`:
+Aqui está a versão final de `GetOp()`:
 
 ~~~c
 /* analisa e traduz um operador */
-void getOp()
+void GetOp()
 {
-    skipWhite();
+    SkipWhite();
     token = look;
     value[0] = look;
     value[1] = '\0';
-    nextChar();
+    NextChar();
 }
 ~~~
 
@@ -246,35 +246,35 @@ A listagem completa do analisador léxico até aqui:
 
 > Download do [analisador léxico](src/cap11-lex.c).
 
-Na [parte 7](07_analise_lexica.md) a função de `nextToken()` estava combinada com a rotina `scan()`, que também verificava cada identificador com uma lista de palavras-chave e codificava cada uma que fosse encontrada. Como eu havia mencionado no momento, a última coisa que gostaríamos de fazer é usar tal rotina em locais onde palavras-chave não deveriam aparecer, como em expressões. Se tivéssemos feito isto, a lista de palavras-chave seria comparada com cada identificador no código. Nada bom.
+Na [parte 7](07_analise_lexica.md) a função de `NextToken()` estava combinada com a rotina `Scan()`, que também verificava cada identificador com uma lista de palavras-chave e codificava cada uma que fosse encontrada. Como eu havia mencionado no momento, a última coisa que gostaríamos de fazer é usar tal rotina em locais onde palavras-chave não deveriam aparecer, como em expressões. Se tivéssemos feito isto, a lista de palavras-chave seria comparada com cada identificador no código. Nada bom.
 
-A maneira correta de tratar disto é simplesmente separar as funções de capturar tokens e procurar por palavras-chave. A versão de `scan()` mostrada abaixo não faz NADA a não ser verificar palavras-chave. Repare que ela opera no token corrente e NÃO avança na entrada.
+A maneira correta de tratar disto é simplesmente separar as funções de capturar tokens e procurar por palavras-chave. A versão de `Scan()` mostrada abaixo não faz NADA a não ser verificar palavras-chave. Repare que ela opera no token corrente e NÃO avança na entrada.
 
 ~~~c
 /* analisador léxico. analisa identificador ou palavra-chave */
-void scan()
+void Scan()
 {
     int kw;
 
     if (token == 'x') {
-        kw = lookup(value, kwlist, KWLIST_SZ);
+        kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
         if (kw >= 0)
-            token = kwcode[kw];
+            token = KeywordCode[kw];
     }
 }
 ~~~
 
 Há um último detalhe. No compilador há alguns lugares onde temos que verificar o valor do token. Normalmente, isto é feito para diferenciar entre os diferentes ENDs, mas há mais alguns locais. (Eu devo lembrar que podemos sempre eliminar a necessidade de comparar caracteres END codificando cada um deles com um caracter diferente. Neste momento estamos definitivamente sendo preguiçosos.)
 
-A seguinte versão de `matchString()` toma o lugar da versão caracter. Note que, como em `match()`, ela AVANÇA na entrada.
+A seguinte versão de `MatchString()` toma o lugar da versão caracter. Note que, como em `Match()`, ela AVANÇA na entrada.
 
 ~~~c
 /* compara string com texto do token atual */
-void matchString(char *s)
+void MatchString(char *s)
 {
     if (strcmp(value, s) != 0)
-        expected(s);
-    nextToken();
+        Expected(s);
+    NextToken();
 }
 ~~~
 
@@ -283,121 +283,121 @@ Arrumando o Compilador
 
 Armados com estas novas rotinas de análise léxica, podemos começar a arrumar o [compilador](src/cap10-tiny10.c) para usá-las apropriadamente. As mudanças são bem pequenas, mas há alguns lugares em que mais mudanças são necessárias. Ao invés de mostrar cada lugar, vou dar uma idéia geral e então mostrar o produto completo.
 
-Em primeiro lugar, o código para a rotina `block()` não muda, mas sua função sim:
+Em primeiro lugar, o código para a rotina `Block()` não muda, mas sua função sim:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     int follow = 0;
 
     do {
-        scan();
+        Scan();
         switch (token) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'R':
-                doRead();
+                DoRead();
                 break;
             case 'W':
-                doWrite();
+                DoWrite();
                 break;
             case 'e':
             case 'l':
                 follow = 1;
                 break;
             default:
-                assignment();
+                Assignment();
                 break;
         }
     } while (!follow);
 }
 ~~~
 
-Lembre-se que a nova versão de `scan()` não avança na entrada, apenas procura por palavras-chave. A entrada deve ser avançada por cada rotina que `block()` chama.
+Lembre-se que a nova versão de `Scan()` não avança na entrada, apenas procura por palavras-chave. A entrada deve ser avançada por cada rotina que `Block()` chama.
 
 Em geral, temos que trocar todo teste em `look` por um similar em `token`. Por exemplo:
 
 ~~~c
 /* analisa e traduz uma expressão booleana */
-void boolExpression()
+void BoolExpression()
 {
-    boolTerm();
-    while (isOrOp(token)) {
-        asmPush();
+    BoolTerm();
+    while (IsOrOp(token)) {
+        AsmPush();
         switch (token) {
           case '|':
-              boolOr();
+              BoolOr();
               break;
           case '~':
-              boolXor();
+              BoolXor();
               break;
         }
     }
 }
 ~~~
 
-Em rotinas como `add()`, não temos mais que usar `match()`. Só temos que chamar `nextToken()` para avançar na entrada:
+Em rotinas como `Add()`, não temos mais que usar `Match()`. Só temos que chamar `NextToken()` para avançar na entrada:
 
 ~~~c
 /* reconhece e traduz uma adição */
-void add()
+void Add()
 {
-    nextToken();
-    term();
-    asmPopAdd();
+    NextToken();
+    Term();
+    AsmPopAdd();
 }
 ~~~
 
-As estruturas de controle são na verdade mais simples. Simplesmente chamamos `nextToken()` para avançar nas palavras-chave de controle:
+As estruturas de controle são na verdade mais simples. Simplesmente chamamos `NextToken()` para avançar nas palavras-chave de controle:
 
 ~~~c
 /* analiza e traduz um comando IF-ELSE-ENDIF */
-void doIf()
+void DoIf()
 {
     int l1, l2;
 
-    nextToken();
-    boolExpression();
-    l1 = newLabel();
+    NextToken();
+    BoolExpression();
+    l1 = NewLabel();
     l2 = l1;
-    asmJmpFalse(l1);
-    block();
+    AsmBranchFalse(l1);
+    Block();
     if (token == 'l') {
-        nextToken();
-        l2 = newLabel();
-        asmJmp(l2);
-        postLabel(l1);
-        block();
+        NextToken();
+        l2 = NewLabel();
+        AsmBranch(l2);
+        PostLabel(l1);
+        Block();
     }
-    postLabel(l2);
-    matchString("ENDIF");
+    PostLabel(l2);
+    MatchString("ENDIF");
 }
 ~~~
 
 Esta é a extensão das mudanças NECESSÁRIAS. Na listagem de TINY Versão 1.1 abaixo, eu também fiz algumas outras "melhorias" que não são na verdade necessárias. Deixe-me explicá-las brevemente:
 
-1. Removi as rotinas `program()` e `mainBlock()`, e combinei suas funções no programa principal. Elas não pareciam estar ajudando na compreensão... na verdade parecia que elas estavam complicando as coisas um pouco.
+1. Removi as rotinas `Program()` e `MainBlock()`, e combinei suas funções no programa principal. Elas não pareciam estar ajudando na compreensão... na verdade parecia que elas estavam complicando as coisas um pouco.
 
 2. Removi as palavras-chave PROGRAM e BEGIN da lista. Elas ocorrem apenas em um lugar, então não é necessário procurar por elas.
 
 3. Tendo sido atacado por uma overdose de esperteza, eu me lembrei que TINY deveria ser um programa minimalista. Portanto, eu troquei o tratamento fantasioso do menos unário pelo mais simples que eu consegui. Um grande passo para trás na qualidade do código, mas uma grande simplificação do compilador. KISS é o lugar certo para usar a outra versão.
 
-4. Adicionei algumas rotinas de checagem de erro como `checkTable()` e `checkDup()`, e troquei o código "em linha" por chamadas a elas. Isto faz uma limpeza em diversas rotinas.
+4. Adicionei algumas rotinas de checagem de erro como `CheckTable()` e `CheckDuplicate()`, e troquei o código "em linha" por chamadas a elas. Isto faz uma limpeza em diversas rotinas.
 
-5. Retirei a checagem de erro da rotinas de geração de código `store()`, e coloquei-a no analisador, que é o lugar em que ela deve estar. Veja `assignment()`, por exemplo.
+5. Retirei a checagem de erro da rotinas de geração de código `AsmStore()`, e coloquei-a no analisador, que é o lugar em que ela deve estar. Veja `Assignment()`, por exemplo.
 
-6. Adicionei uma nova tabela (`symbolType`) para os tipos dos identificadores. Isto será útil para mais tarde. Eu poderia ter criado uma estrutura `symbol` e combinar o nome e o tipo na mesma estrutura. Mas teríamos que construir uma função `lookup()` separada pra símbolos e outra para palavras-chave. Deixemos assim por enquanto.
+6. Adicionei uma nova tabela (`SymbolType`) para os tipos dos identificadores. Isto será útil para mais tarde. Eu poderia ter criado uma estrutura `symbol` e combinar o nome e o tipo na mesma estrutura. Mas teríamos que construir uma função `Lookup()` separada pra símbolos e outra para palavras-chave. Deixemos assim por enquanto.
 
-7. A rotina `addSymbol()` agora tem dois parâmetros, que faz com que as coisas fiquem mais modulares.
+7. A rotina `AddEntry()` agora tem dois parâmetros, que faz com que as coisas fiquem mais modulares.
 
-8. Repare na maneira que estou tratando operadores multi-caracter em `relation()`. É essencialmente a mesma. Apenas trocando `match()` por `nextToken()` onde apropriado.
+8. Repare na maneira que estou tratando operadores multi-caracter em `Relation()`. É essencialmente a mesma. Apenas trocando `Match()` por `NextToken()` onde apropriado.
 
-9. Corrigi o erro na rotina `doRead()`... a anterior não verificava se o nome da variável era válido.
+9. Corrigi o erro na rotina `DoRead()`... a anterior não verificava se o nome da variável era válido.
 
 10. Removi o tratamento dos inicializadores na declaração de variáveis, pois isto não acrescenta muito à linguagem, já que não há como usar expressões completas. Além disso estou tentando manter TINY simples por enquanto e isto iria complicar um pouco o código. Se você acha que isto é dar um passo atrás, sinta-se livre para manter o tratamento de constantes numéricas.
 

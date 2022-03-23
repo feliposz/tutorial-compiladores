@@ -43,20 +43,20 @@ No assembly 80x86 podemos fazer o seguinte para ler uma variável:
 
 >**Nota de tradução:** Estou considerando aqui uma abordagem simplística. Em assembly para 80x86 sempre acabamos nos deparando com segmentos de memória e outras questões de endereçamento. No próprio 68000 que era a plataforma do autor original havia estes tipos de complicações.
 
-Sabendo como fazer agora, vamos alterar o código de factor():
+Sabendo como fazer agora, vamos alterar o código de Factor():
 
 ~~~c
 /* analisa e traduz um fator */
-void factor()
+void Factor()
 {
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else if (isalpha(look))
-        emit("MOV AX, [%c]", getName());
+        EmitLn("MOV AX, [%c]", GetName());
     else
-        emit("MOV AX, %c", getNum());
+        EmitLn("MOV AX, %c", GetNum());
 }
 ~~~
 
@@ -76,20 +76,20 @@ Como nós não temos ainda um mecanismo para declarar tipos, vamos usar a regra 
 
 Como nós não estamos tratando de listas de parâmetro ainda, não há nada a ser feito a não ser chamar a função, então nós só temos que emitir uma chamada de função (CALL) ao invés de um MOV.
 
-Agora que há duas possibilidades no `if (isalpha(look))` do teste em `factor()`, vamos tratá-las em uma rotina separada. Modifique `factor()` assim:
+Agora que há duas possibilidades no `if (isalpha(look))` do teste em `Factor()`, vamos tratá-las em uma rotina separada. Modifique `Factor()` assim:
 
 ~~~c
 /* analisa e traduz um fator */
-void factor()
+void Factor()
 {
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else if(isalpha(look))
-        ident();
+        Ident();
     else
-        emit("MOV AX, %c", getNum());
+        EmitLn("MOV AX, %c", GetNum());
 }
 ~~~
 
@@ -97,30 +97,30 @@ E adicione a seguinte função:
 
 ~~~c
 /* analisa e traduz um identificador */
-void ident()
+void Ident()
 {
     char name;
-    name = getName();
+    name = GetName();
     if (look == '(') {
-        match('(');
-        match(')');
-        emit("CALL %c", name);
+        Match('(');
+        Match(')');
+        EmitLn("CALL %c", name);
     } else
-        emit("MOV AX, [%c]", name);
+        EmitLn("MOV AX, [%c]", name);
 }
 ~~~
 
 OK, compile e teste esta versão. Ela analisa todas as expressões válidas? Ela avisa sobre as expressões mal-formadas?
 
-O importante a notar é que mesmo não tento mais um analisador preditivo, praticamente não há qualquer complicação adicionada à abordagem descendente recursiva que estamos usando. No momento em que `factor()` encontra um identificador (uma letra), ele não sabe se é um nome de variável ou de uma função, e na verdade ele nem se importa com isso. Ele simplesmente passa a escolha para `ident()` e deixa que a rotina descubra por si só. `ident()` por sua vez, simplesmente pega o identificador e então lê mais um caracter para decidir com que tipo de identificador está lidando.
+O importante a notar é que mesmo não tento mais um analisador preditivo, praticamente não há qualquer complicação adicionada à abordagem descendente recursiva que estamos usando. No momento em que `Factor()` encontra um identificador (uma letra), ele não sabe se é um nome de variável ou de uma função, e na verdade ele nem se importa com isso. Ele simplesmente passa a escolha para `Ident()` e deixa que a rotina descubra por si só. `Ident()` por sua vez, simplesmente pega o identificador e então lê mais um caracter para decidir com que tipo de identificador está lidando.
 
 Mantenha esta abordagem em mente. É um conceito muito poderoso, e deve ser usado sempre que você encontrar uma situação ambígua que requer uma "espiada" mais adiante. Mesmo que você deva olhar vários tokens adiante, o princípio ainda vai funcionar.
 
 ## Mais sobre tratamento de erros
 
-Como estamos tratando de filosofia agora, há outro problema importante a ser tratado: tratamento de erros. Note que apesar do analisador rejeitar corretamente (quase) toda expressão mal-formada que nós experimentarmos, com uma mensagem de erro compreensível, nós não tivemos que trabalhar muito para que isso acontecesse. Na verdade, no analisador inteiro há apenas 2 chamadas de erro à rotina expect. Mesmos estas não são necessárias... se você olhar cuidadosamente `term()` e `expression()`, vai notar que não é possível que o programa alcance aquelas instruções. Eu as coloquei ali antes, apenas como precaução, mas elas não são mais necessárias. Por que você não as apaga agora?
+Como estamos tratando de filosofia agora, há outro problema importante a ser tratado: tratamento de erros. Note que apesar do analisador rejeitar corretamente (quase) toda expressão mal-formada que nós experimentarmos, com uma mensagem de erro compreensível, nós não tivemos que trabalhar muito para que isso acontecesse. Na verdade, no analisador inteiro há apenas 2 chamadas de erro à rotina expect. Mesmos estas não são necessárias... se você olhar cuidadosamente `Term()` e `Expression()`, vai notar que não é possível que o programa alcance aquelas instruções. Eu as coloquei ali antes, apenas como precaução, mas elas não são mais necessárias. Por que você não as apaga agora?
 
-Então, como conseguimos este ótimo tratamento de erro virtualmente de graça? Nós cuidadosamente evitamos ler caracteres diretamente usando `nextChar()`. Ao invés disso, nós confiamos no tratamento de erros de `getName()`, `getNum()` e `match()` para que façam todo o tratamento por nós. Leitores espertos vão notar que algumas chamadas a `match()` (por exemplo, as que estão em `add()` e `subtract()`) são desnecessárias... nós já sabemos qual o caracter quando chegamos lá... mas estas chamadas mantém uma certa simetria quando as mantemos lá, e a regra geral de se usar `match()` ao invés de `nextChar()` é uma boa regra.
+Então, como conseguimos este ótimo tratamento de erro virtualmente de graça? Nós cuidadosamente evitamos ler caracteres diretamente usando `NextChar()`. Ao invés disso, nós confiamos no tratamento de erros de `GetName()`, `GetNum()` e `Match()` para que façam todo o tratamento por nós. Leitores espertos vão notar que algumas chamadas a `Match()` (por exemplo, as que estão em `Add()` e `Subtract()`) são desnecessárias... nós já sabemos qual o caracter quando chegamos lá... mas estas chamadas mantém uma certa simetria quando as mantemos lá, e a regra geral de se usar `Match()` ao invés de `NextChar()` é uma boa regra.
 
 Eu mencionei um "quase" mais acima. Há um caso em que nosso tratamento de erro deixa um pouco a desejar. Até aqui não dissemos ao nosso analisador como é um "fim-de-linha", ou o que fazer com espaços separadores. Então, um caracter de espaço (ou qualquer outro caracter não reconhecido pelo analisador) simplesmente faz com que o analisador pare, ignorando caracteres não reconhecidos.
 
@@ -136,10 +136,10 @@ Viu como o espaço foi tratado como um terminador? Para fazer com que o compilad
 
 ~~~c
     if (look != '\n')
-        expected("NewLine");
+        Expected("NewLine");
 ~~~
 
-no programa principal, logo após a chamada a `expression()`. Isto vai pegar tudo o que foi deixado de lado na entrada.
+no programa principal, logo após a chamada a `Expression()`. Isto vai pegar tudo o que foi deixado de lado na entrada.
 
 Como de costume, recompile o programa e verifique se ele faz o que deveria.
 
@@ -155,21 +155,21 @@ Estamos a apenas um passo de analisar um comando de atribuição, então vamos d
 
 ~~~c
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name;
-    name = getName();
-    match('=');
-    expression();
-    emit("MOV [%c], AX", name);
+    name = GetName();
+    Match('=');
+    Expression();
+    EmitLn("MOV [%c], AX", name);
 }
 ~~~
 
-Note novamente que o código combina com a BNF, e também que a checagem de erros foi transparente, tratada por `getName()` e `match()`.
+Note novamente que o código combina com a BNF, e também que a checagem de erros foi transparente, tratada por `GetName()` e `Match()`.
 
 Note a simetria entre a atribuição do valor de AX a uma variável e o seu respectivo carregamento.
 
-Agora, troque a chamada a `expression()`, no programa principal, por uma chamada a `assignment()`. É tudo que precisa ser feito.
+Agora, troque a chamada a `Expression()`, no programa principal, por uma chamada a `Assignment()`. É tudo que precisa ser feito.
 
 Caramba! Nós estamos realmente compilando comandos de atribuição. Se este fosse o único tipo de comando em uma linguagem, tudo o que teríamos que fazer é colocar isto em um laço de repetição e nós teríamos um compilador praticamente completo!
 
@@ -179,43 +179,43 @@ Bom, é claro que não é o único tipo. Há também outros itens como comandos 
 
 Nesta série toda, eu procuro restringir tudo o que fazemos para usar tokens de um único caracter, durante todo o tempo assegurando-lhe que não seria difícil estendê-los para tokens de múltiplos caracteres. Eu não sei se você acreditou em mim ou não... eu na verdade não culparia você se você tivesse sido um pouco cético. Eu vou continuar usando esta abordagem nas próximas partes, por que isso ajuda a manter a complexidade de lado, mas no momento, eu gostaria de melhorar esta parte do analisador, apenas pra lhe provar quão fácil realmente é. No processo, nós também vamos permitir espaços em branco como separadores. Antes de você fazer as próximas mudanças, **grave a versão atual do analisador com [outro nome](src/cap03-single.c)**. Eu tenho outros usos pra ele no próximo capítulo e nós vamos continuar trabalhando com a versão de um único caracter.
 
-A maioria dos compiladores separa o tratamento da entrada em um módulo separado chamado analisador léxico (lexical scanner). A idéia é que o analisador léxico trate de toda a entrada, caracter por caracter, e retorne apenas as unidades separadas (tokens). Talvez futuramente nós queiramos fazer algo assim também, mas no momento não é necessário. Nós podemos lidar com tokens multi-caracter com apenas algumas modificações locais em `getName()` e `getNum()` e pequenas alterações em outras partes.
+A maioria dos compiladores separa o tratamento da entrada em um módulo separado chamado analisador léxico (lexical scanner). A idéia é que o analisador léxico trate de toda a entrada, caracter por caracter, e retorne apenas as unidades separadas (tokens). Talvez futuramente nós queiramos fazer algo assim também, mas no momento não é necessário. Nós podemos lidar com tokens multi-caracter com apenas algumas modificações locais em `GetName()` e `GetNum()` e pequenas alterações em outras partes.
 
 A definição usual de um identificador é que o primeiro caracter deve ser uma letra, mas o resto pode ser alfanumérico (letras ou números). Para tratar disso vamos usar a função `isalnum()`.
 
-Altere a função `getName()` da seguinte forma:
+Altere a função `GetName()` da seguinte forma:
 
 ~~~c
 /* recebe o nome de um identificador */
-void getName(char *name)
+void GetName(char *name)
 {
     int i;
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     for (i = 0; isalnum(look); i++) {
         if (i >= MAXNAME)
-            fatal("Identifier too long!");
+            Abort("Identifier too long!");
         name[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     name[i] = '\0';
 }
 ~~~
 
-Da mesma forma, altere getNum():
+Da mesma forma, altere GetNum():
 
 ~~~c
 /* recebe um número inteiro */
-void getNum(char *num)
+void GetNum(char *num)
 {
     int i;
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look); i++) {
         if (i >= MAXNUM)
-            fatal("Integer too long!");
+            Abort("Integer too long!");
         num[i] = look;
-        nextChar();
+        NextChar();
     }
     num[i] = '\0';
 }
@@ -228,52 +228,52 @@ Declare as definições para os valores de MAXNAME e MAXNUM. Eu coloquei estes v
 #define MAXNUM 5
 ~~~
 
-Além destas funções você deve alterar também estas outras que usam getName() e getNum():
+Além destas funções você deve alterar também estas outras que usam GetName() e GetNum():
 
 ~~~c
 /* analisa e traduz um identificador */
-void ident()
+void Ident()
 {
     char name[MAXNAME+1];
-    getName(name);
+    GetName(name);
     if (look == '(') {
-        match('(');
-        match(')');
-        emit("CALL %s", name);
+        Match('(');
+        Match(')');
+        EmitLn("CALL %s", name);
     } else
-        emit("MOV AX, [%s]", name);
+        EmitLn("MOV AX, [%s]", name);
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name[MAXNAME+1];
-    getName(name);
-    match('=');
-    expression();
-    emit("MOV [%s], AX", name);
+    GetName(name);
+    Match('=');
+    Expression();
+    EmitLn("MOV [%s], AX", name);
 }
 
 /* analisa e traduz um fator */
-void factor()
+void Factor()
 {
     char num[MAXNUM+1];
     if (look == '(') {
-        match('(');
-        expression();
-        match(')');
+        Match('(');
+        Expression();
+        Match(')');
     } else if(isalpha(look)) {
-        ident();
+        Ident();
     } else {
-        getNum(num);
-        emit("MOV AX, %s", num);
+        GetNum(num);
+        EmitLn("MOV AX, %s", num);
     }
 }
 ~~~
 
 >**Nota de tradução:** Em Pascal há pouca distinção entre um caracter e uma string e as operações com ambos são muito simples e semelhantes. Mas em linguagem C as strings recebem um "tratamento especial" e por isso a alteração teve uma repercussão "um pouco maior" no código em C, do que na versão original em Pascal. No entanto, eu espero que você tenha se convencido de que as alterações não foram tão grandes assim.
 
-De forma surpreendente, isto é virtualmente tudo o que deve ser feito no compilador! As declarações de name em `ident()` e `assignemnt()` foram trocadas de `char name` para `char name[MAXNAME+1]` pois precisamos de uma string e não apenas um caracter. O "+1" da declaração é para acomodar o terminador da string '\0'. (Eu coloquei as coisas de uma forma que o tamanho dos nomes deve ser limitado, apenas para não complicar mais o código com alocação dinâmica de memória, etc. No entanto, muitos montadores, ou "assemblers", limitam o tamanho de qualquer forma.) Note que em todo chamada a printf, o "%c" foi trocado por "%s", pois estamos tratando de strings e não caracteres. Faça estas mudanças, recompile e teste. Experimente isto e veja o resultado:
+De forma surpreendente, isto é virtualmente tudo o que deve ser feito no compilador! As declarações de name em `Ident()` e `Assignment()` foram trocadas de `char name` para `char name[MAXNAME+1]` pois precisamos de uma string e não apenas um caracter. O "+1" da declaração é para acomodar o terminador da string '\0'. (Eu coloquei as coisas de uma forma que o tamanho dos nomes deve ser limitado, apenas para não complicar mais o código com alocação dinâmica de memória, etc. No entanto, muitos montadores, ou "assemblers", limitam o tamanho de qualquer forma.) Note que em todo chamada a printf, o "%c" foi trocado por "%s", pois estamos tratando de strings e não caracteres. Faça estas mudanças, recompile e teste. Experimente isto e veja o resultado:
 
     nota=(prova1+prova2*2)/3
 
@@ -285,72 +285,72 @@ Antes de deixarmos este analisador por enquanto, vamos lidar com o problema de u
 
 A chave para tratar facilmente de espaços em branco é criar uma regra simples de como o analisador deve tratar a entrada, e usar esta regra em todo lugar. Até agora, pelo fato do espaço em branco não ser permitido, fomos capazes de assumir que depois de cada ação do analisador, o caracter de lookahead continha o próximo caracter útil, de forma que pudéssemos testá-lo imediatamente. Nosso projeto foi baseado neste princípio.
 
-Parece ser uma regra boa, portanto é a que vamos usar. Isto significa que toda rotina que avança na entrada deve pular os espaços em branco e deixar o próximo caracter não-branco em look. Felizmente, pelo fato de termos cuidadosamente usado getName(), getNum() e match() para a maioria do processo de entrada, apenas estas 3 rotinas (além de init()) precisam ser mudadas.
+Parece ser uma regra boa, portanto é a que vamos usar. Isto significa que toda rotina que avança na entrada deve pular os espaços em branco e deixar o próximo caracter não-branco em look. Felizmente, pelo fato de termos cuidadosamente usado GetName(), GetNum() e Match() para a maioria do processo de entrada, apenas estas 3 rotinas (além de Init()) precisam ser mudadas.
 
 Precisamos de uma rotina para "engolir" caracteres de espaço em branco, até que encontre um que não seja.
 
 ~~~c
 /* pula caracteres de espaço */
-void skipWhite()
+void SkipWhite()
 {
     while (look == ' ' || look == '\t')
-        nextChar();
+        NextChar();
 }
 ~~~
 
-Agora adicione chamadas a skipWhite() a match(), getName() e getNum() conforme abaixo:
+Agora adicione chamadas a SkipWhite() a Match(), GetName() e GetNum() conforme abaixo:
 
 ~~~c
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
-    skipWhite();
+        Expected("'%c'", c);
+    NextChar();
+    SkipWhite();
 }
 
 /* recebe o nome de um identificador */
-void getName(char *name)
+void GetName(char *name)
 {
     int i;
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     for (i = 0; isalnum(look); i++) {
         if (i >= MAXNAME)
-            fatal("Identifier too long!");
+            Abort("Identifier too long!");
         name[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     name[i] = '\0';
-    skipWhite();
+    SkipWhite();
 }
 
 /* recebe um número inteiro */
-void getNum(char *num)
+void GetNum(char *num)
 {
     int i;
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look); i++) {
         if (i >= MAXNUM)
-            fatal("Integer too long!");
+            Abort("Integer too long!");
         num[i] = look;
-        nextChar();
+        NextChar();
     }
     num[i] = '\0';
-    skipWhite();
+    SkipWhite();
 }
 ~~~
 
-Finalmente, vamos pular também os espaços iniciais em init().
+Finalmente, vamos pular também os espaços iniciais em Init().
 
 ~~~c
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 }
 ~~~
 

@@ -19,9 +19,9 @@ Começando com [uma nova cópia do "berço"](src/cap01-craddle.c), vamos definir
 
 ~~~c
 /* reconhece e traduz um comando qualquer */
-void other()
+void Other()
 {
-    emit("; %c", getName());
+    EmitLn("; %c", GetName());
 }
 ~~~
 
@@ -33,8 +33,8 @@ Agora inclua uma chamada no programa principal:
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    other();
+    Init();
+    Other();
 
     return 0;
 }
@@ -57,12 +57,12 @@ Com estas idéias em mente, podemos continuar construindo nosso analisador. O c�
 
 ~~~c
 /* analisa e traduz um programa completo */
-void program()
+void Program()
 {
-    block();
+    Block();
     if (look != 'e')
-        expected("End");
-    emit("; END");
+        Expected("End");
+    EmitLn("; END");
 }
 ~~~
 
@@ -72,15 +72,15 @@ O código de "block" é:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     while (look != 'e') {
-        other();
+        Other();
     }
 }
 ~~~
 
-Coloque estas rotinas no seu programa. Troque a chamada de `other()` no programa principal para `program()`. Agora teste e veja como funciona. Bem, ainda não é grande coisa, mas estamos chegando lá.
+Coloque estas rotinas no seu programa. Troque a chamada de `Other()` no programa principal para `Program()`. Agora teste e veja como funciona. Bem, ainda não é grande coisa, mas estamos chegando lá.
 
 Uma preparação
 --------------
@@ -122,15 +122,15 @@ deve ser traduzido como:
         ...
 ~~~
 
-Está claro portanto, que nós vamos precisar de uma rotina a mais para ajudar a lidar com estes desvios. Eu a defini abaixo. A rotina `newLabel()` gera um rótulo único. Isto é feito simplesmente chamando todo rótulo como "Lxx", onde xx é um número começando com zero.
+Está claro portanto, que nós vamos precisar de uma rotina a mais para ajudar a lidar com estes desvios. Eu a defini abaixo. A rotina `NewLabel()` gera um rótulo único. Isto é feito simplesmente chamando todo rótulo como "Lxx", onde xx é um número começando com zero.
 
 Aqui está:
 
 ~~~c
 /* gera um novo rótulo único */
-int newLabel()
+int NewLabel()
 {
-    return labelCount++;
+    return LabelCount++;
 }
 ~~~
 
@@ -138,19 +138,19 @@ Precisamos também de um comando para emitir o rótulo:
 
 ~~~c
 /* emite um rótulo */
-void postLabel(int lbl)
+void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 ~~~
 
-Note que foi adicionada uma nova variável global chamada `labelCount`, então adicione mais uma declaração de variável abaixo da definição de `look`:
+Note que foi adicionada uma nova variável global chamada `LabelCount`, então adicione mais uma declaração de variável abaixo da definição de `look`:
 
 ~~~c
-int labelCount; /* Contador usado pelo gerador de rótulos */
+int LabelCount; /* Contador usado pelo gerador de rótulos */
 ~~~
 
-Adicione também sua inicialização em `init()`, colocando zero como seu valor.
+Adicione também sua inicialização em `Init()`, colocando zero como seu valor.
 
 Neste ponto, gostaria de mostrar um novo tipo de notação. Se você comparar a forma do comando IF acima com o código assembly que deve ser produzido você vai notar que há certas ações associada com cada palavra chave no comando:
 
@@ -167,17 +167,17 @@ Estas ações podem ser mostradas de forma concisa, se escrevermos a sintaxe ass
 ~~~
     IF
     <condition>    { <condition>
-                     L = newLabel()
-                     emit(desvio se falso para L) }
+                     L = NewLabel()
+                     EmitLn(desvio se falso para L) }
     <block>
-    ENDIF          { postLabel(L) }
+    ENDIF          { PostLabel(L) }
 ~~~
 
 Isto é um exemplo de tradução dirigida pela sintaxe. Nós fizemos isso o tempo todo... apenas nunca a escrevemos desta forma antes. O que está dentro das chaves representa as AÇÕES que devem ser executadas. A parte interessante desta representação é que ela não só mostra o que deve ser reconhecido, mas também que ações temos que tomar, e em que ordem. Uma vez que temos esta sintaxe, o código praticamente está pronto.
 
 A única coisa que falta fazer é ser mais específico sobre o que é um "desvio se falso".
 
-Estou assumindo que haverá código executado por `condition()` que vai tratar de álgebra booleana e computar algum resultado. Ele deve também alterar os flags de condição correspondentes ao resultado. Agora, a convenção usual para uma variável booleana é que 0000 represente "falso" e qualquer outra coisa (como FFFF, ou 0001) representa "verdadeiro".
+Estou assumindo que haverá código executado por `Condition()` que vai tratar de álgebra booleana e computar algum resultado. Ele deve também alterar os flags de condição correspondentes ao resultado. Agora, a convenção usual para uma variável booleana é que 0000 represente "falso" e qualquer outra coisa (como FFFF, ou 0001) representa "verdadeiro".
 
 No 80x86 os flags condicionais são alterados sempre que qualquer dado é movido ou calculado. Se o dado for 0000 (correspondente a um falso, lembra?) o flag correspondendo a "zero" (ZF - Zero Flag) será alterado para 1. O código para "desvie se zero" é JZ. Então, para os nossos propósito aqui:
 
@@ -193,50 +193,50 @@ O comando IF
 
 Com esta pequena explicação, finalmente estamos prontos para começar a codificar o comando IF no nosso analisador. Na verdade, nós quase já o fizemos! Como de costume, vamos usar nossa abordagem de um caracter só, "i" para IF, e "e" para ENDIF (como também para END... mas esta duplicidade não vai causar confusão). Eu também vou, por enquanto, pular completamente o caracter para a condição, que ainda temos que definir.
 
-O código para `doIf()` (repare que "if" é uma palavra reservada, logo, precisamos usar um identificador diferente) é:
+O código para `DoIf()` (repare que "if" é uma palavra reservada, logo, precisamos usar um identificador diferente) é:
 
 ~~~c
 /* analisa e traduz um comando IF */
-void doIf()
+void DoIf()
 {
     int l;
 
-    match('i');
-    l = newLabel();
-    condition();
-    emit("JZ L%d", l);
-    block();
-    match('e');
-    postLabel(l);
+    Match('i');
+    l = NewLabel();
+    Condition();
+    EmitLn("JZ L%d", l);
+    Block();
+    Match('e');
+    PostLabel(l);
 }
 ~~~
 
-Adicione esta rotina ao programa, altere `block()` para se referir a `doIf()` desta forma:
+Adicione esta rotina ao programa, altere `Block()` para se referir a `DoIf()` desta forma:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     while (look != 'e') {
         switch (look) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             default:
-                other();
+                Other();
                 break;
         }
     }
 }
 ~~~
 
-Note a referência à rotina `condition()`. Eventualmente, vamos escrever uma rotina que possa analisar e traduzir expressões condicionais booleanas. Mas isto é assunto pra um capítulo inteiro ([o próximo](06_expressoes_booleanas.md), na verdade). Por enquanto, vamos apenas fazer uma rotina que só emite algum texto. Escreva a seguinte rotina:
+Note a referência à rotina `Condition()`. Eventualmente, vamos escrever uma rotina que possa analisar e traduzir expressões condicionais booleanas. Mas isto é assunto pra um capítulo inteiro ([o próximo](06_expressoes_booleanas.md), na verdade). Por enquanto, vamos apenas fazer uma rotina que só emite algum texto. Escreva a seguinte rotina:
 
 ~~~c
 /* analisa e traduz uma condição */
-void condition()
+void Condition()
 {
-    emit("; condition");
+    EmitLn("; condition");
 }
 ~~~
 
@@ -246,17 +246,17 @@ Insira esta rotina e execute o programa. Teste algo assim:
     AiBeCe
 ~~~
 
->**Nota de tradução:** Recomendo usar letras maiúsculas para os identificadores, para não confundir com as diversas "palavras-chaves" de uma letra usadas a seguir. Se preferir, altere a função `getName()` para indicar um erro se for usado um identificador em minúscula, conforme abaixo:
+>**Nota de tradução:** Recomendo usar letras maiúsculas para os identificadores, para não confundir com as diversas "palavras-chaves" de uma letra usadas a seguir. Se preferir, altere a função `GetName()` para indicar um erro se for usado um identificador em minúscula, conforme abaixo:
 >
 > ~~~c
-> char getName()
+> char GetName()
 > {
 >     char name;
 > 
 >     if (!isupper(look))
->         expected("Name");
+>         Expected("Name");
 >     name = look;
->     nextChar();
+>     NextChar();
 > 
 >     return name;
 > }
@@ -270,7 +270,7 @@ Como você pode ver, o analisador reconhece a construção corretamente e insere
 
 Esta começando a parecer real, não?
 
-Agora que já temos uma idéia geral (e as ferramentas de notação, e também as rotinas `newLabel()` e `postLabel()`), é uma moleza estender o analisador para incluir outras construções. A primeira (e também uma das mais complicadas) é adicionar a cláusula ELSE ao IF. A BNF é:
+Agora que já temos uma idéia geral (e as ferramentas de notação, e também as rotinas `NewLabel()` e `PostLabel()`), é uma moleza estender o analisador para incluir outras construções. A primeira (e também uma das mais complicadas) é adicionar a cláusula ELSE ao IF. A BNF é:
 
 ~~~
     IF <condition> <block> [ ELSE <block> ] ENDIF
@@ -297,43 +297,43 @@ O que nos leva à seguinte tradução dirigida pela sintaxe:
     IF
     <condition>     { L1 = newLabel
                       L2 = newLabel
-                      emit(JZ L1) }
+                      EmitLn(JZ L1) }
 
     <block>
-    ELSE            { emit(JMP L2)
-                      postLabel(L1) }
+    ELSE            { EmitLn(JMP L2)
+                      PostLabel(L1) }
 
     <block>
-    ENDIF           { postLabel(L2) }
+    ENDIF           { PostLabel(L2) }
 ~~~
 
 Comparando isso com o caso de um IF sem ELSE nos dá uma dica de como tratar de ambas situações. O código abaixo faz isto. (Note que eu uso um "l" para ELSE, já que "e" está sendo usado pra outra coisa.)
 
 ~~~c
 /* analisa e traduz um comando IF */
-void doIf()
+void DoIf()
 {
     int l1, l2;
 
-    match('i');
-    condition();
-    l1 = newLabel();
+    Match('i');
+    Condition();
+    l1 = NewLabel();
     l2 = l1;
-    emit("JZ L%d", l1);
-    block();
+    EmitLn("JZ L%d", l1);
+    Block();
     if (look == 'l') {
-        match('l');
-        l2 = newLabel();
-        emit("JMP L%d", l2);
-        postLabel(l1);
-        block();
+        Match('l');
+        l2 = NewLabel();
+        EmitLn("JMP L%d", l2);
+        PostLabel(l1);
+        Block();
     }
-    match('e');
-    postLabel(l2);
+    Match('e');
+    PostLabel(l2);
 }
 ~~~
 
-Aí está. Um analisador/tradutor completo de um IF em 20 linhas de código. Altere também a função `block()`. Troque o teste em `while (look != 'e')` por `look != 'e' && look != 'l'`, ou então o L será tratado por `other()` e nosso IF não vai funcionar.
+Aí está. Um analisador/tradutor completo de um IF em 20 linhas de código. Altere também a função `Block()`. Troque o teste em `while (look != 'e')` por `look != 'e' && look != 'l'`, ou então o L será tratado por `Other()` e nosso IF não vai funcionar.
 
 Faça o teste agora, com alguma coisa assim:
 
@@ -376,52 +376,52 @@ Como antes, comparar as duas representações nos dá uma idéia de que ações 
 ~~~
     WHILE         { L1 = newLabel
                     L2 = newLabel
-                    postLabel(L1) }
-    <condition>   { emit(JZ L2) }
+                    PostLabel(L1) }
+    <condition>   { EmitLn(JZ L2) }
     <block>
-    ENDWHILE      { emit(JMP L1)
-                    postLabel(L2) }
+    ENDWHILE      { EmitLn(JMP L1)
+                    PostLabel(L2) }
 ~~~
 
 O código segue diretamente a sintaxe:
 
 ~~~c
 /* analisa e traduz um comando WHILE */
-void doWhile()
+void DoWhile()
 {
     int l1, l2;
 
-    match('w');
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    condition();
-    emit("JZ L%d", l2);
-    block();
-    match('e');
-    emit("JMP L%d", l1);
-    postLabel(l2);
+    Match('w');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    Condition();
+    EmitLn("JZ L%d", l2);
+    Block();
+    Match('e');
+    EmitLn("JMP L%d", l1);
+    PostLabel(l2);
 }
 ~~~
 
->**Nota de tradução:** Por favor, não confundam `doWhile()` com o comando `do ... while(<cond>);` da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
+>**Nota de tradução:** Por favor, não confundam `DoWhile()` com o comando `do ... while(<cond>);` da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
 
-Como temos um comando novo, temos que adicionar a chamada à rotina `block()`:
+Como temos um comando novo, temos que adicionar a chamada à rotina `Block()`:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     while (look != 'e' && look != 'l') {
         switch (look) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             default:
-                other();
+                Other();
                 break;
         }
     }
@@ -451,29 +451,29 @@ e a tradução dirigida pela sintaxe:
 
 ~~~
     LOOP       { L = newLabel
-                 postLabel(L) }
+                 PostLabel(L) }
     <block>
-    ENDLOOP    { emit(JMP L) }
+    ENDLOOP    { EmitLn(JMP L) }
 ~~~
 
 O código correspondente é mostrado abaixo. Como eu já usei "l" pra ELSE, vou usar a última letra "p" como a "palavra-chave" no momento.
 
 ~~~c
 /* analisa e traduz um comando LOOP */
-void doLoop()
+void DoLoop()
 {
     int l;
 
-    match('p');
-    l = newLabel();
-    postLabel(l);
-    block();
-    match('e');
-    emit("JMP L%d", l);
+    Match('p');
+    l = NewLabel();
+    PostLabel(l);
+    Block();
+    Match('e');
+    EmitLn("JMP L%d", l);
 }
 ~~~
 
-Quando você inserir esta rotina, não esqueça de adicionar uma linha em `block()` para chamá-la.
+Quando você inserir esta rotina, não esqueça de adicionar uma linha em `Block()` para chamá-la.
 
 Repeat-Until
 ------------
@@ -488,35 +488,35 @@ A tradução dirigida fica assim:
 
 ~~~
     REPEAT         { L = newLabel
-                     postLabel(L) }
+                     PostLabel(L) }
     <block>
     UNTIL
-    <condition>    { emit(JZ L) }
+    <condition>    { EmitLn(JZ L) }
 ~~~
 
 Como de costume o código é bem fácil:
 
 ~~~c
 /* analisa e traduz um REPEAT-UNTIL*/
-void doRepeat()
+void DoRepeat()
 {
     int l;
 
-    match('r');
-    l = newLabel();
-    postLabel(l);
-    block();
-    match('u');
-    condition();
-    emit("JZ L%d", l);
+    Match('r');
+    l = NewLabel();
+    PostLabel(l);
+    Block();
+    Match('u');
+    Condition();
+    EmitLn("JZ L%d", l);
 }
 ~~~
 
-Como sempre, tivemos que adicionar a chamada de `doRepeat()` a `block()`. Desta vez há uma diferença. Eu decidi usar "r" para REPEAT (naturalmente), mas também decidi usar "u" para UNTIL. Isto significa que o "u" deve ser adicionado ao conjunto de caracteres no teste do `while` em `block()`. Estes são os caracteres que indicam o fim do bloco atual... os caracteres "seguidores" (follow), em jargão de compiladores. Eu alterei a rotina pra deixar o teste dentro do `switch`. Assim fica mais simples:
+Como sempre, tivemos que adicionar a chamada de `DoRepeat()` a `Block()`. Desta vez há uma diferença. Eu decidi usar "r" para REPEAT (naturalmente), mas também decidi usar "u" para UNTIL. Isto significa que o "u" deve ser adicionado ao conjunto de caracteres no teste do `while` em `Block()`. Estes são os caracteres que indicam o fim do bloco atual... os caracteres "seguidores" (follow), em jargão de compiladores. Eu alterei a rotina pra deixar o teste dentro do `switch`. Assim fica mais simples:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block()
+void Block()
 {
     int follow;
 
@@ -525,16 +525,16 @@ void block()
     while (!follow) {
         switch (look) {
             case 'i':
-                doIf();
+                DoIf();
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'p':
-                doLoop();
+                DoLoop();
                 break;
             case 'r':
-                doRepeat();
+                DoRepeat();
                 break;
             case 'e':
             case 'l':
@@ -542,7 +542,7 @@ void block()
                 follow = 1;
                 break;
             default:
-                other();
+                Other();
                 break;
         }
     }
@@ -602,47 +602,47 @@ Apesar disso, a rotina do analisador é bem simples agora que temos o código:
 
 ~~~c
 /* analisa e traduz um comando FOR*/
-void doFor()
+void DoFor()
 {
     int l1, l2;
     char name;
 
-    match('f');
-    l1 = newLabel();
-    l2 = newLabel();
-    name = getName();
-    match('=');
-    expression();
-    emit("DEC AX");
-    emit("MOV [%c], AX", name);
-    expression();
-    emit("PUSH AX");
-    postLabel(l1);
-    emit("MOV AX, [%c]", name);
-    emit("INC AX");
-    emit("MOV [%c], AX", name);
-    emit("POP BX");
-    emit("PUSH BX");
-    emit("CMP AX, BX");
-    emit("JG L%d", l2);
-    block();
-    match('e');
-    emit("JMP L%d", l1);
-    postLabel(l2);
-    emit("POP AX");
+    Match('f');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    name = GetName();
+    Match('=');
+    Expression();
+    EmitLn("DEC AX");
+    EmitLn("MOV [%c], AX", name);
+    Expression();
+    EmitLn("PUSH AX");
+    PostLabel(l1);
+    EmitLn("MOV AX, [%c]", name);
+    EmitLn("INC AX");
+    EmitLn("MOV [%c], AX", name);
+    EmitLn("POP BX");
+    EmitLn("PUSH BX");
+    EmitLn("CMP AX, BX");
+    EmitLn("JG L%d", l2);
+    Block();
+    Match('e');
+    EmitLn("JMP L%d", l1);
+    PostLabel(l2);
+    EmitLn("POP AX");
 }
 ~~~
 
-Como não temos expressões para este analisador, eu usei o mesmo truque de `condition()`, e escrevi a rotina:
+Como não temos expressões para este analisador, eu usei o mesmo truque de `Condition()`, e escrevi a rotina:
 
 ~~~c
-void expression()
+void Expression()
 {
-    emit("; EXPR");
+    EmitLn("; EXPR");
 }
 ~~~
 
-Faça um teste. Mais uma vez, não esqueça de adicionar a chamada em `block()`. Como não temos nenhuma entrada para esta versão de `expression()`, uma entrada típica deveria parecer-se com:
+Faça um teste. Mais uma vez, não esqueça de adicionar a chamada em `Block()`. Como não temos nenhuma entrada para esta versão de `Expression()`, uma entrada típica deveria parecer-se com:
 
 ~~~
     AfI=BeCe
@@ -660,33 +660,33 @@ A sintaxe e a tradução:
 ~~~
     DO
     <expr>    { expression
-                emit(MOV CX, AX)
+                EmitLn(MOV CX, AX)
                 L = newLabel
-                postLabel(L)
-                emit(PUSH CX)
+                PostLabel(L)
+                EmitLn(PUSH CX)
     <block>
-    ENDDO     { emit(POP CX)
-                emit(LOOP L) }
+    ENDDO     { EmitLn(POP CX)
+                EmitLn(LOOP L) }
 ~~~
 
 Isto é bem mais simples! O laço vai executar <expr> vezes. Este é o código:
 
 ~~~c
 /* analisa e traduz um comando DO */
-void doDo()
+void DoDo()
 {
     int l;
 
-    match('d');
-    l = newLabel();
-    expression();
-    emit("MOV CX, AX");
-    postLabel(l);
-    emit("PUSH CX");
-    block();
-    match('e');
-    emit("POP CX");
-    emit("LOOP L%d", l);
+    Match('d');
+    l = NewLabel();
+    Expression();
+    EmitLn("MOV CX, AX");
+    PostLabel(l);
+    EmitLn("PUSH CX");
+    Block();
+    Match('e');
+    EmitLn("POP CX");
+    EmitLn("LOOP L%d", l);
 }
 ~~~
 
@@ -695,40 +695,40 @@ Eu acho que você tem que concordar, que isso é muito mais simples que o FOR cl
 O comando BREAK
 ---------------
 
-Antes eu prometi a você um comando BREAK para acompanhar o comando LOOP. Isto é uma das coisas das quais eu me orgulho. Um comando BREAK parece algo realmente difícil. Minha primeira abordagem foi usá-lo como um terminador extra para `block()`, e separar todos os laços em duas partes, exatamente como eu fiz com a metade ELSE do IF. Isto realmente não funcionou, pois o comando BREAK nem sempre vai aparecer no mesmo nível que o laço em si. O lugar mais comum pra um BREAK aparecer é logo após um IF, o que faria com que ele saísse da construção IF, e não do laço que o envolve. ERRADO! O BREAK tem que sair do laço mais interno, mesmo que esteja aninhado dentro de vários níveis de IF.
+Antes eu prometi a você um comando BREAK para acompanhar o comando LOOP. Isto é uma das coisas das quais eu me orgulho. Um comando BREAK parece algo realmente difícil. Minha primeira abordagem foi usá-lo como um terminador extra para `Block()`, e separar todos os laços em duas partes, exatamente como eu fiz com a metade ELSE do IF. Isto realmente não funcionou, pois o comando BREAK nem sempre vai aparecer no mesmo nível que o laço em si. O lugar mais comum pra um BREAK aparecer é logo após um IF, o que faria com que ele saísse da construção IF, e não do laço que o envolve. ERRADO! O BREAK tem que sair do laço mais interno, mesmo que esteja aninhado dentro de vários níveis de IF.
 
 Minha segunda tentativa era armazenar em alguma variável global o rótulo final do laço mais interno. Isto também não funciona, pois pode haver um BREAK de um laço interno seguido de um BREAK de um laço mais externo. Armazenar o rótulo para o laço interno iria apagar o do mais externo. Então esta variável se transformou numa pilha. As coisas estavam começando a ficar bagunçadas.
 
 Então eu decidi usar meu próprio conselho. Lembra-se da última parte quando eu disse como a pilha implícita de um analisador descendente recursivo estava nos ajudando? Eu disse que se você começar a ver uma necessidade para uma pilha externa você provavelmente estava fazendo alguma coisa errado. Bem, eu estava. É possível, de fato, fazer com que a recursão do analisador cuide de tudo, e a solução é tão simples que chega a ser surpreendente.
 
-O segredo é notar que todo comando BREAK deve ocorrer dentro de um bloco... não há outro lugar para ele estar. Então tudo o que temos que fazer é passar para a rotina `block()` o endereço de saída para o laço mais interno. Então ele pode passar o endereço para a rotina que traduz a instrução BREAK. Uma vez que o comando IF não faz nada para alterar o nível de aninhamento dos laços, a rotina `doIf()` só tem que passar o rótulo para seus blocos (ambos se houver um ELSE). Como os laços ALTERAM os níveis, cada construção de laço simplesmente ignora o rótulo acima dele e passa o seu próprio rótulo de saída.
+O segredo é notar que todo comando BREAK deve ocorrer dentro de um bloco... não há outro lugar para ele estar. Então tudo o que temos que fazer é passar para a rotina `Block()` o endereço de saída para o laço mais interno. Então ele pode passar o endereço para a rotina que traduz a instrução BREAK. Uma vez que o comando IF não faz nada para alterar o nível de aninhamento dos laços, a rotina `DoIf()` só tem que passar o rótulo para seus blocos (ambos se houver um ELSE). Como os laços ALTERAM os níveis, cada construção de laço simplesmente ignora o rótulo acima dele e passa o seu próprio rótulo de saída.
 
 Tudo isto é mais simples de mostrar do que de descrever. Eu vou mostrar primeiro com o laço mais fácil, que é o LOOP:
 
 ~~~c
 /* analisa e traduz um comando LOOP*/
-void doLoop()
+void DoLoop()
 {
     int l1, l2;
 
-    match('p');
-    l1 = newLabel();
-    l2 = newLabel();
-    postLabel(l1);
-    block(l2);
-    match('e');
-    emit("JMP L%d", l1);
-    postLabel(l2);
+    Match('p');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    PostLabel(l1);
+    Block(l2);
+    Match('e');
+    EmitLn("JMP L%d", l1);
+    PostLabel(l2);
 }
 ~~~
 
-Note que agora `doLoop()` tem 2 rótulos, não apenas um. O segundo é para dar à instrução BREAK um lugar para onde desviar. Se não houver nenhum BREAK dentro do laço, nós gastamos um rótulo à toa, mas isto não vai machucar ninguém.
+Note que agora `DoLoop()` tem 2 rótulos, não apenas um. O segundo é para dar à instrução BREAK um lugar para onde desviar. Se não houver nenhum BREAK dentro do laço, nós gastamos um rótulo à toa, mas isto não vai machucar ninguém.
 
-Note também que agora `block()` tem um parâmetro, que será sempre o endereço de saída do laço. A nova versão de `block()` é:
+Note também que agora `Block()` tem um parâmetro, que será sempre o endereço de saída do laço. A nova versão de `Block()` é:
 
 ~~~c
 /* analisa e traduz um bloco de comandos */
-void block(int exitLabel)
+void Block(int exitLabel)
 {
     int follow;
 
@@ -737,25 +737,25 @@ void block(int exitLabel)
     while (!follow) {
         switch (look) {
             case 'i':
-                doIf(exitLabel);
+                DoIf(exitLabel);
                 break;
             case 'w':
-                doWhile();
+                DoWhile();
                 break;
             case 'p':
-                doLoop();
+                DoLoop();
                 break;
             case 'r':
-                doRepeat();
+                DoRepeat();
                 break;
             case 'f':
-                doFor();
+                DoFor();
                 break;
             case 'd':
-                doDo();
+                DoDo();
                 break;
             case 'b':
-                doBreak(exitLabel);
+                DoBreak(exitLabel);
                 break;
             case 'e':
             case 'l':
@@ -763,93 +763,93 @@ void block(int exitLabel)
                 follow = 1;
                 break;
             default:
-                other();
+                Other();
                 break;
         }
     }
 }
 ~~~
 
-Novamente, repare que tudo o que `block()` faz é passar o rótulo para `doIf()` e `doBreak()`. As construções de laço não precisam dele, pois elas vão passar o próprio rótulo de qualquer maneira.
+Novamente, repare que tudo o que `Block()` faz é passar o rótulo para `DoIf()` e `DoBreak()`. As construções de laço não precisam dele, pois elas vão passar o próprio rótulo de qualquer maneira.
 
-A nova versão de `doIf()` é:
+A nova versão de `DoIf()` é:
 
 ~~~c
 /* analisa e traduz um comando IF */
-void doIf(int exitLabel)
+void DoIf(int exitLabel)
 {
     int l1, l2;
 
-    match('i');
-    condition();
-    l1 = newLabel();
+    Match('i');
+    Condition();
+    l1 = NewLabel();
     l2 = l1;
-    emit("JZ L%d", l1);
-    block(exitLabel);
+    EmitLn("JZ L%d", l1);
+    Block(exitLabel);
     if (look == 'l') {
-        match('l');
-        l2 = newLabel();
-        emit("JMP L%d", l2);
-        postLabel(l1);
-        block(exitLabel);
+        Match('l');
+        l2 = NewLabel();
+        EmitLn("JMP L%d", l2);
+        PostLabel(l1);
+        Block(exitLabel);
     }
-    match('e');
-    postLabel(l2);
+    Match('e');
+    PostLabel(l2);
 }
 ~~~
 
-Agora, a única coisa que muda é a adição do parâmetro à rotina `block()`. Um comando IF não muda o nível de aninhamento de laços, então `doIf()` apenas passa o rótulo adiante. Não importa quantos níveis de aninhamento existam, o mesmo rótulo será usado.
+Agora, a única coisa que muda é a adição do parâmetro à rotina `Block()`. Um comando IF não muda o nível de aninhamento de laços, então `DoIf()` apenas passa o rótulo adiante. Não importa quantos níveis de aninhamento existam, o mesmo rótulo será usado.
 
-Agora, lembre-se que `program()` também chama `block()`, agora ele também tem que passar um rótulo. A tentativa de sair do bloco mais externo é um erro, então `program()` passa um rótulo inválido que é detectado por `doBreak()`:
+Agora, lembre-se que `Program()` também chama `Block()`, agora ele também tem que passar um rótulo. A tentativa de sair do bloco mais externo é um erro, então `Program()` passa um rótulo inválido que é detectado por `DoBreak()`:
 
 ~~~c
 /* analisa e traduz um comando BREAK */
-void doBreak(int exitLabel)
+void DoBreak(int exitLabel)
 {
-    match('b');
+    Match('b');
     if (exitLabel == -1)
-        fatal("No loop to break from.");
-    emit("JMP L%d", exitLabel);
+        Abort("No loop to break from.");
+    EmitLn("JMP L%d", exitLabel);
 }
 ~~~
 
-E `program()` fica assim:
+E `Program()` fica assim:
 
 ~~~c
 /* analisa e traduz um programa completo */
-void program()
+void Program()
 {
-    block(-1);
+    Block(-1);
     if (look != 'e')
-        expected("End");
-    emit("; END");
+        Expected("End");
+    EmitLn("; END");
 }
 ~~~
 
-Isto cuida de quase tudo. Teste e veja se é possível fazer um BREAK de qualquer laço. Com cuidado, é claro. Até aqui usamos tantas letras que é até difícil diferenciar o que representa palavras reservadas e o que não representa. Lembre-se: **antes de testar o programa você deve alterar cada ocorrência de `block()` nas outras construções de laço para incluir o novo parâmetro.** Da mesma forma que eu fiz em `doLoop()`.
+Isto cuida de quase tudo. Teste e veja se é possível fazer um BREAK de qualquer laço. Com cuidado, é claro. Até aqui usamos tantas letras que é até difícil diferenciar o que representa palavras reservadas e o que não representa. Lembre-se: **antes de testar o programa você deve alterar cada ocorrência de `Block()` nas outras construções de laço para incluir o novo parâmetro.** Da mesma forma que eu fiz em `DoLoop()`.
 
 Eu disse "quase" acima. Há um pequeno problema: se você der uma olhada no código gerado para DO, vai ver que se você sair deste laço, o valor do contador do laço vai ser deixado na pilha. Temos que arrumar isto! Uma vergonha... era uma das menores rotinas, mas não tem jeito. Aqui uma versão que não tem problemas:
 
 ~~~c
 /* analisa e traduz um comando DO*/
-void doDo()
+void DoDo()
 {
     int l1, l2;
 
-    match('d');
-    l1 = newLabel();
-    l2 = newLabel();
-    expression();
-    emit("MOV CX, AX");
-    postLabel(l1);
-    emit("PUSH CX");
-    block(l2);
-    match('e');
-    emit("POP CX");
-    emit("LOOP L%d", l1);
-    emit("PUSH CX");
-    postLabel(l2);
-    emit("POP CX");
+    Match('d');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    Expression();
+    EmitLn("MOV CX, AX");
+    PostLabel(l1);
+    EmitLn("PUSH CX");
+    Block(l2);
+    Match('e');
+    EmitLn("POP CX");
+    EmitLn("LOOP L%d", l1);
+    EmitLn("PUSH CX");
+    PostLabel(l2);
+    EmitLn("POP CX");
 }
 ~~~
 
@@ -860,7 +860,7 @@ Conclusão
 
 Neste ponto criamos uma série de construções de controle... um conjunto muito mais rico, realmente, que o proporcionado por muitas outras linguagens de programação. E, com a exceção do laço FOR, foi algo bem fácil de fazer. Mesmo este foi complicado só por causa da parte em assembly.
 
-Vou concluir esta seção por aqui. Pra melhorar as coisas de vez, nós realmente deveríamos ter palavras-chave reais ao invés desta coisa de caracteres únicos. Você já viu que a extensão para palavras de mais de um caracter não é difícil, mas neste caso vai fazer uma grande diferença na aparência do código. Vou deixar isto para o próximo capítulo. Nele também vamos tratar de expressões booleanas, para nos livrarmos da versão vazia de `condition()` que usamos agora. Até lá.
+Vou concluir esta seção por aqui. Pra melhorar as coisas de vez, nós realmente deveríamos ter palavras-chave reais ao invés desta coisa de caracteres únicos. Você já viu que a extensão para palavras de mais de um caracter não é difícil, mas neste caso vai fazer uma grande diferença na aparência do código. Vou deixar isto para o próximo capítulo. Nele também vamos tratar de expressões booleanas, para nos livrarmos da versão vazia de `Condition()` que usamos agora. Até lá.
 
 Para referência, aqui está o analisador completo para esta parte do tutorial:
 

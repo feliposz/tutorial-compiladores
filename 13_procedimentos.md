@@ -111,7 +111,7 @@ A chave para lidar com o corpo do procedimento é reconhecer que apesar de um pr
     <declaration> ::= <data decl> | <procedure>
 ~~~
 
-Isto significa que deve ser fácil modificar `topDeclarations()` para tratar de procedimentos. E quanto à sintaxe do procedimento? Bem, aqui vai uma sintaxe sugerida, que é essencialmente a mesma de Pascal:
+Isto significa que deve ser fácil modificar `TopDeclarations()` para tratar de procedimentos. E quanto à sintaxe do procedimento? Bem, aqui vai uma sintaxe sugerida, que é essencialmente a mesma de Pascal:
 
 ~~~ebnf
     <procedure> ::= PROCEDURE <ident> <begin-block>
@@ -123,29 +123,29 @@ Aqui está o código necessário:
 
 ~~~c
 /* analisa e traduz uma declaração de procedimento */
-void doProcedure()
+void DoProcedure()
 {
     char name;
 
-    match('p');
-    name = getName();
-    newLine();
-    if (inTable(name))
-        duplicated(name);
-    addSymbol(name, 'p');
+    Match('p');
+    name = GetName();
+    NewLine();
+    if (InTable(name))
+        Duplicate(name);
+    AddEntry(name, 'p');
     printf("%c:\n", name);
-    beginBlock();
-    asmReturn();
+    BeginBlock();
+    AsmReturn();
 }
 ~~~
 
-Repare que eu adicionei uma nova rotina de geração de código, `asmReturn()`, que simplesmente emite uma instrução RET.
+Repare que eu adicionei uma nova rotina de geração de código, `AsmReturn()`, que simplesmente emite uma instrução RET.
 
-Para terminar esta versão, adicione o seguinte dentro do comando switch em `topDeclarations()`:
+Para terminar esta versão, adicione o seguinte dentro do comando switch em `TopDeclarations()`:
 
 ~~~c
             case 'p':
-                doProcedure();
+                DoProcedure();
                 break;
 ~~~
 
@@ -154,7 +154,7 @@ Eu devo mencionar que esta estrutura para declarações, e a BNF que a define, �
 ~~~c
     doVars();
     doProcedurees();
-    doMain();
+    DoMain();
 ~~~
 
 No entanto, a maioria das implementações de Pascal, incluindo Turbo Pascal, não requerem esta ordem e permitem que você misture as diversas declarações livremente, desde que você não pretenda referenciar alguma coisa antes de declará-la. Apesar de ser esteticamente correto declarar as variáveis globais no início do programa, certamente não causa nenhum mal permitir que elas fiquem espalhadas. De fato, pode até fazer algum bem, no sentido que lhe dá a oportunidade de fazer um "encapsulamento" rudimentar de informaçÕes. Variáveis que só devem ser acessadas somente pelo programa principal, por exemplo, podem ser declaradas diretamente antes e portanto serão inacessíveis por outros procedimentos.
@@ -165,30 +165,30 @@ Vale a pena ressaltar aqui que eu NÃO permito procedimentos aninhados. Em TINY,
 
 ~~~c
 /* analiza e traduz o bloco principal do programa */
-void doMain()
+void DoMain()
 {
-    match('b');
-    newLine();
-    prolog();
-    doBlock();
-    epilog();
+    Match('b');
+    NewLine();
+    AsmProlog();
+    DoBlock();
+    AsmEpilog();
 }
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    header();
-    topDeclarations();
-    doMain();
+    Init();
+    AsmHeader();
+    TopDeclarations();
+    DoMain();
 
     return 0;
 }
 ~~~
 
-(Nota: Você pode reutilizar os códigos de `header()`, `prolog()` e `epilog()` usados anteriormente.)
+(Nota: Você pode reutilizar os códigos de `AsmHeader()`, `AsmProlog()` e `AsmEpilog()` usados anteriormente.)
 
-Repare que `doProcedure()` e `mainBlock()` não são muito simétricos. `doProcedure()` faz uma chamada a `beginBlock()`, mas `mainBlock()` não pode fazer isto. Isto porque um procedimento é identificado pela palavra-chave PROCEDURE (abreviada por "p" aqui), enquanto o programa principal não tem nenhuma palavra-chave além do próprio BEGIN.
+Repare que `DoProcedure()` e `MainBlock()` não são muito simétricos. `DoProcedure()` faz uma chamada a `BeginBlock()`, mas `MainBlock()` não pode fazer isto. Isto porque um procedimento é identificado pela palavra-chave PROCEDURE (abreviada por "p" aqui), enquanto o programa principal não tem nenhuma palavra-chave além do próprio BEGIN.
 
 E ISTO nos leva a uma questão interessante: POR QUÊ?
 
@@ -210,59 +210,59 @@ A resposta é sim, e tratando-o desta forma, podemos simplificar o código e faz
     <main-program> ::= PROGRAM <ident> <begin-block>
 ~~~
 
-O código também parece muito melhor, ao menos no sentido que `doMain()` e `doProcedure()` se parecem agora:
+O código também parece muito melhor, ao menos no sentido que `DoMain()` e `DoProcedure()` se parecem agora:
 
 ~~~c
 /* analiza e traduz o bloco principal do programa */
-void doMain()
+void DoMain()
 {
     char name;
 
-    match('P');
-    name = getName();
-    newLine();
-    if (inTable(name))
-        duplicated(name);
-    prolog();
-    beginBlock();
-    epilog();
+    Match('P');
+    name = GetName();
+    NewLine();
+    if (InTable(name))
+        Duplicate(name);
+    AsmProlog();
+    BeginBlock();
+    AsmEpilog();
 }
 
 /* analiza e traduz as declarações globais */
-void topDeclarations()
+void TopDeclarations()
 {
     while (look != '.') {
         switch (look) {
             case 'v':
-                declaration();
+                Declaration();
                 break;
             case 'p':
-                doProcedure();
+                DoProcedure();
                 break;
             case 'P':
-                doMain();
+                DoMain();
                 break;
             default:
-                unrecognized(look);
+                Unrecognized(look);
                 break;
         }
-        newLine();
+        NewLine();
     }
 }
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    header();
-    topDeclarations();
-    epilog();
+    Init();
+    AsmHeader();
+    TopDeclarations();
+    AsmEpilog();
 
     return 0;
 }
 ~~~
 
-Já que a declaração do programa principal agora está dentro do laço em `topDeclarations()`, isto apresenta algumas dificuldades. Como podemos ter certeza que é a última coisa no arquivo? E como saímos do laço? Minha resposta para a segunda pergunta foi, como você pode ver, trazer de volta nosso velho amigo ponto ("."). Uma vez que o analisador o veja, está terminado.
+Já que a declaração do programa principal agora está dentro do laço em `TopDeclarations()`, isto apresenta algumas dificuldades. Como podemos ter certeza que é a última coisa no arquivo? E como saímos do laço? Minha resposta para a segunda pergunta foi, como você pode ver, trazer de volta nosso velho amigo ponto ("."). Uma vez que o analisador o veja, está terminado.
 
 Para responder a primeira pergunta: depende de quanto você quer proteger o programador de cometer erros bobos. No código que eu mostrei, não há nada para evitar que o programador adicione código depois do programa principal... mesmo outro programa principal (?). O código simplesmente não será acessível. Porém, PODERÍAMOS acessá-lo através de um comando FORWARD em Pascal (ou protótipos, no caso de C), o qual vamos prover mais tarde. Na verdade, muitos programadores assembly gostam de usar a área logo após o programa para declarar blocos grandes de dados não inicializados, portanto, pode haver algum valor em não exigir que o programa principal venha por último. Vamos deixá-lo como está.
 
@@ -291,51 +291,51 @@ Aqui está como fazê-lo:
 
 ~~~c
 /* analisa e traduz um comando de atribuição */
-void assignment(char name)
+void Assignment(char name)
 {
-    match('=');
-    expression();
-    asmStoreVar(name);
+    Match('=');
+    Expression();
+    AsmStoreVar(name);
 }
 
 /* analisa e traduz um comando de atribuição ou chamada de procedimento */
-void assignOrCall()
+void AssignOrProc()
 {
     char name;
 
-    name = getName();
-    switch (symbolType(name)) {
+    name = GetName();
+    switch (SymbolType(name)) {
         case ' ':
-            undefined(name);
+            Undefined(name);
             break;
         case 'v':
-            assignment(name);
+            Assignment(name);
             break;
         case 'p':
-            asmCall(name);
+            AsmCall(name);
             break;
         default:
-            fatal("Identifier %c cannot be used here!", name);
+            Abort("Identifier %c cannot be used here!", name);
     }
 }
 
 /* analiza e traduz um bloco de comandos */
-void doBlock()
+void DoBlock()
 {
     while (look != 'e') {
-        assignOrCall();
-        newLine();
+        AssignOrProc();
+        NewLine();
     }
 }
 ~~~
 
-Como você pode ver, a rotina `doBlock()` agora chama `assignOrCall()` ao invés de `assignment()`. A função desta nova rotina é simplificar a leitura do identificador, determinar seu tipo, e então chamar a rotina apropriada para este tipo. Como o nome já foi lido, precisamos passá-lo para as duas rotinas, e modificar `assignment()` para tratar disto. A rotina `asmCall()` é simplesmente uma rotina de geração de código:
+Como você pode ver, a rotina `DoBlock()` agora chama `AssignOrProc()` ao invés de `Assignment()`. A função desta nova rotina é simplificar a leitura do identificador, determinar seu tipo, e então chamar a rotina apropriada para este tipo. Como o nome já foi lido, precisamos passá-lo para as duas rotinas, e modificar `Assignment()` para tratar disto. A rotina `AsmCall()` é simplesmente uma rotina de geração de código:
 
 ~~~c
 /* gera uma chamada de procedimento */
-void asmCall(char name)
+void AsmCall(char name)
 {
-    emit("CALL %c", name);
+    EmitLn("CALL %c", name);
 }
 ~~~
 
@@ -385,50 +385,50 @@ Antes de continuar mais, vamos alterar o tradutor para tratar de uma lista de pa
 
 ~~~c
 /* processa a lista de parâmetros formais de um procedimento */
-void formalList()
+void FormalList()
 {
-    match('(');
+    Match('(');
     if (look != ')') {
-        formalParam();
+        FormalParam();
         while (look == ',') {
-            match(',');
-            formalParam();
+            Match(',');
+            FormalParam();
         }
     }
-    match(')');
+    Match(')');
 }
 ~~~
 
-O procedimento `doProcedure()` precisa de uma linha adicional para chamar `formalList()`:
+O procedimento `DoProcedure()` precisa de uma linha adicional para chamar `FormalList()`:
 
 ~~~c
 /* analisa e traduz uma declaração de procedimento */
-void doProcedure()
+void DoProcedure()
 {
     char name;
 
-    match('p');
-    name = getName();
-    formalList();
-    newLine();
-    if (inTable(name))
-        duplicated(name);
-    addSymbol(name, 'p');
+    Match('p');
+    name = GetName();
+    FormalList();
+    NewLine();
+    if (InTable(name))
+        Duplicate(name);
+    AddEntry(name, 'p');
     printf("%c:\n", name);
-    beginBlock();
-    asmReturn();
+    BeginBlock();
+    AsmReturn();
 }
 ~~~
 
-Por enquanto, o código para `formalParam()` é apenas uma rotina vazia que simplesmente pula o nome do parâmetro:
+Por enquanto, o código para `FormalParam()` é apenas uma rotina vazia que simplesmente pula o nome do parâmetro:
 
 ~~~c
 /* processa um parâmetro formal */
-void formalParam()
+void FormalParam()
 {
     char name;
 
-    name = getName();
+    name = GetName();
 }
 ~~~
 
@@ -436,34 +436,34 @@ Para a chamada do procedimento, deve haver um código similar para processar a l
 
 ~~~c
 /* processa um parâmetro de chamada */
-void param()
+void Param()
 {
-    expression();
+    Expression();
 }
 
 /* processa a lista de parâmetros para uma chamada de procedimento */
-void paramList()
+void ParamList()
 {
-    match('(');
+    Match('(');
     if (look != ')') {
-        param();
+        Param();
         while (look == ',') {
-            match(',');
-            param();
+            Match(',');
+            Param();
         }
     }
-    match(')');
+    Match(')');
 }
 
 /* processa uma chamada de procedimento */
-void doCallProc(char name)
+void CallProc(char name)
 {
-    paramList();
-    asmCall(name);
+    ParamList();
+    AsmCall(name);
 }
 ~~~
 
-Altere a chamada de `asmCall()` por uma chamada a `doCallProc()`, na rotina `assignOrCall()`.
+Altere a chamada de `AsmCall()` por uma chamada a `CallProc()`, na rotina `AssignOrProc()`.
 
 Certo, se você adicionou tudo isto ao seu código e fez alguns testes, vai descobrir que a sintaxe está sendo tratada corretamente. Devo avisar que NÃO HÁ checagem para ter certeza que o número (e, posteriormente, os tipos) de parâmetros formais e os parâmetros da chamada combinam. Em um compilador de produção, é claro que precisamos fazer isto. Vamos ignorar a questão no momento apenas pelo fato da nossa tabela de símbolos atual não nos dar um lugar para armazenar a informação necessária. Posteriormente, teremos um espaço para estes dados e então poderemos tratar do problema.
 
@@ -592,88 +592,88 @@ Repare que, para endereçar os parâmetros formais, temos que saber qual sua pos
 Vamos começar declarando uma nova tabela:
 
 ~~~c
-#define PARAMTBL_SZ 26
-int paramTable[PARAMTBL_SZ]; /* lista de parâmetros formais para os procedimentos */
+#define PARAMTABLE_SIZE 26
+int ParamTable[PARAMTABLE_SIZE]; /* lista de parâmetros formais para os procedimentos */
 ~~~
 
 Vamos precisar saber também, quantos parâmetros um procedimento tem:
 
 ~~~c
-int paramCount; /* número de parâmetros formais */
+int ParamCount; /* número de parâmetros formais */
 ~~~
 
 E precisamos inicializar a nova tabela. Agora, lembre-se que a lista de parâmetros formais será diferente para cada procedimento que processarmos, então precisaremos reinicializar esta tabela várias vezes para cada procedimento. Aqui está o inicializador:
 
 ~~~c
 /* limpa a tabela de parâmetros formais */
-void clearParams()
+void ClearParams()
 {
     int i;
-    for (i = 0; i < PARAMTBL_SZ; i++)
-        paramTable[i] = 0;
-    paramCount = 0;
+    for (i = 0; i < PARAMTABLE_SIZE; i++)
+        ParamTable[i] = 0;
+    ParamCount = 0;
 }
 ~~~
 
-Vamos adicionar uma chamada a esta rotina em `init()`, e também em `doProcedure()`:
+Vamos adicionar uma chamada a esta rotina em `Init()`, e também em `DoProcedure()`:
 
 ~~~c
 /* inicialização do compilador */
-void init()
+void Init()
 {
     int i;
 
-    for (i = 0; i < SYMTBL_SZ; i++)
-        symbolTable[i] = ' ';
+    for (i = 0; i < SYMBOLTABLE_SIZE; i++)
+        SymbolTable[i] = ' ';
 
-    clearParams();
+    ClearParams();
 
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 }
 
 /* analisa e traduz uma declaração de procedimento */
-void doProcedure()
+void DoProcedure()
 {
     char name;
 
-    match('p');
-    name = getName();
-    formalList();
-    newLine();
-    if (inTable(name))
-        duplicated(name);
-    addSymbol(name, 'p');
+    Match('p');
+    name = GetName();
+    FormalList();
+    NewLine();
+    if (InTable(name))
+        Duplicate(name);
+    AddEntry(name, 'p');
     printf("%c:\n", name);
-    beginBlock();
-    asmReturn();
-    clearParams();
+    BeginBlock();
+    AsmReturn();
+    ClearParams();
 }
 ~~~
 
-Repare que a chamada a `doProcedure()` assegura que a tabela estará livre assim que começarmos com o programa principal.
+Repare que a chamada a `DoProcedure()` assegura que a tabela estará livre assim que começarmos com o programa principal.
 
-Agora precisamos de algumas rotinas para trabalhar com a tabela. As próximas funções são essencialmente cópias de `inTable()`, `symbolType`, etc.:
+Agora precisamos de algumas rotinas para trabalhar com a tabela. As próximas funções são essencialmente cópias de `InTable()`, `SymbolType`, etc.:
 
 ~~~c
 /* retorna número indicando a posição do parâmetro */
-int paramPos(char name)
+int ParamNumber(char name)
 {
-    return paramTable[name - 'A'];
+    return ParamTable[name - 'A'];
 }
 
 /* verifica se nome é parâmetro */
-int isParam(char name)
+int IsParam(char name)
 {
-    return (paramTable[name - 'A'] != 0);
+    return (ParamTable[name - 'A'] != 0);
 }
 
 /* adiciona parâmetro à lista */
-void addParam(char name)
+void AddParam(char name)
 {
-    if (isParam(name))
-        duplicated(name);
-    paramTable[name - 'A'] = ++paramCount;
+    if (IsParam(name))
+        Duplicate(name);
+    ParamTable[name - 'A'] = ++ParamCount;
 }
 ~~~
 
@@ -681,34 +681,34 @@ Finalmente, precisamos de algumas rotinas de geração de código:
 
 ~~~c
 /* calcula deslocamento do parâmetro na pilha */
-int asmOffsetParam(int pos)
+int AsmOffsetParam(int pos)
 {
     int offset;
 
     /* offset = endereço de retorno + tamanho do parâmetro * posição relativa */
-    offset = 2 + 2 * (paramCount - pos); 
+    offset = 2 + 2 * (ParamCount - pos); 
 
     return offset;
 }
 
 /* carrega parâmetro em registrador primário */
-void asmLoadParam(int pos)
+void AsmLoadParam(int pos)
 {
-    int offset = asmOffsetParam(par);
-    emit("MOV AX, WORD PTR [SP+%d]", offset);
+    int offset = AsmOffsetParam(par);
+    EmitLn("MOV AX, WORD PTR [SP+%d]", offset);
 }
 
 /* armazena conteúdo do registrador primário em parâmetro */
-void asmStoreParam(int pos)
+void AsmStoreParam(int pos)
 {
-    int offset = asmOffsetParam(par);
-    emit("MOV WORD PTR [SP+%d], AX", offset);
+    int offset = AsmOffsetParam(par);
+    EmitLn("MOV WORD PTR [SP+%d], AX", offset);
 }
 
 /* coloca registrador primário na pilha */
-void asmPush()
+void AsmPush()
 {
-    emit("PUSH AX");
+    EmitLn("PUSH AX");
 }
 ~~~
 
@@ -723,49 +723,49 @@ Vamos começar com o processamento dos parâmetros formais. Tudo o que temos que
 
 ~~~c
 /* processa um parâmetro formal */
-void formalParam()
+void FormalParam()
 {
     char name;
 
-    name = getName();
-    addParam(name);
+    name = GetName();
+    AddParam(name);
 }
 ~~~
 
-Agora, o que fazer quando um parâmetro é encontrado quando ele aparece no corpo do procedimento? Isto dá um pouco mais de trabalho. Precisamos primeiro determinar se ele É um parâmetro formal. Para fazer isto, eu escrevi a seguinte modificação de `symbolType()`:
+Agora, o que fazer quando um parâmetro é encontrado quando ele aparece no corpo do procedimento? Isto dá um pouco mais de trabalho. Precisamos primeiro determinar se ele É um parâmetro formal. Para fazer isto, eu escrevi a seguinte modificação de `SymbolType()`:
 
 ~~~c
 /* retorna o tipo de um identificador */
-char symbolType(char name)
+char SymbolType(char name)
 {
-    if (isParam(name))
+    if (IsParam(name))
         return 'f';
-    return symbolTable[name - 'A'];
+    return SymbolTable[name - 'A'];
 }
 ~~~
 
-Também devemos modificar `assignOrCall()` para tratar deste novo tipo:
+Também devemos modificar `AssignOrProc()` para tratar deste novo tipo:
 
 ~~~c
 /* analisa e traduz um comando de atribuição ou chamada de procedimento */
-void assignOrCall()
+void AssignOrProc()
 {
     char name;
 
-    name = getName();
-    switch (symbolType(name)) {
+    name = GetName();
+    switch (SymbolType(name)) {
         case ' ':
-            undefined(name);
+            Undefined(name);
             break;
         case 'v':
         case 'f':
-            assignment(name);
+            Assignment(name);
             break;
         case 'p':
-            doCallProc(name);
+            CallProc(name);
             break;
         default:
-            fatal("Identifier %c cannot be used here!", name);
+            Abort("Identifier %c cannot be used here!", name);
     }
 }
 ~~~
@@ -774,37 +774,37 @@ Finalmente, o código para processar uma atribuição e uma expressão devem ser
 
 ~~~c
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    char name = getName();
-    if (isParam(name))
-        asmLoadParam(paramPos(name));
+    char name = GetName();
+    if (IsParam(name))
+        AsmLoadParam(ParamNumber(name));
     else
-        asmLoadVar(name);
+        AsmLoadVar(name);
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment(char name)
+void Assignment(char name)
 {
-    match('=');
-    expression();
-    if (isParam(name))
-        asmStoreParam(paramPos(name));
+    Match('=');
+    Expression();
+    if (IsParam(name))
+        AsmStoreParam(ParamNumber(name));
     else
-        asmStoreVar(name);
+        AsmStoreVar(name);
 }
 ~~~
 
-Como você pode ver, estes procedimentos vão tratar de cada nome de variável encontrado como um parâmetro formal ou como uma variável global, dependendo do fato de ele constar ou não na tabela de símbolos de parâmetros. Lembre-se que estamos usando apenas uma forma reduzida de `expression()`. No programa final, a alteração mostrada aqui deve ser adicionada em `factor()`, não em `expression()`.
+Como você pode ver, estes procedimentos vão tratar de cada nome de variável encontrado como um parâmetro formal ou como uma variável global, dependendo do fato de ele constar ou não na tabela de símbolos de parâmetros. Lembre-se que estamos usando apenas uma forma reduzida de `Expression()`. No programa final, a alteração mostrada aqui deve ser adicionada em `Factor()`, não em `Expression()`.
 
 O resto é fácil. Só temos que adicionar a semântica para a chamade de procedimento, o que podemos fazer apenas com uma nova linha de código:
 
 ~~~c
 /* processa um parâmetro de chamada */
-void param()
+void Param()
 {
-    expression();
-    asmPush();
+    Expression();
+    AsmPush();
 }
 ~~~
 
@@ -823,39 +823,39 @@ Felizmente, é algo fácil de arrumar. Tudo o que devemos fazer é incrementar o
 
 Devemos fazê-lo dentro do procedimento que fez a chamada, ou dentro da próprio procedimento executado? Algumas pessoas fazem com que o procedimento faça a limpeza da pilha, já que isto requer menos código a ser gerado por chamada, e já que o procedimento, afinal de contas, sabe quantos parâmetros recebeu. Mas isto significa também que algo deve ser feito com o endereço de retorno, para que ele não se perca. Afinal ele está no topo da pilha, e queremos limpar os parâmetros que estão abaixo dele.
 
-Eu prefiro permitir que a rotina que fez a chamada faça a limpeza, para que a rotina executada só precise retornar. Além disso, parece ser algo mais balanceado, já que aquele que fez a chamada é que "fez uma bagunça" na pilha. Mas isto significa que a rotina solicitante deve lembrar quantos itens foram colocados na pilha. Para tornar as coisas mais simples, eu alterei o procedimento `paramList()` para que ele seja uma função retornando o número de bytes que foram colocados na pilha:
+Eu prefiro permitir que a rotina que fez a chamada faça a limpeza, para que a rotina executada só precise retornar. Além disso, parece ser algo mais balanceado, já que aquele que fez a chamada é que "fez uma bagunça" na pilha. Mas isto significa que a rotina solicitante deve lembrar quantos itens foram colocados na pilha. Para tornar as coisas mais simples, eu alterei o procedimento `ParamList()` para que ele seja uma função retornando o número de bytes que foram colocados na pilha:
 
 ~~~c
 /* processa a lista de parâmetros para uma chamada de procedimento */
-int paramList()
+int ParamList()
 {
     int count = 0;;
 
-    match('(');
+    Match('(');
     if (look != ')') {
         for (;;) {
-            param();
+            Param();
             count++;
             if (look != ',')
                 break;
-            match(',');
+            Match(',');
         }
     }
-    match(')');
+    Match(')');
 
     return count * 2; /* número de parâmetros * bytes por parâmetro */
 }
 ~~~
 
-O procedimento `doCallProc()` usa este resultado para limpar a pilha:
+O procedimento `CallProc()` usa este resultado para limpar a pilha:
 
 ~~~c
 /* processa uma chamada de procedimento */
-void doCallProc(char name)
+void CallProc(char name)
 {
-    int bytes = paramList();
-    asmCall(name);
-    asmCleanstack(bytes);
+    int bytes = ParamList();
+    AsmCall(name);
+    AsmCleanStack(bytes);
 }
 ~~~
 
@@ -863,10 +863,10 @@ Aqui eu criei outra rotina de geração de código:
 
 ~~~c
 /* ajusta o ponteiro da pilha acima */
-void asmCleanstack(int bytes)
+void AsmCleanStack(int bytes)
 {
     if (bytes > 0)
-        emit("ADD SP, %d", bytes);
+        EmitLn("ADD SP, %d", bytes);
 }
 ~~~
 
@@ -918,68 +918,68 @@ Usando esta técnica, o código para o procedimento anterior torna-se:
         RET
 ~~~
 
-Arrumar o compilador para gerar este código é muito mais fácil do que explicá-lo. Tudo o que temos que fazer é alterar a geração do código criado por `doProcedure()`. Eu criei novas rotinas para tratar disto, paralelas a `prolog()` e `epilog()` chamadas em `doMain()`:
+Arrumar o compilador para gerar este código é muito mais fácil do que explicá-lo. Tudo o que temos que fazer é alterar a geração do código criado por `DoProcedure()`. Eu criei novas rotinas para tratar disto, paralelas a `AsmProlog()` e `AsmEpilog()` chamadas em `DoMain()`:
 
 ~~~c
 /* escreve o prólogo para um procedimento */
-void asmProcProlog(char name)
+void AsmProcProlog(char name)
 {
     printf("%c:\n", name);
-    emit("PUSH BP");
-    emit("MOV BP, SP");
+    EmitLn("PUSH BP");
+    EmitLn("MOV BP, SP");
 }
 
 /* escreve o epílogo para um procedimento */
-void asmProcEpilog()
+void AsmProcEpilog()
 {
-    emit("POP BP");
-    emit("RET");
+    EmitLn("POP BP");
+    EmitLn("RET");
 }
 ~~~
 
-A rotina `doProcedure()` fica:
+A rotina `DoProcedure()` fica:
 
 ~~~c
 /* analisa e traduz uma declaração de procedimento */
-void doProcedure()
+void DoProcedure()
 {
     char name;
 
-    match('p');
-    name = getName();
-    formalList();
-    newLine();
-    addSymbol(name, 'p');
-    asmProcProlog(name);
-    beginBlock();
-    asmProcEpilog();
-    clearParams();
+    Match('p');
+    name = GetName();
+    FormalList();
+    NewLine();
+    AddEntry(name, 'p');
+    AsmProcProlog(name);
+    BeginBlock();
+    AsmProcEpilog();
+    ClearParams();
 }
 ~~~
 
 Finalmente, precisamos alterar as referências a SP e alterar o cálculo do deslocamento para considerar o registrador BP que foi colocado na pilha também:
 
 ~~~c
-int asmOffsetParam(int pos)
+int AsmOffsetParam(int pos)
 {
     int offset;
 
     /* offset = (ret_address + BP) + param_size * param_pos */
-    offset = 4 + 2 * (paramCount - pos); 
+    offset = 4 + 2 * (ParamCount - pos); 
 
     return offset;
 }
 
 /* carrega parâmetro em registrador primário */
-void asmLoadParam(int pos)
+void AsmLoadParam(int pos)
 {
-    emit("MOV AX, WORD PTR [BP+%d]", asmOffsetParam(pos));
+    EmitLn("MOV AX, WORD PTR [BP+%d]", AsmOffsetParam(pos));
 }
 
 /* armazena conteúdo do registrador primário em parâmetro */
-void asmStoreParam(int pos)
+void AsmStoreParam(int pos)
 {
-    emit("MOV WORD PTR [BP+%d], AX", asmOffsetParam(pos));
+    EmitLn("MOV WORD PTR [BP+%d], AX", AsmOffsetParam(pos));
 }
 ~~~
 
@@ -1030,32 +1030,32 @@ seja traduzida para:
 
 ~~~c
 /* processa um parâmetro de chamada */
-void param()
+void Param()
 {
-    char name = getName();
-    asmPushParam(name);
+    char name = GetName();
+    AsmPushParam(name);
 }
 ~~~
 
 (Note que na passagem por referência, não podemos ter expressões na lista de parâmetros, então "param" lê um identificador diretamente.)
 
-O código em `asmPushParam()` se encarrega de fazer a passagem do endereço do parâmetro. Repare que se o parâmetro sendo passado for uma variável podemos passar o endereço dela na memória (como vimos no exemplo). Mas e se a chamada estiver sendo feita de outro procedimento e um dos parâmetros de CHAMADA for um dos parâmetros FORMAIS deste procedimento? Simplesmente devemos passar o valor do parâmetro, pois ele em si já é um endereço.
+O código em `AsmPushParam()` se encarrega de fazer a passagem do endereço do parâmetro. Repare que se o parâmetro sendo passado for uma variável podemos passar o endereço dela na memória (como vimos no exemplo). Mas e se a chamada estiver sendo feita de outro procedimento e um dos parâmetros de CHAMADA for um dos parâmetros FORMAIS deste procedimento? Simplesmente devemos passar o valor do parâmetro, pois ele em si já é um endereço.
 
 ~~~c++
 /* coloca parâmetros na pilha */
-void asmPushParam(char name)
+void AsmPushParam(char name)
 {
-    switch (symbolType(name)) {
+    switch (SymbolType(name)) {
         case 'v':
-            emit("MOV AX, OFFSET %c\n", name);
-            asmPush();
+            EmitLn("MOV AX, OFFSET %c\n", name);
+            AsmPush();
             break;
         case 'f':
-            emit("MOV AX, WORD PTR [BP+%d]", asmOffsetParam(paramPos(name)));
-            asmPush();
+            EmitLn("MOV AX, WORD PTR [BP+%d]", AsmOffsetParam(ParamNumber(name)));
+            AsmPush();
             break;
         default:
-            fatal("Identifier %c cannot be used here!", name);
+            Abort("Identifier %c cannot be used here!", name);
     }
 }
 ~~~
@@ -1079,23 +1079,23 @@ FOO:
     RET
 ~~~
 
-Tudo isto pode ser tratado por mudanças a `asmLoadParam()` e `asmStoreParam()`:
+Tudo isto pode ser tratado por mudanças a `AsmLoadParam()` e `AsmStoreParam()`:
 
 ~~~c
 /* carrega parâmetro em registrador primário */
-void asmLoadParam(int pos)
+void AsmLoadParam(int pos)
 {
-    int offset = asmOffsetParam(pos);
-    emit("MOV BX, WORD PTR [BP+%d]", offset);
-    emit("MOV AX, WORD PTR [BX]");
+    int offset = AsmOffsetParam(pos);
+    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
+    EmitLn("MOV AX, WORD PTR [BX]");
 }
 
 /* armazena conteúdo do registrador primário em parâmetro */
-void asmStoreParam(int pos)
+void AsmStoreParam(int pos)
 {
-    int offset = asmOffsetParam(pos);
-    emit("MOV BX, WORD PTR [BP+%d]", offset);
-    emit("MOV WORD PTR [BX], AX");
+    int offset = AsmOffsetParam(pos);
+    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
+    EmitLn("MOV WORD PTR [BX], AX");
 }
 ~~~
 
@@ -1154,11 +1154,11 @@ Vamos começar criando uma nova variável, `base`:
 int base; /* base para cálculo no deslocamento na pilha */
 ~~~
 
-Vamos usar esta variável, ao invés de `paramCount`, para calcular os deslocamentos na pilha. Isto significa alterar a referência a `paramCount` em `asmOffsetParam()`:
+Vamos usar esta variável, ao invés de `ParamCount`, para calcular os deslocamentos na pilha. Isto significa alterar a referência a `ParamCount` em `AsmOffsetParam()`:
 
 ~~~c
 /* calcula deslocamento do parâmetro na pilha */
-int asmOffsetParam(int par)
+int AsmOffsetParam(int par)
 {
     int offset;
 
@@ -1169,114 +1169,114 @@ int asmOffsetParam(int par)
 }
 ~~~
 
-A idéia é que o valor de `base` será congelado depois que processarmos os parâmetros formais, e não irá mais aumentar quando as variáveis locais forem inseridas na tabela de símbolos. Isto é tratado no final de `formalList()`:
+A idéia é que o valor de `base` será congelado depois que processarmos os parâmetros formais, e não irá mais aumentar quando as variáveis locais forem inseridas na tabela de símbolos. Isto é tratado no final de `FormalList()`:
 
 ~~~c
 /* processa a lista de parâmetros formais de um procedimento */
-void formalList()
+void FormalList()
 {
-    match('(');
+    Match('(');
     if (look != ')') {
-        formalParam();
+        FormalParam();
         while (look == ',') {
-            match(',');
-            formalParam();
+            Match(',');
+            FormalParam();
         }
     }
-    match(')');
-    newLine();
-    base = paramCount;
-    paramCount += 2;
+    Match(')');
+    NewLine();
+    base = ParamCount;
+    ParamCount += 2;
 }
 ~~~
 
 (Adicionamos dois parâmetros fictícios para considerar o endereço de retorno e o antigo valor de BP, que ficam entre os parâmetros formais e as variáveis locais.)
 
-`asmLoadParam()` e `asmStoreParam()` também devem ser sofrer uma alteração mínima, quase imperceptível:
+`AsmLoadParam()` e `AsmStoreParam()` também devem ser sofrer uma alteração mínima, quase imperceptível:
 
 ~~~c
 /* carrega parâmetro em registrador primário */
-void asmLoadParam(int par)
+void AsmLoadParam(int par)
 {
-    int offset = asmOffsetParam(par);
-    emit("MOV AX, WORD PTR [BP%+d]", offset);
+    int offset = AsmOffsetParam(par);
+    EmitLn("MOV AX, WORD PTR [BP%+d]", offset);
 }
 
 /* armazena conteúdo do registrador primário em parâmetro */
-void asmStoreParam(int par)
+void AsmStoreParam(int par)
 {
-    int offset = asmOffsetParam(par);
-    emit("MOV WORD PTR [BP%+d], AX", offset);
+    int offset = AsmOffsetParam(par);
+    EmitLn("MOV WORD PTR [BP%+d], AX", offset);
 }
 ~~~
 
 Repare na sutil diferença na string: "+%d" fica "%+d". Não podemos manter o sinal de adição, já que podemos ter deslocamentos negativos. Porém, usando-se "%+d" forçamos que o sinal seja mostrado para os valores negativos e para os POSITIVOS também. Agora as rotinas estão certas para os dois casos.
 
-Praticamente o que deve ser feito em seguida é instalar a semântica para a declaração das variáveis ao analisador. As rotinas são muito similares a `declaration()` e `topDeclarations()`:
+Praticamente o que deve ser feito em seguida é instalar a semântica para a declaração das variáveis ao analisador. As rotinas são muito similares a `Declaration()` e `TopDeclarations()`:
 
 ~~~c
 /* analisa e traduz uma declaração local de dados */
-void localDeclaration()
+void LocalDeclaration()
 {
-    match('v');
-    addParam(getName());
-    newLine();
+    Match('v');
+    AddParam(GetName());
+    NewLine();
 }
 
 /* analisa e traduz declarações locais */
-int localDeclarations()
+int LocalDeclarations()
 {
     int count;
 
     for (count = 0; look == 'v'; count++) {
-        localDeclaration();
+        LocalDeclaration();
     }
 
     return count;
 }
 ~~~
 
-Repare que `localDeclarations()` é uma FUNÇÃO, retornando o número de variáveis locais a `doProcedure()`.
+Repare que `LocalDeclarations()` é uma FUNÇÃO, retornando o número de variáveis locais a `DoProcedure()`.
 
-Em seguida, modificamos `doProcedure()` para usar esta informação:
+Em seguida, modificamos `DoProcedure()` para usar esta informação:
 
 ~~~c
 /* analisa e traduz uma declaração de procedimento */
-void doProcedure()
+void DoProcedure()
 {
     int countLocals;
     char name;
 
-    match('p');
-    name = getName();
-    addSymbol(name, 'p');
-    formalList();
-    countLocals = localDeclarations();
-    asmProcProlog(name, countLocals);
-    beginBlock();
-    asmProcEpilog();
-    clearParams();
+    Match('p');
+    name = GetName();
+    AddEntry(name, 'p');
+    FormalList();
+    countLocals = LocalDeclarations();
+    AsmProcProlog(name, countLocals);
+    BeginBlock();
+    AsmProcEpilog();
+    ClearParams();
 }
 ~~~
 
-Repare na diferença da chamada a `asmProcProlog()`. No lugar de passar o número de bytes, o novo argumento é o número de PALAVRAS (sendo 2 bytes por palavra) a alocar. Aqui estão as novas versões de `asmProcProlog()` e `asmProcEpilog()`:
+Repare na diferença da chamada a `AsmProcProlog()`. No lugar de passar o número de bytes, o novo argumento é o número de PALAVRAS (sendo 2 bytes por palavra) a alocar. Aqui estão as novas versões de `AsmProcProlog()` e `AsmProcEpilog()`:
 
 ~~~c
 /* escreve o prólogo para um procedimento */
-void asmProcProlog(char name, int countLocals)
+void AsmProcProlog(char name, int countLocals)
 {
     printf("%c:\n", name);
-    emit("PUSH BP");
-    emit("MOV BP, SP");
-    emit("SUB SP, %d", countLocals * 2);
+    EmitLn("PUSH BP");
+    EmitLn("MOV BP, SP");
+    EmitLn("SUB SP, %d", countLocals * 2);
 }
 
 /* escreve o epílogo para um procedimento */
-void asmProcEpilog()
+void AsmProcEpilog()
 {
-    emit("MOV SP, BP");
-    emit("POP BP");
-    emit("RET");
+    EmitLn("MOV SP, BP");
+    EmitLn("POP BP");
+    EmitLn("RET");
 }
 ~~~
 

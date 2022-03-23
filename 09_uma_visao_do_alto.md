@@ -52,15 +52,15 @@ Adicione o seguinte numa nova cópia do "berço":
 
 ~~~c
 /* analisa e traduz um programa Pascal */
-void program()
+void Program()
 {
     char name;
 
-    match('p'); /* trata do cabeçalho do programa */
-    name = getName();
-    prolog(name);
-    match('.');
-    epilog(name);
+    Match('p'); /* trata do cabeçalho do programa */
+    name = GetName();
+    AsmProlog(name);
+    Match('.');
+    AsmEpilog(name);
 }
 ~~~
 
@@ -70,36 +70,36 @@ Insira uma chamada no programa principal:
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    program();
+    Init();
+    Program();
 
     return 0;
 }
 ~~~
 
-As rotinas `prolog()` e `epilog()` executam ações necessárias para permitir que o programa se comunique com o sistema operacional, de forma que ele possa ser executado como um programa. É desnecessário dizer, **que esta parte é MUITO dependente do sistema operacional.** Lembre-se, estamos gerando código para uma CPU 80x86. Eu estou usando um sistema compatível com DOS e vou usar um montador compatível com TASM para gerar o programa executável. Eu compreendo que a maioria possa estar usando outro tipo de CPU e um sistema operacional mais moderno, mas já chegamos longe demais para mudar agora!
+As rotinas `AsmProlog()` e `AsmEpilog()` executam ações necessárias para permitir que o programa se comunique com o sistema operacional, de forma que ele possa ser executado como um programa. É desnecessário dizer, **que esta parte é MUITO dependente do sistema operacional.** Lembre-se, estamos gerando código para uma CPU 80x86. Eu estou usando um sistema compatível com DOS e vou usar um montador compatível com TASM para gerar o programa executável. Eu compreendo que a maioria possa estar usando outro tipo de CPU e um sistema operacional mais moderno, mas já chegamos longe demais para mudar agora!
 
-O DOS em particular é de certa forma fácil de lidar se você quer algo simples. É possível brincar um pouco mais com modelos de memória, organização dos segmentos, etc. Mas eu preferi usar algo mais simples e que funciona! Você pode adaptar os códigos da forma que preferir. Estes são os códigos para o `prolog()` e `epilog()`:
+O DOS em particular é de certa forma fácil de lidar se você quer algo simples. É possível brincar um pouco mais com modelos de memória, organização dos segmentos, etc. Mas eu preferi usar algo mais simples e que funciona! Você pode adaptar os códigos da forma que preferir. Estes são os códigos para o `AsmProlog()` e `AsmEpilog()`:
 
 ~~~c
 /* emite código para o prólogo de um programa */
-void prolog()
+void AsmProlog()
 {
-    emit(".model small");
-    emit(".stack");
-    emit(".code");
+    EmitLn(".model small");
+    EmitLn(".stack");
+    EmitLn(".code");
     printf("PROG segment byte public\n");
-    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
 /* emite código para o epílogo de um programa */
-void epilog(char name)
+void AsmEpilog(char name)
 {
-    printf("exit_prog:");
-    emit("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
-    emit("INT 21h       ; chamada de sistema DOS");
+    printf("exit_prog:\n");
+    EmitLn("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
+    EmitLn("INT 21h       ; chamada de sistema DOS");
     printf("PROG ends\n");
-    emit("end %c", name);
+    EmitLn("end %c", name);
 }
 ~~~
 
@@ -127,43 +127,43 @@ Para adicionar código ao compilador, só precisamos tratar das características
 
 ~~~c
 /* analisa e traduz um bloco Pascal */
-void block(char name)
+void Block(char name)
 {
 }
 ~~~
 
-Então altere `program()`:
+Então altere `Program()`:
 
 ~~~c
 /* analisa e traduz um programa */
-void program()
+void Program()
 {
     char name;
     
-    match('p'); /* trata do cabeçalho do programa */
-    name = getName();
-    prolog();
-    block(name);
-    match('.');
-    epilog(name);
+    Match('p'); /* trata do cabeçalho do programa */
+    name = GetName();
+    AsmProlog();
+    Block(name);
+    Match('.');
+    AsmEpilog(name);
 }
 ~~~
 
-Isto certamente não deve alterar o funcionamento do nosso programa, e não altera. Mas agora a definição de `program()` está completa, e podemos prosseguir com `block()`. Isto é feito diretamente da definição BNF:
+Isto certamente não deve alterar o funcionamento do nosso programa, e não altera. Mas agora a definição de `Program()` está completa, e podemos prosseguir com `Block()`. Isto é feito diretamente da definição BNF:
 
 ~~~c
 /* analisa e traduz um bloco pascal */
-void block(char name)
+void Block(char name)
 {
-    declarations();
+    Declarations();
     printf("%c:\n", name);
-    statements();
+    Statements();
 }
 ~~~
 
 Note que estamos emitindo um rótulo de desvio. Eu provavelmente devo explicar a razão de inserí-lo justamente ali. Tem a ver com a forma como o montador funciona. Ao contrário de outros montadores o TASM e seus compatíveis permitem que o ponto de entrada do programa seja em qualquer lugar. Tudo o que você deve fazer é dar um nome a este ponto. Nós colocamos o rótulo bem antes do primeiro comando executável no programa principal. Como o montador sabe qual dos rótulos é o ponto de entrada? É aquele que combina com o do comando END no fim do programa.
 
-Certo, agora adicione as rotinas `declaration()` e `statements()`. Elas são rotinas vazias assim como fizemos antes.
+Certo, agora adicione as rotinas `Declaration()` e `Statements()`. Elas são rotinas vazias assim como fizemos antes.
 
 O programa continua rodando da mesma forma? Então podemos mover para o próximo estágio.
 
@@ -183,23 +183,23 @@ A BNF para declarações em pascal é:
 
 (Note que eu estou usando uma definição mais liberal usada pelo Turbo Pascal. Na definição padrão de Pascal, cada parte deve ter uma ordem específica uma em relação à outra.)
 
-Como de costume, vamos permitir que um simples caracter represente cada um destes tipos de declaração. A nova forma de `declarations()` é:
+Como de costume, vamos permitir que um simples caracter represente cada um destes tipos de declaração. A nova forma de `Declarations()` é:
 
 ~~~c
 /* analisa e traduz declarações pascal */
-void declarations()
+void Declarations()
 {
     int valid;
 
     do {
         valid = 1;
         switch (look) {
-            case 'l': labels(); break;
-            case 'c': constants(); break;
-            case 't': types(); break;
-            case 'v': variables(); break;
-            case 'p': procedure(); break;
-            case 'f': function(); break;
+            case 'l': Labels(); break;
+            case 'c': Constants(); break;
+            case 't': Types(); break;
+            case 'v': Variables(); break;
+            case 'p': Procedure(); break;
+            case 'f': Function(); break;
             default: valid = 0; break;
         }
     } while (valid);
@@ -211,34 +211,34 @@ void declarations()
 ~~~c
 /* funções de declaração pascal */
 
-void labels()
+void Labels()
 {
-    match('l');
+    Match('l');
 }
 
-void constants()
+void Constants()
 {
-    match('c');
+    Match('c');
 }
 
-void types()
+void Types()
 {
-    match('t');
+    Match('t');
 }
 
-void variables()
+void Variables()
 {
-    match('v');
+    Match('v');
 }
 
-void procedure()
+void Procedure()
 {
-    match('p');
+    Match('p');
 }
 
-void function()
+void Function()
 {
-    match('f');
+    Match('f');
 }
 ~~~
 
@@ -251,16 +251,16 @@ Podemos inserir a parte dos comandos de forma similar. A BNF é assim:
     <compound_statement> ::= BEGIN <statement> [ ';' <statement> ]* END
 ~~~
 
-Note que os comandos podem começar com qualquer identificador exceto END. Então a primeira forma de `statements()` é:
+Note que os comandos podem começar com qualquer identificador exceto END. Então a primeira forma de `Statements()` é:
 
 ~~~c
 /* analisa e traduz um bloco de comandos pascal */
-void statements()
+void Statements()
 {
-    match('b');
+    Match('b');
     while (look != 'e')
-        nextChar();
-    match('e');
+        NextChar();
+    Match('e');
 }
 ~~~
 
@@ -276,7 +276,7 @@ Neste ponto você já deve ter começado a pegar o jeito. Começamos com um trad
 
 Você pode notar que mesmo estando adicionando rotinas, a saída do programa não mudou. É como deveria ser. Neste nível superior não há código que deva ser emitido. Os reconhecedores estão funcionando apenas como meros reconhecedores e só! Eles aceitam sentenças de entrada, indicam as que estão erradas, e canalizam a entrada correta para os lugares corretos, portanto elas estão fazendo seu trabalho. Se começarmos a perseguir isto mais um pouco, o código vai aparecer em breve.
 
-O próximo passo em nossa expansão deveria ser provavelmente na rotina `statement()`. A definição de pascal é:
+O próximo passo em nossa expansão deveria ser provavelmente na rotina `Statement()`. A definição de pascal é:
 
 ~~~ebnf
     <statement> ::= <simple-statement> | <structured-statement>
@@ -342,7 +342,7 @@ Apesar de estarmos mais interessados em C completo aqui, eu vou mostrar o códig
 
 ~~~c
 /* analisa e traduz um programa Small C */
-void program()
+void Program()
 {
     while (look != EOF) {
         switch (look) {
@@ -353,7 +353,7 @@ void program()
             case 'c':
                 charDeclaration(); break;
             default:
-                functionDeclaration(); break;
+                FunctionDeclaration(); break;
         }
     }
 }
@@ -388,39 +388,39 @@ Para começar, entre com a seguinte versão do programa principal:
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
 
     while (look != EOF && look != '\n') {
-        getClass();
-        getType();
-        topDeclaration();
+        GetClass();
+        GetType();
+        TopDeclaration();
     }
 
     return 0;
 }
 ~~~
 
-Para o primeiro "round", apenas crie as 3 rotinas que por enquanto não fazem nada ALÉM de chamar `nextChar()`.
+Para o primeiro "round", apenas crie as 3 rotinas que por enquanto não fazem nada ALÉM de chamar `NextChar()`.
 
 O programa funciona? Bem, seria difícil dizer que não, já que não estamos pedindo que ele faça nada. Foi dito que um compilador vai aceitar virtualmente qualquer entrada sem reclamar. Isto é certamente verdadeiro para ESTE compilador, já que de fato a única coisa que ele faz é ler caracteres até encontrar um fim de arquivo (`EOF`).
 
-Agora, vamos fazer `getclass()` fazer algo de valor. Declare a variável global:
+Agora, vamos fazer `GetClass()` fazer algo de valor. Declare a variável global:
 
 ~~~c
-char currentClass; /* classe atual lida por getClass */
+char CurrentClass; /* classe atual lida por getClass */
 ~~~
 
-E agora altere `getclass()`:
+E agora altere `GetClass()`:
 
 ~~~c
 /* recebe uma classe de armazenamento C */
-void getClass()
+void GetClass()
 {
     if (look == 'a' || look == 'x' || look == 's') {
-        currentClass = look;
-        nextChar();
+        CurrentClass = look;
+        NextChar();
     } else
-        currentClass = 'a';
+        CurrentClass = 'a';
 }
 ~~~
 
@@ -430,19 +430,19 @@ Podemos fazer algo semelhante para tipos. Entre com a seguinte rotina:
 
 ~~~c
 /* recebe um tipo de dado C */
-void getType()
+void GetType()
 {
-    currentType = ' ';
+    CurrentType = ' ';
     if (look == 'u') {
-        currentSigned = 'u';
-        currentType = 'i';
-        nextChar();
+        CurrentSigned = 'u';
+        CurrentType = 'i';
+        NextChar();
     } else {
-        currentSigned = 's';
+        CurrentSigned = 's';
     }
     if (look == 'i' || look == 'l' || look == 'c') {
-        currentType = look;
-        nextChar();
+        CurrentType = look;
+        NextChar();
     }
 }
 ~~~
@@ -450,27 +450,27 @@ void getType()
 Não esqueça de adicionar agora as variáveis globais:
 
 ~~~c
-char currentType; /* tipo atual lido por getType */
-char currentSigned; /* indica se tipo atual é com ou sem sinal */
+char CurrentType; /* tipo atual lido por getType */
+char CurrentSigned; /* indica se tipo atual é com ou sem sinal */
 ~~~
 
 Com estas duas rotinas, o compilador vai processar a classe de armazenamento a definição de tipo e armazenar o que encontrou. Podemos agora processar o resto da declaração.
 
 Não estamos de forma alguma livres da complicação ainda, pois há ainda muitas complexidades apenas na definição do tipo, mesmo antes de chegarmos à definição do nome dos dados ou da função. Vamos fingir que neste ponto passamos por tudo isto, e que a próxima entrada é o nome. Se o nome for seguido de um parêntese esquerdo, temos uma declaração de função. Caso contrário, temos ao menos um item de dados, e possívelmente uma lista, e cada elemento pode ter um inicializador.
 
-Insira agora `topDeclaration()`:
+Insira agora `TopDeclaration()`:
 
 ~~~c
 /* analisa uma declaração global */
-void topDeclaration()
+void TopDeclaration()
 {
     char name;
 
-    name = getName();
+    name = GetName();
     if (look == '(')
-        functionDeclaration(name);
+        FunctionDeclaration(name);
     else
-        dataDeclaration(name);
+        DoData(name);
 }
 ~~~
 
@@ -480,32 +480,32 @@ Finalmente, adicione as rotinas `functionDeclaration` e `dataDeclaration`:
 
 ~~~c
 /* analisa uma declaração de função */
-void functionDeclaration(char name)
+void FunctionDeclaration(char name)
 {
-    match('(');
-    match(')');
-    match('{');
-    match('}');
-    if (currentType == ' ')
-        currentType = 'i';
+    Match('(');
+    Match(')');
+    Match('{');
+    Match('}');
+    if (CurrentType == ' ')
+        CurrentType = 'i';
     printf("Class: %c, Sign: %c, Type: %c, Function: %c\n",
-        currentClass, currentSigned, currentType, name);
+        CurrentClass, CurrentSigned, CurrentType, name);
 }
 
 /* analisa uma declaração de variável */
-void dataDeclaration(char name)
+void DoData(char name)
 {
-    if (currentType == ' ')
-        expected("Type declaration");
+    if (CurrentType == ' ')
+        Expected("Type declaration");
     for (;;) {
         printf("Class: %c, Sign: %c, Type: %c, Data: %c\n",
-            currentClass, currentSigned, currentType, name);
+            CurrentClass, CurrentSigned, CurrentType, name);
         if (look != ',')
             break;
-        match(',');
-        name = getName();
+        Match(',');
+        name = GetName();
     }
-    match(';');
+    Match(';');
 }
 ~~~
 

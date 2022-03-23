@@ -19,57 +19,57 @@ char look; /* O caracter lido "antecipadamente" (lookahead) */
 int var[MAXVAR];
 
 /* protótipos */
-void init();
-void initVar();
-void nextChar();
-void newLine();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void match(char c);
-char getName();
-int getNum();
-void emit(char *fmt, ...);
-void assignment();
-int factor();
-int term();
-int expression();
-void input();
-void output();
-int isAddOp(char c);
-int isMulOp(char c);
+void Init();
+void InitVar();
+void NextChar();
+void NewLine();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void Match(char c);
+char GetName();
+int GetNum();
+void EmitLn(char *fmt, ...);
+void Assignment();
+int Factor();
+int Term();
+int Expression();
+void Input();
+void Output();
+int IsAddOp(char c);
+int IsMulOp(char c);
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
     do {
         switch (look) {
             case '?':
-                input();
+                Input();
                 break;
             case '!':
-                output();
+                Output();
                 break;
             default:
-                assignment();
+                Assignment();
                 break;
         }
-        newLine();
+        NewLine();
     } while (look != '.');
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    initVar();
-    nextChar();
+    InitVar();
+    NextChar();
 }
 
 /* inicializa variáveis */
-void initVar()
+void InitVar()
 {
     int i;
 
@@ -78,20 +78,20 @@ void initVar()
 }
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* captura um caracter de nova linha */
-void newLine()
+void NewLine()
 {
     if (look == '\n')
-        nextChar();
+        NextChar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -105,7 +105,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -121,7 +121,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -137,47 +137,47 @@ void expected(char *fmt, ...)
 }
 
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
+    NextChar();
 
     return name;
 }
 
 /* recebe um número inteiro */
-int getNum()
+int GetNum()
 {
     int i;
 
     i = 0;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
 
     while (isdigit(look)) {
         i *= 10;
         i += look - '0';
-        nextChar();
+        NextChar();
     }
 
     return i;
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -191,59 +191,59 @@ void emit(char *fmt, ...)
 }
 
 /* reconhece operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* reconhece operador multiplicativo */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
 /* avalia um comando de atribuição */
-void assignment()
+void Assignment()
 {
     char name;
 
-    name = getName();
-    match('=');
-    var[name - 'A'] = expression();
+    name = GetName();
+    Match('=');
+    var[name - 'A'] = Expression();
 }
 
 /* avalia um fator */
-int factor()
+int Factor()
 {
     int val;
 
     if (look == '(') {
-        match('(');
-        val = expression();
-        match(')');
+        Match('(');
+        val = Expression();
+        Match(')');
     } else if (isalpha(look))
-        val = var[getName() - 'A'];
+        val = var[GetName() - 'A'];
     else
-        val = getNum();
+        val = GetNum();
 
     return val;
 }
 
 /* avalia um termo */
-int term()
+int Term()
 {
     int val;
 
-    val = factor();
-    while (isMulOp(look)) {
+    val = Factor();
+    while (IsMulOp(look)) {
         switch (look) {
             case '*':
-                match('*');
-                val *= factor();
+                Match('*');
+                val *= Factor();
                 break;
             case '/':
-                match('/');
-                val /= factor();
+                Match('/');
+                val /= Factor();
                 break;
         }
     }
@@ -252,24 +252,24 @@ int term()
 }
 
 /* avalia o resultado de uma expressão */
-int expression()
+int Expression()
 {
     int val;
 
-    if (isAddOp(look))
+    if (IsAddOp(look))
         val = 0;
     else
-        val = term();
+        val = Term();
 
-    while (isAddOp(look)) {
+    while (IsAddOp(look)) {
         switch (look) {
           case '+':
-              match('+');
-              val += term();
+              Match('+');
+              val += Term();
               break;
           case '-':
-              match('-');
-              val -= term();
+              Match('-');
+              val -= Term();
               break;
         }
     }
@@ -278,24 +278,24 @@ int expression()
 }
 
 /* interpreta um comando de entrada */
-void input()
+void Input()
 {
     char name;
     char buffer[20];
 
-    match('?');
-    name = getName();
+    Match('?');
+    name = GetName();
     printf("%c? ", name);
     fgets(buffer, 20, stdin);
     var[name - 'A'] = atoi(buffer);
 }
 
 /* interpreta um comando de saída */
-void output()
+void Output()
 {
     char name;
 
-    match('!');
-    name = getName();
+    Match('!');
+    name = GetName();
     printf("%c -> %d\n", name, var[name - 'A']);
 }

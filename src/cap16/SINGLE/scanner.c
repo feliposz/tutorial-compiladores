@@ -4,47 +4,47 @@
 #include "scanner.h"
 
 /* reconhece um operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-' || c == '|' || c == '~');
 }
 
 /* reconhece um operador multiplicativo */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/' || c == '&');
 }
 
 /* verifica se caracter combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();        
+        Expected("'%c'", c);
+    NextChar();        
 }
 
 /* retorna um identificador */
-char getName()
+char GetName()
 {
     char name;
     
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
+    NextChar();
     
     return name;
 }
 
 /* retorna um número */
-char getNum()
+char GetNum()
 {
     char num;
     
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
+    NextChar();
     
     return num;
 }

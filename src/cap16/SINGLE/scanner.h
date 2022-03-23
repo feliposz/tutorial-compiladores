@@ -1,11 +1,11 @@
 #ifndef _SCANNER1_H
 #define _SCANNER1_H
 
-int isAddOp(char c);
-int isMulOp(char c);
+int IsAddOp(char c);
+int IsMulOp(char c);
 
-void match(char c);
-char getName();
-char getNum();
+void Match(char c);
+char GetName();
+char GetNum();
 
 #endif

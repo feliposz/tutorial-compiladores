@@ -16,113 +16,113 @@ Este código é de livre distribuição e uso.
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
-#define SYMTBL_SZ 26
-char symbolTable[SYMTBL_SZ]; /* tabela de símbolos */
+#define SYMBOLTABLE_SIZE 26
+char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
 
-#define PARAMTBL_SZ 26
-int paramTable[PARAMTBL_SZ]; /* lista de parâmetros formais para os procedimentos */
-int paramCount; /* número de parâmetros formais */
+#define PARAMTABLE_SIZE 26
+int ParamTable[PARAMTABLE_SIZE]; /* lista de parâmetros formais para os procedimentos */
+int ParamCount; /* número de parâmetros formais */
 
 /* rotinas utilitárias */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void emit(char *fmt, ...);
-void undefined(char name);
-void duplicated(char name);
-void unrecognized(char name);
-void notVar(char name);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void EmitLn(char *fmt, ...);
+void Undefined(char name);
+void Duplicate(char name);
+void Unrecognized(char name);
+void NotVar(char name);
 
 /* tratamento da tabela de símbolos */
-char symbolType(char name);
-char inTable(char name);
-void addSymbol(char name, char type);
-void checkVar(char name);
+char SymbolType(char name);
+char InTable(char name);
+void AddEntry(char name, char type);
+void CheckVar(char name);
 
 /* tratamento da tabela de parâmetros formais */
-void clearParams();
-int paramPos(char name);
-int isParam(char name);
-void addParam(char name);
+void ClearParams();
+int ParamNumber(char name);
+int IsParam(char name);
+void AddParam(char name);
 
 /* analisador léxico rudimentar */
-int isAddOp(char c);
-int isMulOp(char c);
-void skipWhite();
-void newLine();
-void match(char c);
-char getName();
-char getNum();
+int IsAddOp(char c);
+int IsMulOp(char c);
+void SkipWhite();
+void NewLine();
+void Match(char c);
+char GetName();
+char GetNum();
 
 /* geração de código */
-void header();
-void prolog();
-void epilog();
-void asmLoadVar(char name);
-void asmStoreVar(char name);
-void asmAllocVar(char name);
-void asmCall(char name);
-void asmReturn();
-int asmOffsetParam(int par);
-void asmLoadParam(int par);
-void asmStoreParam(int par);
-void asmPushParam(char name);
-void asmPush();
-void asmCleanstack(int bytes);
-void asmProcProlog(char name);
-void asmProcEpilog();
+void AsmHeader();
+void AsmProlog();
+void AsmEpilog();
+void AsmLoadVar(char name);
+void AsmStoreVar(char name);
+void AsmAllocVar(char name);
+void AsmCall(char name);
+void AsmReturn();
+int AsmOffsetParam(int par);
+void AsmLoadParam(int par);
+void AsmStoreParam(int par);
+void AsmPushParam(char name);
+void AsmPush();
+void AsmCleanStack(int bytes);
+void AsmProcProlog(char name);
+void AsmProcEpilog();
 
 /* analisador sintático */
-void expression();
-void assignment(char name);
-void assignOrCall();
-void doBlock();
-void beginBlock();
-void param();
-int paramList();
-void doCallProc(char name);
-void formalList();
-void formalParam();
-void doProcedure();
-void declaration();
-void topDeclarations();
-void doMain();
+void Expression();
+void Assignment(char name);
+void AssignOrProc();
+void DoBlock();
+void BeginBlock();
+void Param();
+int ParamList();
+void CallProc(char name);
+void FormalList();
+void FormalParam();
+void DoProcedure();
+void Declaration();
+void TopDeclarations();
+void DoMain();
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    header();
-    topDeclarations();
-    epilog();
+    Init();
+    AsmHeader();
+    TopDeclarations();
+    AsmEpilog();
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
     int i;
 
-    for (i = 0; i < SYMTBL_SZ; i++)
-        symbolTable[i] = ' ';
+    for (i = 0; i < SYMBOLTABLE_SIZE; i++)
+        SymbolTable[i] = ' ';
 
-    clearParams();
+    ClearParams();
 
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 }
 
 /* lê próximo caracter da entrada em lookahead */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -136,7 +136,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -152,7 +152,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -168,7 +168,7 @@ void expected(char *fmt, ...)
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -182,461 +182,461 @@ void emit(char *fmt, ...)
 }
 
 /* avisa a respeito de um identificador desconhecido */
-void undefined(char name)
+void Undefined(char name)
 {
-    fatal("Undefined identifier %c", name);
+    Abort("Undefined identifier %c", name);
 }
 
 /* avisa a respeito de um identificador desconhecido */
-void duplicated(char name)
+void Duplicate(char name)
 {
-    fatal("Duplicated identifier %c", name);
+    Abort("Duplicated identifier %c", name);
 }
 
 /* avisa a respeito de uma palavra-chave desconhecida */
-void unrecognized(char name)
+void Unrecognized(char name)
 {
-    fatal("Unrecognized keyword %c", name);
+    Abort("Unrecognized keyword %c", name);
 }
 
 /* avisa a respeito de um identificador que não é variável */
-void notVar(char name)
+void NotVar(char name)
 {
-    fatal("'%c' is not a variable", name);
+    Abort("'%c' is not a variable", name);
 }
 
 /* retorna o tipo de um identificador */
-char symbolType(char name)
+char SymbolType(char name)
 {
-    if (isParam(name))
+    if (IsParam(name))
         return 'f';
-    return symbolTable[name - 'A'];
+    return SymbolTable[name - 'A'];
 }
 
 /* verifica se "name" consta na tabela de símbolos */
-char inTable(char name)
+char InTable(char name)
 {
-    return (symbolTable[name - 'A'] != ' ');
+    return (SymbolTable[name - 'A'] != ' ');
 }
 
 /* adiciona novo identificador à tabela de símbolos */
-void addSymbol(char name, char type)
+void AddEntry(char name, char type)
 {
-    if (inTable(name))
-        duplicated(name);
-    symbolTable[name - 'A'] = type;
+    if (InTable(name))
+        Duplicate(name);
+    SymbolTable[name - 'A'] = type;
 }
 
 /* verifica se identificador é variável */
-void checkVar(char name)
+void CheckVar(char name)
 {
-    if (!inTable(name))
-        undefined(name);
-    if (symbolType(name) != 'v')
-        notVar(name);
+    if (!InTable(name))
+        Undefined(name);
+    if (SymbolType(name) != 'v')
+        NotVar(name);
 }
 
 /* limpa a tabela de parâmetros formais */
-void clearParams()
+void ClearParams()
 {
     int i;
-    for (i = 0; i < PARAMTBL_SZ; i++)
-        paramTable[i] = 0;
-    paramCount = 0;
+    for (i = 0; i < PARAMTABLE_SIZE; i++)
+        ParamTable[i] = 0;
+    ParamCount = 0;
 }
 
 /* retorna número indicando a posição do parâmetro */
-int paramPos(char name)
+int ParamNumber(char name)
 {
-    return paramTable[name - 'A'];
+    return ParamTable[name - 'A'];
 }
 
 /* verifica se nome é parâmetro */
-int isParam(char name)
+int IsParam(char name)
 {
-    return (paramTable[name - 'A'] != 0);
+    return (ParamTable[name - 'A'] != 0);
 }
 
 /* adiciona parâmetro à lista */
-void addParam(char name)
+void AddParam(char name)
 {
-    if (isParam(name))
-        duplicated(name);
-    paramTable[name - 'A'] = ++paramCount;
+    if (IsParam(name))
+        Duplicate(name);
+    ParamTable[name - 'A'] = ++ParamCount;
 }
 
 /* testa operadores de adição */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* testa operadores de multiplicação */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
 /* pula caracteres em branco */
-void skipWhite()
+void SkipWhite()
 {
     while (look == ' ' || look == '\t')
-        nextChar();
+        NextChar();
 }
 
 /* reconhece uma quebra de linha */
-void newLine()
+void NewLine()
 {
     if (look == '\n')
-        nextChar();
+        NextChar();
 }
 
 /* verifica se look combina com caracter esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
-    skipWhite();
+        Expected("'%c'", c);
+    NextChar();
+    SkipWhite();
 }
 
 /* analisa e traduz um nome (identificador ou palavra-chave) */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 
     return name;
 }
 
 /* analisa e traduz um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
-    skipWhite();
+    NextChar();
+    SkipWhite();
 
     return num;
 }
 
 /* cabeçalho inicial para o montador */
-void header()
+void AsmHeader()
 {
-    emit(".model small");
-    emit(".stack");
-    emit(".code");
+    EmitLn(".model small");
+    EmitLn(".stack");
+    EmitLn(".code");
     printf("PROG segment byte public\n");
-    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
 /* emite código para o prólogo de um programa */
-void prolog()
+void AsmProlog()
 {
     printf("MAIN:\n");
-    emit("MOV AX, PROG");
-    emit("MOV DS, AX");
-    emit("MOV ES, AX");
+    EmitLn("MOV AX, PROG");
+    EmitLn("MOV DS, AX");
+    EmitLn("MOV ES, AX");
 }
 
 /* emite código para o epílogo de um programa */
-void epilog()
+void AsmEpilog()
 {
-    emit("MOV AX, 4C00h");
-    emit("INT 21h");
+    EmitLn("MOV AX, 4C00h");
+    EmitLn("INT 21h");
     printf("PROG ends\n");
-    emit("end MAIN");
+    EmitLn("end MAIN");
 }
 
 /* carrega uma variável no registrador primário */
-void asmLoadVar(char name)
+void AsmLoadVar(char name)
 {
-    checkVar(name);
-    emit("MOV AX, WORD PTR %c", name);
+    CheckVar(name);
+    EmitLn("MOV AX, WORD PTR %c", name);
 }
 
 /* armazena registrador primário em variável */
-void asmStoreVar(char name)
+void AsmStoreVar(char name)
 {
-    emit("MOV WORD PTR %c, AX", name);
+    EmitLn("MOV WORD PTR %c, AX", name);
 }
 
 /* aloca espaço de armazenamento para variável */
-void asmAllocVar(char name)
+void AsmAllocVar(char name)
 {
-    if (inTable(name))
-        duplicated(name);
-    addSymbol(name, 'v');
+    if (InTable(name))
+        Duplicate(name);
+    AddEntry(name, 'v');
     printf("%c\tdw 0\n", name);
 }
 
 /* gera uma chamada de procedimento */
-void asmCall(char name)
+void AsmCall(char name)
 {
-    emit("CALL %c", name);
+    EmitLn("CALL %c", name);
 }
 
 /* retorno de sub-rotina */
-void asmReturn()
+void AsmReturn()
 {
-    emit("RET");
+    EmitLn("RET");
 }
 
 /* calcula deslocamento do parâmetro na pilha */
-int asmOffsetParam(int par)
+int AsmOffsetParam(int par)
 {
     int offset;
 
     /* offset = (endereço de retorno + BP) + tamanho do parâmetro * posição relativa */
-    offset = 4 + 2 * (paramCount - par); 
+    offset = 4 + 2 * (ParamCount - par); 
 
     return offset;
 }
 
 /* carrega parâmetro por referência em registrador primário */
-void asmLoadParam(int par)
+void AsmLoadParam(int par)
 {
-    int offset = asmOffsetParam(par);
-    emit("MOV BX, WORD PTR [BP+%d]", offset);
-    emit("MOV AX, WORD PTR [BX]");
+    int offset = AsmOffsetParam(par);
+    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
+    EmitLn("MOV AX, WORD PTR [BX]");
 }
 
 /* armazena conteúdo do registrador primário em parâmetro por referência */
-void asmStoreParam(int par)
+void AsmStoreParam(int par)
 {
-    int offset = asmOffsetParam(par);
-    emit("MOV BX, WORD PTR [BP+%d]", offset);
-    emit("MOV WORD PTR [BX], AX");
+    int offset = AsmOffsetParam(par);
+    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
+    EmitLn("MOV WORD PTR [BX], AX");
 }
 
 /* coloca parâmetros na pilha */
-void asmPushParam(char name)
+void AsmPushParam(char name)
 {
-    switch (symbolType(name)) {
+    switch (SymbolType(name)) {
         case 'v':
-            emit("MOV AX, OFFSET %c", name);
-            asmPush();
+            EmitLn("MOV AX, OFFSET %c", name);
+            AsmPush();
             break;
         case 'f':
-            emit("MOV AX, WORD PTR [BP+%d]", asmOffsetParam(paramPos(name)));
-            asmPush();
+            EmitLn("MOV AX, WORD PTR [BP+%d]", AsmOffsetParam(ParamNumber(name)));
+            AsmPush();
             break;
         default:
-            fatal("Identifier %c cannot be used here!", name);
+            Abort("Identifier %c cannot be used here!", name);
     }
 }
 
 /* coloca registrador primário na pilha */
-void asmPush()
+void AsmPush()
 {
-    emit("PUSH AX");
+    EmitLn("PUSH AX");
 }
 
 /* ajusta o ponteiro da pilha acima */
-void asmCleanstack(int bytes)
+void AsmCleanStack(int bytes)
 {
     if (bytes > 0)
-        emit("ADD SP, %d", bytes);
+        EmitLn("ADD SP, %d", bytes);
 }
 
 /* escreve o prólogo para um procedimento */
-void asmProcProlog(char name)
+void AsmProcProlog(char name)
 {
     printf("%c:\n", name);
-    emit("PUSH BP");
-    emit("MOV BP, SP");
+    EmitLn("PUSH BP");
+    EmitLn("MOV BP, SP");
 }
 
 /* escreve o epílogo para um procedimento */
-void asmProcEpilog()
+void AsmProcEpilog()
 {
-    emit("POP BP");
-    emit("RET");
+    EmitLn("POP BP");
+    EmitLn("RET");
 }
 
 /* analisa e traduz uma expressão */
-void expression()
+void Expression()
 {
-    char name = getName();
-    if (isParam(name))
-        asmLoadParam(paramPos(name));
+    char name = GetName();
+    if (IsParam(name))
+        AsmLoadParam(ParamNumber(name));
     else
-        asmLoadVar(name);
+        AsmLoadVar(name);
 }
 
 /* analisa e traduz um comando de atribuição */
-void assignment(char name)
+void Assignment(char name)
 {
-    match('=');
-    expression();
-    if (isParam(name))
-        asmStoreParam(paramPos(name));
+    Match('=');
+    Expression();
+    if (IsParam(name))
+        AsmStoreParam(ParamNumber(name));
     else
-        asmStoreVar(name);
+        AsmStoreVar(name);
 }
 
 /* analisa e traduz um comando de atribuição ou chamada de procedimento */
-void assignOrCall()
+void AssignOrProc()
 {
     char name;
 
-    name = getName();
-    switch (symbolType(name)) {
+    name = GetName();
+    switch (SymbolType(name)) {
         case ' ':
-            undefined(name);
+            Undefined(name);
             break;
         case 'v':
         case 'f':
-            assignment(name);
+            Assignment(name);
             break;
         case 'p':
-            doCallProc(name);
+            CallProc(name);
             break;
         default:
-            fatal("Identifier %c cannot be used here!", name);
+            Abort("Identifier %c cannot be used here!", name);
     }
 }
 
 /* analiza e traduz um bloco de comandos */
-void doBlock()
+void DoBlock()
 {
     while (look != 'e') {
-        assignOrCall();
-        newLine();
+        AssignOrProc();
+        NewLine();
     }
 }
 
 /* analiza e traduz um bloco begin */
-void beginBlock()
+void BeginBlock()
 {
-    match('b');
-    newLine();
-    doBlock();
-    match('e');
-    newLine();
+    Match('b');
+    NewLine();
+    DoBlock();
+    Match('e');
+    NewLine();
 }
 
 /* processa um parâmetro de chamada */
-void param()
+void Param()
 {
-    char name = getName();
-    asmPushParam(name);
+    char name = GetName();
+    AsmPushParam(name);
 }
 
 /* processa a lista de parâmetros para uma chamada de procedimento */
-int paramList()
+int ParamList()
 {
     int count = 0;;
 
-    match('(');
+    Match('(');
     if (look != ')') {
         for (;;) {
-            param();
+            Param();
             count++;
             if (look != ',')
                 break;
-            match(',');
+            Match(',');
         }
     }
-    match(')');
+    Match(')');
 
     return count * 2; /* número de parâmetros * bytes por parâmetro */
 }
 
 /* processa uma chamada de procedimento */
-void doCallProc(char name)
+void CallProc(char name)
 {
-    int bytes = paramList();
-    asmCall(name);
-    asmCleanstack(bytes);
+    int bytes = ParamList();
+    AsmCall(name);
+    AsmCleanStack(bytes);
 }
 
 /* processa um parâmetro formal */
-void formalParam()
+void FormalParam()
 {
     char name;
 
-    name = getName();
-    addParam(name);
+    name = GetName();
+    AddParam(name);
 }
 
 /* processa a lista de parâmetros formais de um procedimento */
-void formalList()
+void FormalList()
 {
-    match('(');
+    Match('(');
     if (look != ')') {
-        formalParam();
+        FormalParam();
         while (look == ',') {
-            match(',');
-            formalParam();
+            Match(',');
+            FormalParam();
         }
     }
-    match(')');
-    newLine();
+    Match(')');
+    NewLine();
 }
 
 /* analisa e traduz uma declaração de procedimento */
-void doProcedure()
+void DoProcedure()
 {
     char name;
 
-    match('p');
-    name = getName();
-    addSymbol(name, 'p');
-    formalList();
-    asmProcProlog(name);
-    beginBlock();
-    asmProcEpilog();
-    clearParams();
+    Match('p');
+    name = GetName();
+    AddEntry(name, 'p');
+    FormalList();
+    AsmProcProlog(name);
+    BeginBlock();
+    AsmProcEpilog();
+    ClearParams();
 }
 
 /* analiza e traduz a declaração de uma variável */
-void declaration()
+void Declaration()
 {
-    match('v');
-    asmAllocVar(getName());
+    Match('v');
+    AsmAllocVar(GetName());
 }
 
 /* analiza e traduz as declarações globais */
-void topDeclarations()
+void TopDeclarations()
 {
     while (look != '.') {
         switch (look) {
             case 'v':
-                declaration();
+                Declaration();
                 break;
             case 'p':
-                doProcedure();
+                DoProcedure();
                 break;
             case 'P':
-                doMain();
+                DoMain();
                 break;
             default:
-                unrecognized(look);
+                Unrecognized(look);
                 break;
         }
-        newLine();
+        NewLine();
     }
 }
 
 /* analiza e traduz o bloco principal do programa */
-void doMain()
+void DoMain()
 {
     char name;
 
-    match('P');
-    name = getName();
-    newLine();
-    if (inTable(name))
-        duplicated(name);
-    prolog();
-    beginBlock();
+    Match('P');
+    name = GetName();
+    NewLine();
+    if (InTable(name))
+        Duplicate(name);
+    AsmProlog();
+    BeginBlock();
 }

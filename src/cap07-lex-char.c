@@ -20,45 +20,45 @@ Este código é de livre distribuição e uso.
 #define MAXTOKEN 30
 
 /* tabela de definições de símbolos */
-#define SYMTBL_SZ 1000
-char *symtbl[SYMTBL_SZ];
+#define SYMBOLTABLE_SIZE 1000
+char *SymbolTable[SYMBOLTABLE_SIZE];
 
 /* definição de palavras-chave e tipos de token */
-#define KWLIST_SZ 4
-char *kwlist[KWLIST_SZ] = {"IF", "ELSE", "ENDIF", "END"};
+#define KEYWORDLIST_SIZE 4
+char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "END"};
 
 /* a ordem deve obedecer a lista de palavras-chave */
-const char *kwcode = "ilee";
+const char *KeywordCode = "ilee";
 
 char token;
 char value[MAXTOKEN+1];
 char look; /* O caracter lido "antecipadamente" (lookahead) */
 
 /* protótipos */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void skipWhite();
-void skipComma();
-void newLine();
-void match(char c);
-int isOp(char c);
-void emit(char *fmt, ...);
-void getName();
-void getNum();
-void getOp();
-void scan();
-int lookup(char *s, char *list[], int size);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void SkipWhite();
+void SkipComma();
+void NewLine();
+void Match(char c);
+int IsOp(char c);
+void EmitLn(char *fmt, ...);
+void GetName();
+void GetNum();
+void GetOp();
+void Scan();
+int Lookup(char *s, char *list[], int size);
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
+    Init();
 
     do {
-        scan();
+        Scan();
         switch (token) {
             case 'x':
                 printf("Ident: ");
@@ -77,26 +77,26 @@ int main()
         }
         printf("%s\n", value);
         if (value[0] == '\n')
-            newLine();
+            NewLine();
     } while (strcmp(value, "END") != 0);
 
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    nextChar();
+    NextChar();
 }
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -110,7 +110,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -126,7 +126,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -142,45 +142,45 @@ void expected(char *fmt, ...)
 }
 
 /* pula caracteres de espaço */
-void skipWhite()
+void SkipWhite()
 {
     while (look == ' ' || look == '\t')
-        nextChar();
+        NextChar();
 }
 
 /* pular uma vírgula */
-void skipComma()
+void SkipComma()
 {
-    skipWhite();
+    SkipWhite();
     if (look == ',') {
-        nextChar();
-        skipWhite();
+        NextChar();
+        SkipWhite();
     }
 }
 
 /* reconhece uma linha em branco */
-void newLine()
+void NewLine()
 {
     if (look == '\n')
-        nextChar();
+        NextChar();
 }
 
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* testa se caracter é um operador */
-int isOp(char c)
+int IsOp(char c)
 {
     return (strchr("+-*/<>:=", c) != NULL);
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -194,49 +194,49 @@ void emit(char *fmt, ...)
 }
 
 /* recebe o nome de um identificador */
-void getName()
+void GetName()
 {
     int i, kw;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     for (i = 0; isalnum(look) && i < MAXNAME; i++) {
         value[i] = toupper(look);
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
-    kw = lookup(value, kwlist, KWLIST_SZ);
+    kw = Lookup(value, KeywordList, KEYWORDLIST_SIZE);
     if (kw == -1)
         token = 'x';
     else
-        token = kwcode[kw];
+        token = KeywordCode[kw];
 }
 
 /* recebe um número inteiro */
-void getNum()
+void GetNum()
 {
     int i;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     for (i = 0; isdigit(look) && i < MAXNUM; i++) {
         value[i] = look;
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     token = '#';
 }
 
 /* recebe um operador */
-void getOp()
+void GetOp()
 {
     int i;
 
-    if (!isOp(look))
-        expected("Operator");
-    for (i = 0; isOp(look) && i < MAXOP; i++) {
+    if (!IsOp(look))
+        Expected("Operator");
+    for (i = 0; IsOp(look) && i < MAXOP; i++) {
         value[i] = look;
-        nextChar();
+        NextChar();
     }
     value[i] = '\0';
     if (strlen(value) == 1)
@@ -246,27 +246,27 @@ void getOp()
 }
 
 /* analisador léxico */
-void scan()
+void Scan()
 {
     while (look == '\n')
-        newLine();
+        NewLine();
     if (isalpha(look))
-        getName();
+        GetName();
     else if (isdigit(look))
-        getNum();
-    else if (isOp(look))
-        getOp();
+        GetNum();
+    else if (IsOp(look))
+        GetOp();
     else {
         value[0] = look;
         value[1] = '\0';
         token = '?';
-        nextChar();
+        NextChar();
     }
-    skipWhite();
+    SkipWhite();
 }
 
 /* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
-int lookup(char *s, char *list[], int size)
+int Lookup(char *s, char *list[], int size)
 {
     int i;
 

@@ -14,72 +14,72 @@ Este código é de livre distribuição e uso.
 #include <ctype.h>
 
 char look; /* O caracter lido "antecipadamente" (lookahead) */
-int labelCount; /* Contador usado pelo gerador de rótulos */
+int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 /* protótipos */
-void init();
-void nextChar();
-void error(char *fmt, ...);
-void fatal(char *fmt, ...);
-void expected(char *fmt, ...);
-void match(char c);
-char getName();
-char getNum();
-void emit(char *fmt, ...);
+void Init();
+void NextChar();
+void Error(char *fmt, ...);
+void Abort(char *fmt, ...);
+void Expected(char *fmt, ...);
+void Match(char c);
+char GetName();
+char GetNum();
+void EmitLn(char *fmt, ...);
 
-int isAddOp(char c);
-int isMulOp(char c);
-int isOrOp(char c);
-int isRelOp(char c);
-int isBoolean(char c);
-int getBoolean();
+int IsAddOp(char c);
+int IsMulOp(char c);
+int IsOrOp(char c);
+int IsRelOp(char c);
+int IsBoolean(char c);
+int GetBoolean();
 
-int newLabel();
-void postLabel(int lbl);
+int NewLabel();
+void PostLabel(int lbl);
 
-void boolFactor();
-void notFactor();
-void boolTerm();
-void boolOr();
-void boolXor();
-void boolExpression();
-void equals();
-void notEquals();
-void greater();
-void less();
-void relation();
-void ident();
-void factor();
-void signedFactor();
-void multiply();
-void divide();
-void term();
-void add();
-void subtract();
-void expression();
+void BoolFactor();
+void NotFactor();
+void BoolTerm();
+void BoolOr();
+void BoolXor();
+void BoolExpression();
+void Equals();
+void NotEquals();
+void Greater();
+void Less();
+void Relation();
+void Ident();
+void Factor();
+void SignedFactor();
+void Multiply();
+void Divide();
+void Term();
+void Add();
+void Subtract();
+void Expression();
 
 /* PROGRAMA PRINCIPAL */
 int main()
 {
-    init();
-    boolExpression();
+    Init();
+    BoolExpression();
     return 0;
 }
 
 /* inicialização do compilador */
-void init()
+void Init()
 {
-    nextChar();
+    NextChar();
 }
 
 /* lê próximo caracter da entrada */
-void nextChar()
+void NextChar()
 {
     look = getchar();
 }
 
 /* exibe uma mensagem de erro formatada */
-void error(char *fmt, ...)
+void Error(char *fmt, ...)
 {
     va_list args;
 
@@ -93,7 +93,7 @@ void error(char *fmt, ...)
 }
 
 /* exibe uma mensagem de erro formatada e sai */
-void fatal(char *fmt, ...)
+void Abort(char *fmt, ...)
 {
     va_list args;
 
@@ -109,7 +109,7 @@ void fatal(char *fmt, ...)
 }
 
 /* alerta sobre alguma entrada esperada */
-void expected(char *fmt, ...)
+void Expected(char *fmt, ...)
 {
     va_list args;
 
@@ -125,41 +125,41 @@ void expected(char *fmt, ...)
 }
 
 /* verifica se entrada combina com o esperado */
-void match(char c)
+void Match(char c)
 {
     if (look != c)
-        expected("'%c'", c);
-    nextChar();
+        Expected("'%c'", c);
+    NextChar();
 }
 
 /* recebe o nome de um identificador */
-char getName()
+char GetName()
 {
     char name;
 
     if (!isalpha(look))
-        expected("Name");
+        Expected("Name");
     name = toupper(look);
-    nextChar();
+    NextChar();
 
     return name;
 }
 
 /* recebe um número inteiro */
-char getNum()
+char GetNum()
 {
     char num;
 
     if (!isdigit(look))
-        expected("Integer");
+        Expected("Integer");
     num = look;
-    nextChar();
+    NextChar();
 
     return num;
 }
 
 /* emite uma instrução seguida por uma nova linha */
-void emit(char *fmt, ...)
+void EmitLn(char *fmt, ...)
 {
     va_list args;
 
@@ -173,338 +173,338 @@ void emit(char *fmt, ...)
 }
 
 /* reconhece operador aditivo */
-int isAddOp(char c)
+int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
 /* reconhece operador multiplicativo */
-int isMulOp(char c)
+int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
 /* reconhece operador relacional */
-int isRelOp(char c)
+int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '>' || c == '<');
 }
 
 /* reconhece uma literal Booleana */
-int isBoolean(char c)
+int IsBoolean(char c)
 {
     return (c == 'T' || c == 'F');
 }
 
 /* reconhece um operador OU */
-int isOrOp(char c)
+int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
 /* recebe uma literal Booleana */
-int getBoolean()
+int GetBoolean()
 {
     int boolean;
 
-    if (!isBoolean(look))
-        expected("Boolean Literal");
+    if (!IsBoolean(look))
+        Expected("Boolean Literal");
     boolean = (look == 'T');
-    nextChar();
+    NextChar();
 
     return boolean;
 }
 
 /* gera um novo rótulo único */
-int newLabel()
+int NewLabel()
 {
-    return labelCount++;
+    return LabelCount++;
 }
 
 /* emite um rótulo */
-void postLabel(int lbl)
+void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 
 /* analisa e traduz um fator booleano */
-void boolFactor()
+void BoolFactor()
 {
-    if (isBoolean(look)) {
-        if (getBoolean())
-            emit("MOV AX, -1");
+    if (IsBoolean(look)) {
+        if (GetBoolean())
+            EmitLn("MOV AX, -1");
         else
-            emit("MOV AX, 0");
+            EmitLn("MOV AX, 0");
     } else
-        relation();
+        Relation();
 }
 
 /* analisa e traduz um fator booleno com NOT opcional */
-void notFactor()
+void NotFactor()
 {
     if (look == '!') {
-        match('!');
-        boolFactor();
-        emit("NOT AX");
+        Match('!');
+        BoolFactor();
+        EmitLn("NOT AX");
     } else
-        boolFactor();
+        BoolFactor();
 }
 
 /* analisa e traduz um termo booleano*/
-void boolTerm()
+void BoolTerm()
 {
-    notFactor();
+    NotFactor();
     while (look == '&') {
-        emit("PUSH AX");
-        match('&');
-        notFactor();
-        emit("POP BX");
-        emit("AND AX, BX");
+        EmitLn("PUSH AX");
+        Match('&');
+        NotFactor();
+        EmitLn("POP BX");
+        EmitLn("AND AX, BX");
     }
 }
 
 /* reconhece e traduz um operador OR */
-void boolOr()
+void BoolOr()
 {
-    match('|');
-    boolTerm();
-    emit("POP BX");
-    emit("OR AX, BX");
+    Match('|');
+    BoolTerm();
+    EmitLn("POP BX");
+    EmitLn("OR AX, BX");
 }
 
 /* reconhece e traduz um operador XOR */
-void boolXor()
+void BoolXor()
 {
-    match('~');
-    boolTerm();
-    emit("POP BX");
-    emit("XOR AX, BX");
+    Match('~');
+    BoolTerm();
+    EmitLn("POP BX");
+    EmitLn("XOR AX, BX");
 }
 
 /* analisa e traduz uma expressão booleana */
-void boolExpression()
+void BoolExpression()
 {
-    boolTerm();
-    while (isOrOp(look)) {
-        emit("PUSH AX");
+    BoolTerm();
+    while (IsOrOp(look)) {
+        EmitLn("PUSH AX");
         switch (look) {
           case '|':
-              boolOr();
+              BoolOr();
               break;
           case '~' :
-              boolXor();
+              BoolXor();
               break;
         }
     }
 }
 
 /* reconhece e traduz um operador de igualdade */
-void equals()
+void Equals()
 {
     int l1, l2;
 
-    match('=');
-    l1 = newLabel();
-    l2 = newLabel();
-    expression();
-    emit("POP BX");
-    emit("CMP BX, AX");
-    emit("JE L%d", l1);
-    emit("MOV AX, 0");
-    emit("JMP L%d", l2);
-    postLabel(l1);
-    emit("MOV AX, -1");
-    postLabel(l2);
+    Match('=');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    Expression();
+    EmitLn("POP BX");
+    EmitLn("CMP BX, AX");
+    EmitLn("JE L%d", l1);
+    EmitLn("MOV AX, 0");
+    EmitLn("JMP L%d", l2);
+    PostLabel(l1);
+    EmitLn("MOV AX, -1");
+    PostLabel(l2);
 }
 
 /* reconhece e traduz um operador de não-igualdade */
-void notEquals()
+void NotEquals()
 {
     int l1, l2;
 
-    match('#');
-    l1 = newLabel();
-    l2 = newLabel();
-    expression();
-    emit("POP BX");
-    emit("CMP BX, AX");
-    emit("JNE L%d", l1);
-    emit("MOV AX, 0");
-    emit("JMP L%d", l2);
-    postLabel(l1);
-    emit("MOV AX, -1");
-    postLabel(l2);
+    Match('#');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    Expression();
+    EmitLn("POP BX");
+    EmitLn("CMP BX, AX");
+    EmitLn("JNE L%d", l1);
+    EmitLn("MOV AX, 0");
+    EmitLn("JMP L%d", l2);
+    PostLabel(l1);
+    EmitLn("MOV AX, -1");
+    PostLabel(l2);
 }
 
 /* reconhece e traduz um operador de maior que */
-void greater()
+void Greater()
 {
     int l1, l2;
 
-    match('>');
-    l1 = newLabel();
-    l2 = newLabel();
-    expression();
-    emit("POP BX");
-    emit("CMP BX, AX");
-    emit("JG L%d", l1);
-    emit("MOV AX, 0");
-    emit("JMP L%d", l2);
-    postLabel(l1);
-    emit("MOV AX, -1");
-    postLabel(l2);
+    Match('>');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    Expression();
+    EmitLn("POP BX");
+    EmitLn("CMP BX, AX");
+    EmitLn("JG L%d", l1);
+    EmitLn("MOV AX, 0");
+    EmitLn("JMP L%d", l2);
+    PostLabel(l1);
+    EmitLn("MOV AX, -1");
+    PostLabel(l2);
 }
 
 /* reconhece e traduz um operador de menor que */
-void less()
+void Less()
 {
     int l1, l2;
 
-    match('<');
-    l1 = newLabel();
-    l2 = newLabel();
-    expression();
-    emit("POP BX");
-    emit("CMP BX, AX");
-    emit("JL L%d", l1);
-    emit("MOV AX, 0");
-    emit("JMP L%d", l2);
-    postLabel(l1);
-    emit("MOV AX, -1");
-    postLabel(l2);
+    Match('<');
+    l1 = NewLabel();
+    l2 = NewLabel();
+    Expression();
+    EmitLn("POP BX");
+    EmitLn("CMP BX, AX");
+    EmitLn("JL L%d", l1);
+    EmitLn("MOV AX, 0");
+    EmitLn("JMP L%d", l2);
+    PostLabel(l1);
+    EmitLn("MOV AX, -1");
+    PostLabel(l2);
 }
 
 /* analisa e traduz uma relação */
-void relation()
+void Relation()
 {
-    expression();
-    if (isRelOp(look)) {
-        emit("PUSH AX");
+    Expression();
+    if (IsRelOp(look)) {
+        EmitLn("PUSH AX");
         switch (look) {
             case '=':
-                equals();
+                Equals();
                 break;
             case '#':
-                notEquals();
+                NotEquals();
                 break;
             case '>':
-                greater();
+                Greater();
                 break;
             case '<':
-                less();
+                Less();
                 break;
         }
     }
 }
 
 /* analisa e traduz um identificador */
-void ident()
+void Ident()
 {
     char name;
 
-    name = getName();
+    name = GetName();
     if (look == '(') {
-        match('(');
-        match(')');
-        emit("CALL %c", name);
+        Match('(');
+        Match(')');
+        EmitLn("CALL %c", name);
     } else
-        emit("MOV AX, [%c]", name);
+        EmitLn("MOV AX, [%c]", name);
 }
 
 /* analisa e traduz um fator matemático */
-void factor()
+void Factor()
 {
     if (look == '(') {
-        match('(');
-        boolExpression();
-        match(')');
+        Match('(');
+        BoolExpression();
+        Match(')');
     } else if(isalpha(look))
-        ident();
+        Ident();
     else
-        emit("MOV AX, %c", getNum());
+        EmitLn("MOV AX, %c", GetNum());
 }
 
 /* analisa e traduz um fator com sinal opcional */
-void signedFactor()
+void SignedFactor()
 {
     int minusSign = (look == '-');
-    if (isAddOp(look))
+    if (IsAddOp(look))
     {
-        nextChar();
+        NextChar();
     }
-    factor();
+    Factor();
     if (minusSign)
-        emit("NEG AX");
+        EmitLn("NEG AX");
 }
 
 /* reconhece e traduz uma multiplicação */
-void multiply()
+void Multiply()
 {
-    match('*');
-    factor();
-    emit("POP BX");
-    emit("IMUL BX");
+    Match('*');
+    Factor();
+    EmitLn("POP BX");
+    EmitLn("IMUL BX");
 }
 
 /* reconhece e traduz uma divisão */
-void divide()
+void Divide()
 {
-    match('/');
-    factor();
-    emit("POP BX");
-    emit("XCHG AX, BX");
-    emit("CWD");
-    emit("IDIV BX");
+    Match('/');
+    Factor();
+    EmitLn("POP BX");
+    EmitLn("XCHG AX, BX");
+    EmitLn("CWD");
+    EmitLn("IDIV BX");
 }
 
 /* analisa e traduz um termo matemático */
-void term()
+void Term()
 {
-    signedFactor();
-    while (isMulOp(look)) {
-        emit("PUSH AX");
+    SignedFactor();
+    while (IsMulOp(look)) {
+        EmitLn("PUSH AX");
         switch(look) {
             case '*':
-                multiply();
+                Multiply();
                 break;
             case '/':
-                divide();
+                Divide();
                 break;
         }
     }
 }
 
 /* reconhece e traduz uma soma */
-void add()
+void Add()
 {
-    match('+');
-    term();
-    emit("POP BX");
-    emit("ADD AX, BX");
+    Match('+');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("ADD AX, BX");
 }
 
 /* reconhece e traduz uma subtração */
-void subtract()
+void Subtract()
 {
-    match('-');
-    term();
-    emit("POP BX");
-    emit("SUB AX, BX");
-    emit("NEG AX");
+    Match('-');
+    Term();
+    EmitLn("POP BX");
+    EmitLn("SUB AX, BX");
+    EmitLn("NEG AX");
 }
 
 /* analisa e traduz uma expressão matemática */
-void expression()
+void Expression()
 {
-    term();
-    while (isAddOp(look)) {
-        emit("PUSH AX");
+    Term();
+    while (IsAddOp(look)) {
+        EmitLn("PUSH AX");
         switch(look) {
             case '+':
-                add();
+                Add();
                 break;
             case '-':
-                subtract();
+                Subtract();
                 break;
         }
     }
