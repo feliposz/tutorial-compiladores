@@ -1,24 +1,25 @@
 # Apresentação
 
-Esta série é a versão em português do tutorial [Let's Build A Compiler](https://compilers.iecc.com/crenshaw/) de [Jack W. Crenshaw](https://web.archive.org/web/20220308043954/https://jackcrenshaw.com/), traduzido e adaptado por Felipo Soranz.
+Esta série é a versão em português do tutorial *[Let's Build A Compiler](https://compilers.iecc.com/crenshaw/)* de [Jack W. Crenshaw](https://web.archive.org/web/20220308043954/https://jackcrenshaw.com/), traduzido e adaptado por Felipo Soranz.
 
 O público alvo deste tutorial são as pessoas que não são cientistas da computação, mas que gostam muito de programar, sempre quiseram saber como compiladores funcionam, e gostariam de implementar suas próprias linguagens de programação.
 
 Muito da teoria de compiladores foi deixada de fora, mas as questões práticas foram abordadas.
 
-Quando você completar o tutorial, deverá ser capaz de projetar e construir o seu próprio compilador, e que funciona! Ele não será o melhor do mundo, nem vai produzir código altamente otimizado. Seu compilador provavelmente não vai acabar com a Borland, com a Microsoft, nem vai ser o substituto do GCC. Mas ele vai funcionar, e vai ser seu!
+Quando você completar o tutorial, deverá ser capaz de projetar e construir o seu próprio compilador! Ele não será o melhor do mundo, nem vai produzir código altamente otimizado. Mas ele vai funcionar, e vai ser seu!
 
-Espero que você goste do tutorial.
+Espero que goste!
 
-> **NOTA:** Esta tradução foi feita no meu tempo livre em 2002 e ficou disponível em forma de [wiki](http://tutorialcompiladores.pbworks.com/) por um tempo, tendo recebido algumas contribuições/correções pontuais. No entando, de maneira geral não foi revisada a fundo e pode conter erros nas explicações e exemplos. Estou disponibilizando aos poucos os capítulos aqui conforme tenho tempo, na esperança de que alguém ache útil. Contribuição com ajustes e correções são bem-vindas.
+> **NOTA:** Esta tradução foi feita no meu tempo livre em **2002** e ficou disponível em forma de [wiki](http://tutorialcompiladores.pbworks.com/) por um tempo, tendo recebido poucas correções. Em **2022** resolvi dar-lhe o tratamento que merecia e aqui está o texto completamente revisado.
 
-## Notas e materiais de apoio
+Contribuição com ajustes e correções são bem-vindas!
 
-- [Nota](nota.md)
+## Prefácio
+
+- [Prólogo e sobre a tradução](nota.md)
 - [Pré-requisitos](pre_requisitos.md)
-- [Ferramentas](ferramentas.md)
 
-## Tutorial
+## Capítulos
 
 - [1 Introdução](01_introducao.md)
 - [2 Análise de Expressões](02_analise_expressoes.md)
@@ -37,6 +38,7 @@ Espero que você goste do tutorial.
 - [15 De volta para o futuro](15_de_volta_para_o_futuro.md)
 - [16 Construção dos Módulos](16_construcao_dos_modulos.md)
 
-## Recomendações
+## Apêndices
 
-- [Seguindo em frente](recomendacoes.md)
+- [Ferramentas](ferramentas.md)
+- [Recomendações](recomendacoes.md)
