@@ -16,9 +16,9 @@ Este código é de livre distribuição e uso.
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define SYMBOLTABLE_SIZE 26
-char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
+char SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
 
-/* rotinas utilitárias */
+/* Rotinas utilitárias */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -27,10 +27,10 @@ void Expected(char *fmt, ...);
 void Unrecognized(char name);
 void EmitLn(char *fmt, ...);
 
-/* tratamento da tabela de símbolos */
+/* Tratamento da tabela de símbolos */
 void DumpTable();
 
-/* analisador léxico rudimentar */
+/* Analisador léxico */
 int IsAddOp(char c);
 int IsMulOp(char c);
 int IsOrOp(char c);
@@ -42,7 +42,7 @@ char GetName();
 char GetNum();
 
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -51,7 +51,7 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     int i;
@@ -63,13 +63,13 @@ void Init()
     SkipWhite();
 }
 
-/* lê próximo caracter da entrada em lookahead */
+/* Lê próximo caracter da entrada em lookahead */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -83,7 +83,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -99,7 +99,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -115,13 +115,13 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* avisa a respeito de uma palavra-chave desconhecida */
+/* Avisa a respeito de uma palavra-chave desconhecida */
 void Unrecognized(char name)
 {
     Abort("Unrecognized keyword %c", name);
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -135,7 +135,7 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* exibe a tabela de símbolos */
+/* Exibe a tabela de símbolos */
 void DumpTable()
 {
     int i;
@@ -146,45 +146,45 @@ void DumpTable()
         printf("%c = %c\n", i + 'A', SymbolTable[i]);
 }
 
-/* testa operadores de adição */
+/* Testa operadores de adição */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* testa operadores de multiplicação */
+/* Testa operadores de multiplicação */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
-/* testa operadores OU */
+/* Testa operadores OU */
 int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
-/* testa operadores relacionais */
+/* Testa operadores relacionais */
 int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
 
-/* pula caracteres em branco */
+/* Pula caracteres em branco */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
-/* reconhece uma quebra de linha */
+/* Reconhece uma quebra de linha */
 void NewLine()
 {
     if (Look == '\n')
         NextChar();
 }
 
-/* verifica se Look combina com caracter esperado */
+/* Verifica se Look combina com caracter esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -193,7 +193,7 @@ void Match(char c)
     SkipWhite();
 }
 
-/* analisa e traduz um nome (identificador ou palavra-chave) */
+/* Analisa e traduz um nome (identificador ou palavra-chave) */
 char GetName()
 {
     char name;
@@ -207,7 +207,7 @@ char GetName()
     return name;
 }
 
-/* analisa e traduz um número inteiro */
+/* Analisa e traduz um número inteiro */
 char GetNum()
 {
     char num;

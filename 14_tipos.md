@@ -50,13 +50,13 @@ Primeiro, temos que declarar a tabela de símbolos em si:
 
 ~~~c
 #define SYMBOLTABLE_SIZE 26
-char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
+char SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
 ~~~
 
 Em seguida, temos que nos certificar de que ela foi inicializada na rotina "init":
 
 ~~~c
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
         int i;
@@ -71,7 +71,7 @@ void Init()
 Nós realmente não precisamos da próxima rotina, mas ela será útil para depuração. Tudo o que ela faz é exibir todo o conteúdo da tabela de símbolos:
 
 ~~~c
-/* exibe a tabela de símbolos */
+/* Exibe a tabela de símbolos */
 void DumpTable()
 {
     int i;
@@ -121,33 +121,33 @@ Adicionando Entradas
 É claro que escrever diretamente na tabela é uma prática muito pobre, e não é algo que vai nos ajudar muito depois. Ao mesmo tempo, sabemos que vamos precisar testar a tabela, para ter certeza que não estamos redeclarando uma variável que já está em uso (fácil de fazer com apenas 26 opções!). Para tratar disto tudo, entre com as seguintes novas rotinas:
 
 ~~~c
-/* retorna o tipo de um identificador */
+/* Retorna o tipo de um identificador */
 char SymbolType(char name)
 {
         return SymbolTable[name - 'A'];
 }
 
-/* verifica se "name" consta na tabela de símbolos */
+/* Verifica se "name" consta na tabela de símbolos */
 char InTable(char name)
 {
         return (SymbolTable[name - 'A'] != '?');
 }
 
-/* avisa a respeito de um identificador desconhecido */
+/* Avisa a respeito de um identificador desconhecido */
 void Duplicate(char name)
 {
     fprintf(stderr, "Error: Duplicated identifier %c\n", name);
     exit(1);
 }
 
-/* verifica se um identificador já foi declarado */
+/* Verifica se um identificador já foi declarado */
 void CheckDuplicate(char name)
 {
         if (InTable(name))
                 Duplicate(name);
 }
 
-/* adiciona novo identificador à tabela de símbolos */
+/* Adiciona nova entrada à tabela de símbolos */
 void AddEntry(char name, char type)
 {
     CheckDuplicate(name);
@@ -174,28 +174,28 @@ Em outros programas como este, incluindo o compilador TINY em si, já tratamos d
 
 Novamente, podemos emprestar a maior parte do código dos programas anteriores. O que segue é uma versão simplificada das versões anteriores destas rotinas. Elas estão muito simplificadas já que eu eliminei coisas como listas de variáveis e inicializadores. Na rotina "allocvar", repare que a chamada a "addSymbol" também vai cuidar de verificar declarações duplicadas:
 
-/* avisa a respeito de uma palavra-chave desconhecida */
+/* Avisa a respeito de uma palavra-chave desconhecida */
 void Unrecognized(char name)
 {
         fprintf(stderr, "Error: Unrecognized keyword %c\n", name);
         exit(1);
 }
 
-/* aloca espaço de armazenamento para variável */
+/* Aloca espaço de armazenamento para variável */
 void AsmAllocVar(char name)
 {
         AddEntry(name, 'v');
         printf("%c: dw 0\n", name);
 }
 
-/* analiza e traduz a declaração de uma variável */
+/* Analiza e traduz uma declaração de variável */
 void Declaration()
 {
         Match('v');
         AsmAllocVar(GetName());
 }
 
-/* analiza e traduz as declarações globais */
+/* Analiza e traduz as declarações globais */
 void TopDeclarations()
 {
         while (Look != '.') {
@@ -233,10 +233,10 @@ onde:
 Podemos criar o código para tratar destas modificações com alterações simples. Nas rotinas abaixo, repare que eu separei a parte de geração de código de `asmAllocVar` e `AllocVar()`. Isto vai manter nosso desejo de encapsular o código dependente de máquina do compilador.
 
 ~~~c
-/* gera código para armazenamento de variável */
+/* Gera código para armazenamento de variável */
 void AsmAllocVar(char name, char type)
 {
-    int btype; /* tamanho em bytes */
+    int btype; /* Tamanho em bytes */
 
     switch (type) {
         case 'b':
@@ -250,14 +250,14 @@ void AsmAllocVar(char name, char type)
     printf("%c d%c 0\n", name, btype);
 }
 
-/* aloca espaço de armazenamento para variável */
+/* Aloca espaço de armazenamento para variável */
 void AllocVar(char name, char type)
 {
     AddEntry(name, type);
     AsmAllocVar(name, type);
 }
 
-/* analiza e traduz a declaração de uma variável */
+/* Analiza e traduz uma declaração de variável */
 void Declaration()
 {
     char type = Look;
@@ -265,7 +265,7 @@ void Declaration()
     AllocVar(GetName(), type);
 }
 
-/* analiza e traduz as declarações globais */
+/* Analiza e traduz as declarações globais */
 void TopDeclarations()
 {
     while (Look != '.') {
@@ -292,7 +292,7 @@ Atribuições
 Agora que podemos declarar variáveis de tipos e tamanhos diferentes, chegamos ao momento em que deveríamos fazer algo de útil com elas. Pra começar, vamos apenas tentar carregá-las no registrador primário (AX no nosso caso). Faz sentido usar a mesma idéia de `AllocVar()`, isto é, fazer uma rotina de carregamento capaz de ler tamanhos diferentes. Também gostaríamos de manter o código dependente de máquina isolado. A rotina de carregamento é algo assim:
 
 ~~~c
-/* gera código para carregar variável de acordo com o tipo */
+/* Gera código para carregar variável de acordo com o tipo */
 void AsmLoadVar(char name, char type)
 {
     switch (type) {
@@ -314,7 +314,7 @@ void AsmLoadVar(char name, char type)
 Antes de mais nada, precisamos ter certeza de que o tipo com o qual estamos lidando é um tipo carregável. Isto parece ser o trabalho de mais um reconhecedor:
 
 ~~~c
-/* reconhece um tipo de variável válido */
+/* Reconhece um tipo de variável válido */
 int IsVarType(char c)
 {
     return (c == 'b' || c == 'w' || c == 'l');
@@ -324,13 +324,13 @@ int IsVarType(char c)
 Em seguida, seria bom ter uma rotina que captura o tipo de uma variável da tabela ao mesmo tempo que verifica se o tipo é válido:
 
 ~~~c
-/* avisa a respeito de um identificador que não é uma variável */
+/* Avisa a respeito de um identificador que não é uma variável */
 void NotVar(char name)
 {
     Abort("'%c' is not a variable", name);
 }
 
-/* pega o tipo da variável da tabela de símbolos */
+/* Pega o tipo da variável da tabela de símbolos */
 char VarType(char name)
 {
     char type;
@@ -346,7 +346,7 @@ char VarType(char name)
 Armado com estas ferramentas, o procedimento para efetuar o carregamento destas variáveis é trivial:
 
 ~~~c
-/* carrega variável */
+/* Carrega variável */
 void LoadVar(char name)
 {
     AsmLoadVar(name, VarType(name));
@@ -369,7 +369,7 @@ ao programa principal. Portanto, depois da seção de declarações terminar, se
 Tenho certeza que você não ficaria surpreso em saber que o código para armazenar variáveis é muito parecido com aquele para carregá-las. Os procedimentos necessários são mostrados a seguir:
 
 ~~~c
-/* gera código para armazenar variável de acordo com o tipo */
+/* Gera código para armazenar variável de acordo com o tipo */
 void AsmStoreVar(char name, char type)
 {
     switch (type) {
@@ -385,7 +385,7 @@ void AsmStoreVar(char name, char type)
     }
 }
 
-/* armazena variável */
+/* Armazena variável */
 void StoreVar(char name)
 {
     AsmStoreVar(name, VarType(name));
@@ -397,13 +397,13 @@ Você pode testar isto da mesma forma que os carregamentos.
 Agora, é claro, que é um passo relativamente pequeno usar isto para tratar comandos de atribuição. O que vamos fazer é criar uma versão especial do procedimento "block" para suportar apenas comandos de atribuição, e também uma versão simplificada de `Expression()` que suporta apenas variáveis simples como expressões válidas. Aqui estão:
 
 ~~~c
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 void Expression()
 {
     LoadVar(GetName());
 }
 
-/* analisa e traduz uma atribuição */
+/* Analisa e traduz uma atribuição */
 void Assignment()
 {
     char name;
@@ -414,7 +414,7 @@ void Assignment()
     StoreVar(name);
 }
 
-/* analisa traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     while (Look != '.') {
@@ -431,7 +431,7 @@ Há um pequeno problema. Antes, usávamos o ponto final para sair da rotina `Top
 Há uma solução, que não é das melhores, mas que é simples de fazer. Vamos usar um "B" MAIÚSCULO para representar BEGIN. Então, troque o caracter no laço de `TopDeclarations()`, de "." para "B" e tudo estará bem. Agora, podemos alterar o programa principal para que fique:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -502,7 +502,7 @@ Antes de nos afundarmos em detalhes (e complexidade em potencial) de conversão 
 Isto requer a inserção de poucas linhas a `AsmLoadVar()`, cujo trabalho é zerar o(s) registrador(es) envolvido(s) para que o valor resultante seja válido em qualquer tipo. Aqui está a versão modificada:
 
 ~~~c
-/* gera código para carregar variável de acordo com o tipo */
+/* Gera código para carregar variável de acordo com o tipo */
 void AsmLoadVar(char name, char type)
 {
     switch (type) {
@@ -537,7 +537,7 @@ Neste caso, ocorre que é desnecessário limpar o valor dos registradores, já q
 Eu devo avisar que, alterando os bits superiores para zero, estamos de fato tratando os números como inteiros SEM SINAL. Se queremos tratar deles com sinal (o caso mais comum) devemos fazer uma extensão de sinal após o carregamento, ao invés de zerar o valor antes. Isto é feito através de CBW (Convert Byte to Word) e CWD (Convert Word to Dword). Para encerrar esta parte da discussão, vamos alterar `AsmLoadVar()`:
 
 ~~~c
-/* gera código para carregar variável de acordo com o tipo */
+/* Gera código para carregar variável de acordo com o tipo */
 void AsmLoadVar(char name, char type)
 {
     switch (type) {
@@ -585,7 +585,7 @@ Novamente, a resposta é simples: Nós simplesmente PERGUNTAMOS à rotina `Expre
 Tudo isto requer que diversas rotinas sejam modificadas, mas as modificações, como o próprio método, são simples. Primeiramente, já que não vamos pedir para que `AsmLoadVar()` faça a conversão, retornemos à versão mais simples:
 
 ~~~c
-/* gera código para carregar variável de acordo com o tipo */
+/* Gera código para carregar variável de acordo com o tipo */
 void AsmLoadVar(char name, char type)
 {
     switch (type) {
@@ -605,7 +605,7 @@ void AsmLoadVar(char name, char type)
 Em seguida, vamos adicionar uma nova rotina que converte de tipo para outro:
 
 ~~~c
-/* converte tipo origem para destino */
+/* Converte tipo origem para destino */
 void AsmConvert(char src, char dst)
 {
     if (src == dst)
@@ -622,7 +622,7 @@ Esta versão da conversão considera todos os tipos como sendo com sinal. Se fos
 Em seguida, temos que fazer a lógica necessária para carregar e armazenar uma variável de qualquer tipo. Aqui estão as rotinas:
 
 ~~~c
-/* carrega variável */
+/* Carrega variável */
 char LoadVar(char name)
 {
     char type = VarType(name);
@@ -630,7 +630,7 @@ char LoadVar(char name)
     return type;
 }
 
-/* armazena variável */
+/* Armazena variável */
 void StoreVar(char name, char srcType)
 {
     char dstType = VarType(name);
@@ -644,13 +644,13 @@ Note que `LoadVar()` é uma função, que não só emite código para o carregam
 Armado com estas novas rotinas, a implementação de nosso comando de atribuição rudimentar é essencialmente trivial. O procedimento `Expression()` agora se torna uma função, que retorna seu tipo para o procedimento `Assignment()`:
 
 ~~~c
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 char Expression()
 {
     return LoadVar(GetName());
 }
 
-/* analisa e traduz uma atribuição */
+/* Analisa e traduz uma atribuição */
 void Assignment()
 {
     char name, type;
@@ -676,7 +676,7 @@ Leitores atentos devem ter reparado, que nós sequer temos uma forma apropriada 
 Para começar, vamos precisar de uma função `GetNum()`. Até agora vimos diversas versões desta versão, algumas retornando apenas um caracter, outras uma string, e outras um valor inteiro. A que vamos usar aqui vai retornar um inteiro longo, para que ela possa tratar qualquer coisa que usarmos. Repare que nenhuma informação de tipo é retornada aqui: `GetNum()` não se importa em como o número será usado:
 
 ~~~c
-/* analisa e traduz um número inteiro longo */
+/* Analisa e traduz um número inteiro longo */
 long GetNum()
 {
     long num;
@@ -699,7 +699,7 @@ Agora, quando tratarmos de dados literais, temos um pequeno problema. Com variá
 Uma abordagem melhor é selecionar o tipo baseado no valor do literal, conforme o seguinte:
 
 ~~~c
-/* carrega uma constante no registrador primário */
+/* Carrega uma constante no registrador primário */
 char LoadNum(long val)
 {
     char type;
@@ -719,7 +719,7 @@ char LoadNum(long val)
 Repare que `LoadNum()` chama a nova da rotina geradora de código `AsmLoadConst()`, que tem um argumento adicional para definir o tipo:
 
 ~~~c
-/* gera código para carregar uma constante de acordo com o tipo */
+/* Gera código para carregar uma constante de acordo com o tipo */
 void AsmLoadConst(long val, char type)
 {
     switch (type) {
@@ -742,7 +742,7 @@ void AsmLoadConst(long val, char type)
 Agora podemos modificar `Expression()` para acomodar os dois tipos de fatores possíveis:
 
 ~~~c
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 char Expression()
 {
     char type;
@@ -770,7 +770,7 @@ A parte boa é que já temos um padrão para tratar destas expressões mais comp
 A primeira parte é fácil: podemos **renomear** nossa função existente para `Term()`, como já fizemos tantes vezes antes, e criar uma nova versão para `Expression()`:
 
 ~~~c
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 char Expression()
 {
     char type;
@@ -802,7 +802,7 @@ Repare também na nova chamada à função `UnaryOp()`, que trata dos operadores
 Para esta versão, porém, vou manter o mesmo código bobo que faz com que a rotina seja trivial:
 
 ~~~c
-/* tratamento de operador unário */
+/* Tratamento de operador unário */
 char UnaryOp()
 {
     AsmClear();
@@ -813,11 +813,11 @@ char UnaryOp()
 O procedimento `AsmPush()` é uma rotina de geração de código, e agora possui um argumento de tipo:
 
 ~~~c
-/* coloca valor na pilha */
+/* Coloca valor na pilha */
 void AsmPush(char type)
 {
     if (type == 'b')
-        EmitLn("CBW"); /* só é possível empilhar "word"s */
+        EmitLn("CBW"); /* Só é possível empilhar "word"s */
     if (type == 'l')
         EmitLn("PUSH DX");
     EmitLn("PUSH AX");
@@ -827,14 +827,14 @@ void AsmPush(char type)
 Agora vamos dar uma olhada nas funções `Add()` e `Subtract()`. Nas versões anteriores destas rotinas, fizemos com que elas chamassem as rotinas de geração de código `AsmPopAdd()` e `AsmPopSub()`. Vamos continuar fazendo assim, o que torna as funções em si extremamente simples:
 
 ~~~c
-/* reconhece e traduz uma soma */
+/* Reconhece e traduz uma soma */
 char Add(char type)
 {
     Match('+');
     return AsmPopAdd(type, Term());
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 char Subtract(char type)
 {
     Match('-');
@@ -851,7 +851,7 @@ Mas isto apresenta um certo problema. Se o argumento a ser promovido é o segund
 A alternativa é introduzir uma rotina `AsmPop()` análoga a `AsmPush()`. Mas esta rotina deve armazenar o valor no registrador secundário (BX ou CX:BX para "long").
 
 ~~~c
-/* coloca em registrador(es) secundário(s) valor da pilha */
+/* Coloca em registrador(es) secundário(s) valor da pilha */
 void AsmPop(char type)
 {
     EmitLn("POP BX");
@@ -880,7 +880,7 @@ O processo é difícil de explicar mas fácil de implementar, está longe de ser
 Desta forma teremos sempre os registradores na ordem esperada para a subtração e a divisão. Uma deficiência do código é que faremos uma troca desnecessária no caso da adição e multiplicação, mas isto é fácil de corrigir; fica como exercício. Vamos começar com a rotina que faz a troca:
 
 ~~~c
-/* gera código para trocar registradores primário e secundário */
+/* Gera código para trocar registradores primário e secundário */
 void AsmSwap(char type)
 {
     switch (type) {
@@ -901,7 +901,7 @@ void AsmSwap(char type)
 Em seguida temos a rotina que faz a promoção em si, forçando os dois tipos a serem iguais:
 
 ~~~c
-/* faz a promoção dos tipos dos operandos e inverte a ordem dos mesmos */
+/* Faz a promoção dos tipos dos operandos e inverte a ordem dos mesmos */
 char AsmSameType(char t1, char t2)
 {
     int swaped = 0;
@@ -932,7 +932,7 @@ char AsmSameType(char t1, char t2)
 Com estas rotinas em mãos, temos toda a munição necessária para incluir `AsmPopAdd()` e `AsmPopSub()`:
 
 ~~~c
-/* soma valor na pilha com valor no registrador primário */
+/* Soma valor na pilha com valor no registrador primário */
 char AsmPopAdd(char t1, char t2)
 {
     char type;
@@ -955,7 +955,7 @@ char AsmPopAdd(char t1, char t2)
     return type;
 }
 
-/* subtrai do valor da pilha o valor no registrador primário */
+/* Subtrai do valor da pilha o valor no registrador primário */
 char AsmPopSub(char t1, char t2)
 {
     char type;
@@ -984,7 +984,7 @@ Depois de tudo pronto, os resultados finais são quase anti-climáticos. A lógi
 Repare que o código que faz a soma e a subtração depende dos tipos dos operandos. A nova versão da subtração não requer que invertamos o sinal em seguida. Isto porque os operandos já estão na ordem correta (o que é um efeito colateral de `AsmSameType()`). Esta inversão de ordem é boa para a subtração e divisão, mas não é necessária na soma e multiplicação, pois a ordem não faz diferença nestes casos e há uma instrução de troca desnecessária. Podemos passar um parâmetro a mais para `AsmSameType()` dizendo se a ordem dos operandos importa ou não:
 
 ~~~c
-/* faz a promoção dos tipos dos operandos e inverte a ordem dos mesmos se necessário */
+/* Faz a promoção dos tipos dos operandos e inverte a ordem dos mesmos se necessário */
 char AsmSameType(char t1, char t2, int ordMatters)
 {
     int swaped = 0;
@@ -1023,7 +1023,7 @@ Expressões com Multiplicação
 Os procedimento para operações de multiplicação e divisão são quase os mesmos. De fato, no primeiro nível, eles são quase idênticos, então eu vou simplesmente mostrá-los aqui sem muito demora. O primeiro é nossa forma geral para `Factor()`, que inclui expressões entre parênteses:
 
 ~~~c
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 char Factor()
 {
     char type;
@@ -1040,21 +1040,21 @@ char Factor()
     return type;
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 char Multiply(char type)
 {
     Match('*');
     return AsmPopMul(type, Factor());
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 char Divide(char type)
 {
     Match('/');
     return AsmPopDiv(type, Factor());
 }
 
-/* analisa e traduz um termo matemático */
+/* Analisa e traduz um termo matemático */
 char Term()
 {
     char type;
@@ -1107,7 +1107,7 @@ Segundo, repare que a tabela é simétrica... os dois operandos entram da mesma 
 Agora, claramente, vamos gerar código diferente para as multiplicações de 8, 16 e 32 bits.
 
 ~~~c
-/* multiplica valor na pilha com valor no registrador primário */
+/* Multiplica valor na pilha com valor no registrador primário */
 char AsmPopMul(char t1, char t2)
 {
     char type, mulType;
@@ -1171,16 +1171,16 @@ L             | Converter T1→L<br>CALL DIV32<br>Resultado = B | Converter T1�
 O código a seguir provê o funcionamento correto para "asmPopDiv":
 
 ~~~c++
-/* divide valor na pilha por valor do registrador primário */
+/* Divide valor na pilha por valor do registrador primário */
 char AsmPopDiv(char t1, char t2)
 {
     AsmPop(t1);
 
-    /* se dividendo for 32-bits divisor deve ser também */
+    /* Se dividendo for 32-bits divisor deve ser também */
     if (t1 == 'l')
         AsmConvert(t2, 'l');
 
-    /* coloca operandos na ordem certa conforme o tipo */
+    /* Coloca operandos na ordem certa conforme o tipo */
     if (t1 == 'l' || t2 == 'l')
         AsmSwap('l');
     else if (t1 == 'w' || t2 == 'w')
@@ -1188,14 +1188,14 @@ char AsmPopDiv(char t1, char t2)
     else
         AsmSwap('b');
 
-    /* dividendo _REAL_ sempre será LONG...
+    /* Dividendo _REAL_ sempre será LONG...
         mas WORD se divisor for BYTE */
     if (t2 == 'b')
         AsmConvert(t1, 'w');
     else
         AsmConvert(t1, 'l');
 
-    /* se um dos operandos for LONG, divisão de 32-bits */
+    /* Se um dos operandos for LONG, divisão de 32-bits */
     if (t1 == 'l' || t2 == 'l')
         EmitLn("CALL DIV32");
     else if (t2 == 'w') /* 32 / 16 */
@@ -1203,7 +1203,7 @@ char AsmPopDiv(char t1, char t2)
     else if (t2 == 'b') /* 16 / 8 */
         EmitLn("IDIV BL");
 
-    /* tipo do quociente é sempre igual ao do dividendo */
+    /* Tipo do quociente é sempre igual ao do dividendo */
     return t1;
 }
 ~~~

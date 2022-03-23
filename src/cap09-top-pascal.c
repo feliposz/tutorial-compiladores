@@ -15,19 +15,19 @@ Este código é de livre distribuição e uso.
 
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     NextChar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -41,7 +41,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -57,7 +57,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -73,7 +73,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -81,7 +81,7 @@ void Match(char c)
     NextChar();
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 char GetName()
 {
     char name;
@@ -94,7 +94,7 @@ char GetName()
     return name;
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 char GetNum()
 {
     char num;
@@ -107,7 +107,7 @@ char GetNum()
     return num;
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -121,7 +121,7 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* funções de declaração pascal */
+/* Funções de declaração pascal */
 
 void Labels()
 {
@@ -153,7 +153,7 @@ void Function()
     Match('f');
 }
 
-/* analisa e traduz declarações pascal */
+/* Analisa e traduz declarações pascal */
 void Declarations()
 {
     int valid;
@@ -172,7 +172,7 @@ void Declarations()
     } while (valid);
 }
 
-/* analisa e traduz um bloco de comandos pascal */
+/* Analisa e traduz um bloco de comandos pascal */
 void Statements()
 {
     Match('b');
@@ -181,7 +181,7 @@ void Statements()
     Match('e');
 }
 
-/* analisa e traduz um bloco Pascal */
+/* Analisa e traduz um bloco Pascal */
 void Block(char name)
 {
     Declarations();
@@ -189,7 +189,7 @@ void Block(char name)
     Statements();
 }
 
-/* emite código para o prólogo de um programa */
+/* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
     EmitLn(".model small");
@@ -199,7 +199,7 @@ void AsmProlog()
     EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
-/* emite código para o epílogo de um programa */
+/* Emite código para o epílogo de um programa */
 void AsmEpilog(char name)
 {
     printf("exit_prog:\n");
@@ -209,12 +209,12 @@ void AsmEpilog(char name)
     EmitLn("end %c", name);
 }
 
-/* analisa e traduz um programa Pascal */
+/* Analisa e traduz um programa Pascal */
 void Program()
 {
     char name;
 
-    Match('p'); /* trata do cabeçalho do programa */
+    Match('p'); /* Trata do cabeçalho do programa */
     name = GetName();
     AsmProlog();
     Block(name);
@@ -222,7 +222,7 @@ void Program()
     AsmEpilog(name);
 }
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();

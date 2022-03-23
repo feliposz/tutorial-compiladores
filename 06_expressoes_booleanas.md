@@ -210,13 +210,13 @@ Agora que já passamos pelo processo de tomada de decisão, podemos começar o d
 Começamos, como fizemos antes no caso aritmético: tratando apenas de literais booleanos ao invés de variáveis. Isto nos dá um novo tipo de token de entrada. Vamos precisar portanto de um novo reconhecedor, e uma nova rotina para ler as instâncias deste tipo de token. Vamos começar definindo as duas novas rotinas:
 
 ~~~c
-/* reconhece uma literal Booleana */
+/* Reconhece uma literal Booleana */
 int IsBoolean(char c)
 {
     return (c == 'T' || c == 'F');
 }
 
-/* recebe uma literal Booleana */
+/* Recebe uma literal Booleana */
 int GetBoolean()
 {
     int boolean;
@@ -233,7 +233,7 @@ int GetBoolean()
 Adicione estás duas rotinas ao programa. Você pode testá-las adicionando o seguinte ao programa principal:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -247,7 +247,7 @@ Certo, agora compile e teste. Como de costume, não é muito impressionante até
 Quando estávamos tratando dos dados numéricos, tivemos que criar código para carregar os valores em AX. Temos que fazer o mesmo para dados booleanos. A maneira usual de codificar variáveis booleana é permitir que 0 signifique FALSO, e qualquer outra coisa signifique VERDADEIRO. Muitas outras linguagens, como C, usam o valor inteiro 1 para representá-lo, mas eu prefiro FFFF hexadecimal (ou -1), porque um NOT binário se torna também um NOT booleano. Então agora temos que emitir o código assembly correto para ler estes valores. O primeiro passo na direção do analisador sintático de expressões booleanas (`BoolExpression()`, claro) é:
 
 ~~~c
-/* analisa e traduz uma expressão Booleana */
+/* Analisa e traduz uma expressão booleana */
 void BoolExpression()
 {
     if (!IsBoolean(Look))
@@ -270,7 +270,7 @@ Depois, é claro, temos que expandir a definição de uma expressão booleana. N
 Eu prefiro a versão Pascal para os operadores OR e XOR. Mas como estamos mantendo a abordagem de tokens de um único caracter, vou usar `|` e `~` respectivamente. A próxima versão de `BoolExpression()` é quase uma cópia da rotina aritmética de `Expression()`:
 
 ~~~c
-/* analisa e traduz um termo Booleano */
+/* Analisa e traduz um termo Booleano */
 void BoolTerm()
 {
     if (!IsBoolean(Look))
@@ -281,7 +281,7 @@ void BoolTerm()
         EmitLn("MOV AX, 0");
 }
 
-/* reconhece e traduz um operador OR */
+/* Reconhece e traduz um operador OR */
 void BoolOr()
 {
     Match('|');
@@ -290,7 +290,7 @@ void BoolOr()
     EmitLn("OR AX, BX");
 }
 
-/* reconhece e traduz um operador XOR */
+/* Reconhece e traduz um operador XOR */
 void BoolXor()
 {
     Match('~');
@@ -299,7 +299,7 @@ void BoolXor()
     EmitLn("XOR AX, BX");
 }
 
-/* analisa e traduz uma expressão booleana */
+/* Analisa e traduz uma expressão booleana */
 void BoolExpression()
 {
     BoolTerm();
@@ -321,7 +321,7 @@ void BoolExpression()
 Note o novo reconhecedor `IsOrOp()`, que é também uma cópia, desta vez da rotina `IsAddOp()`:
 
 ~~~c
-/* reconhece um operador OU */
+/* Reconhece um operador OU */
 int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
@@ -335,7 +335,7 @@ Provavelmente você já adivinhou qual é o próximo passo: a versão booleana d
 Renomeie a rotina `BoolTerm()` para `NotFactor()`, e entre com a nova versão de `BoolTerm()` abaixo. Repare que ela é bem mais simples que a versão numérica, logo que não há equivalente à divisão.
 
 ~~~c
-/* analisa e traduz um termo booleano*/
+/* Analisa e traduz um termo booleano*/
 void BoolTerm()
 {
     NotFactor();
@@ -352,7 +352,7 @@ void BoolTerm()
 Estamos quase chegando lá. Estamos traduzindo expressões booleanas complexas, já, embora apenas para valores constantes. O próximo passo é permitir o operador NOT. Escreva esta rotina agora:
 
 ~~~c
-/* analisa e traduz um fator booleno com NOT opcional */
+/* Analisa e traduz um fator booleno com NOT opcional */
 void NotFactor()
 {
     if (Look == '!') {
@@ -369,7 +369,7 @@ Mas não esqueça de renomear a anterior para `BoolFactor()`. Agora faça um tes
 Se você tem acompanhado o que fizemos no analisador para expressões matemáticas, você sabe que o próximo passo foi expandir a definição de fator para acomodar variáveis e parênteses. Nós não precisamos fazer isto para o fator booleano, pois estes itens são tratados no próximo passo. Só precisamos alterar algumas linhas de código para fazer `BoolFactor()` tratar de relações:
 
 ~~~c
-/* analisa e traduz um fator booleano */
+/* Analisa e traduz um fator booleano */
 void BoolFactor()
 {
     if (IsBoolean(Look)) {
@@ -387,7 +387,7 @@ Talvez você esteja imaginando quando eu vou adicionar variáveis booleanas e ex
 É claro que vai ajudar termos algum código para `Relation()`. Eu não me sinto confortável no entanto, em adicionar mais código sem antes checar o que já temos. Então vamos apenas adicionar uma versão "fantasma" de `Relation()` que não faz nada a não ser aceitar um único caracter e imprimir uma pequena mensagem:
 
 ~~~c
-/* analisa e traduz uma relação */
+/* Analisa e traduz uma relação */
 void Relation()
 {
     EmitLn("; relation");
@@ -406,7 +406,7 @@ Para chegarmos lá porém, precisamos de mais algum preparo primeiro. Lembre-se 
 Como temos um novo tipo de operador, também precisamos de uma nova função para reconhecê-lo. Esta função é mostrada abaixo. Por termos uma limitação de um único caracter, eu vou ficar só com os 4 operadores que podem ser codificados assim (o "diferente" vai ser codificado como "#", meio estranho mas vai servir).
 
 ~~~c
-/* reconhece operadores relacionais */
+/* Reconhece operadores relacionais */
 int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
@@ -446,7 +446,7 @@ Em todo caso, nós estamos prontos agora para ver o código para `Relation()`. E
 >**Nota de tradução:** Repare que eu precisei acrescentar o código para `NewLabel()` e `PostLabel()` em nosso programa por causa dos desvios. Não se esqueça de acrescentá-lo também, junto com a declaração da variável de controle dos rótulos.
 
 ~~~c
-/* reconhece e traduz um operador de igualdade */
+/* Reconhece e traduz um operador de igualdade */
 void Equals()
 {
     int l1, l2;
@@ -465,7 +465,7 @@ void Equals()
     PostLabel(l2);
 }
 
-/* reconhece e traduz um operador de não-igualdade */
+/* Reconhece e traduz um operador de não-igualdade */
 void NotEquals()
 {
     int l1, l2;
@@ -484,7 +484,7 @@ void NotEquals()
     PostLabel(l2);
 }
 
-/* reconhece e traduz um operador de maior que */
+/* Reconhece e traduz um operador de maior que */
 void Greater()
 {
     int l1, l2;
@@ -503,7 +503,7 @@ void Greater()
     PostLabel(l2);
 }
 
-/* reconhece e traduz um operador de menor que */
+/* Reconhece e traduz um operador de menor que */
 void Less()
 {
     int l1, l2;
@@ -522,7 +522,7 @@ void Less()
     PostLabel(l2);
 }
 
-/* analisa e traduz uma relação */
+/* Analisa e traduz uma relação */
 void Relation()
 {
     Expression();
@@ -549,7 +549,7 @@ void Relation()
 Agora a chamada a `Expression()` parece familiar! É nesse momento que o editor do nosso sistema se torna útil. Nós já geramos o código para `Expression()` e seus amigos em sessões anteriores. Você poderia copiá-los em seu arquivo agora se quisesse. Lembre-se de usar as versões de um caracter apenas. Mas, apenas para ter certeza, eu dupliquei as rotinas aritméticas abaixo. Se você for observador, vai ver que fiz algumas pequenas mudanças para fazê-las corresponder à última versão da sintaxe. Estas mudanças NÃO são necessárias, então se você preferir pode manter a versão anterior até ter certeza de que tudo está funcionando. Repare que `Factor()` agora deve chamar `BoolExpression()` e não `Expression()` (consulte a gramática que definimos anteriormente).
 
 ~~~c
-/* analisa e traduz um identificador */
+/* Analisa e traduz um identificador */
 void Ident()
 {
     char name;
@@ -563,7 +563,7 @@ void Ident()
         EmitLn("MOV AX, [%c]", name);
 }
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     if (Look == '(') {
@@ -576,7 +576,7 @@ void Factor()
         EmitLn("MOV AX, %c", GetNum());
 }
 
-/* analisa e traduz um fator com sinal opcional */
+/* Analisa e traduz um fator com sinal opcional */
 void SignedFactor()
 {
     int minusSign = (Look == '-');
@@ -590,7 +590,7 @@ void SignedFactor()
         EmitLn("NEG AX");
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 void Multiply()
 {
     Match('*');
@@ -599,7 +599,7 @@ void Multiply()
     EmitLn("IMUL BX");
 }
 
-/* reconhece e traduz uma divisão */
+/* Reconhece e traduz uma divisão */
 void Divide()
 {
     Match('/');
@@ -610,7 +610,7 @@ void Divide()
     EmitLn("IDIV BX");
 }
 
-/* analisa e traduz um termo matemático */
+/* Analisa e traduz um termo matemático */
 void Term()
 {
     SignedFactor();
@@ -627,7 +627,7 @@ void Term()
     }
 }
 
-/* reconhece e traduz uma soma */
+/* Reconhece e traduz uma soma */
 void Add()
 {
     Match('+');
@@ -636,7 +636,7 @@ void Add()
     EmitLn("ADD AX, BX");
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -646,7 +646,7 @@ void Subtract()
     EmitLn("NEG AX");
 }
 
-/* analisa e traduz uma expressão matemática */
+/* Analisa e traduz uma expressão matemática */
 void Expression()
 {
     Term();
@@ -714,7 +714,7 @@ Ao invés de pular o retorno de linha, vamos permitir que o analisador trate del
 Eis a rotina:
 
 ~~~c
-/* reconhece uma linha em branco */
+/* Reconhece uma linha em branco */
 void NewLine()
 {
     if (Look == '\n')
@@ -725,7 +725,7 @@ void NewLine()
 Agora, acrescente duas chamadas a `NewLine()` na rotina `Block()`, assim:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block(int exitLabel)
 {
     int follow;
@@ -775,7 +775,7 @@ Agora, você vai descobrir que é possível usar programas de múltiplas linhas.
 Agora estamos prontos para incluir o comando de atribuição. Apenas altere aquela chamada a `Other()` na rotina `Block()` para uma chamada a `Assignment()`, e adicione a seguinte rotina, copiada de um de nossos programas anteriores. Note agora que `Assignment()` chama `BoolExpression()`, para podermos atribuir valores booleanos.
 
 ~~~c
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name;

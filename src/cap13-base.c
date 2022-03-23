@@ -17,9 +17,9 @@ Este código é de livre distribuição e uso.
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define SYMBOLTABLE_SIZE 26
-char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
+char SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
 
-/* rotinas utilitárias */
+/* Rotinas utilitárias */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -31,13 +31,13 @@ void Duplicate(char name);
 void Unrecognized(char name);
 void NotVar(char name);
 
-/* tratamento da tabela de símbolos */
+/* Tratamento da tabela de símbolos */
 char SymbolType(char name);
 char InTable(char name);
 void AddEntry(char name, char type);
 void CheckVar(char name);
 
-/* analisador léxico rudimentar */
+/* Analisador léxico */
 int IsAddOp(char c);
 int IsMulOp(char c);
 void SkipWhite();
@@ -46,12 +46,12 @@ void Match(char c);
 char GetName();
 char GetNum();
 
-/* geração de código */
+/* Geração de código */
 void AsmLoadVar(char name);
 void AsmStoreVar(char name);
 void AsmAllocVar(char name);
 
-/* analisador sintático */
+/* Analisador sintático */
 void Expression();
 void Assignment();
 void DoBlock();
@@ -59,7 +59,7 @@ void BeginBlock();
 void Declaration();
 void TopDeclarations();
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -69,7 +69,7 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     int i;
@@ -81,13 +81,13 @@ void Init()
     SkipWhite();
 }
 
-/* lê próximo caracter da entrada em lookahead */
+/* Lê próximo caracter da entrada em lookahead */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -101,7 +101,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -117,7 +117,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -133,7 +133,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -147,43 +147,43 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* avisa a respeito de um identificador desconhecido */
+/* Avisa a respeito de um identificador desconhecido */
 void Undefined(char name)
 {
     Abort("Undefined identifier %c", name);
 }
 
-/* avisa a respeito de um identificador desconhecido */
+/* Avisa a respeito de um identificador desconhecido */
 void Duplicate(char name)
 {
     Abort("Duplicated identifier %c", name);
 }
 
-/* avisa a respeito de uma palavra-chave desconhecida */
+/* Avisa a respeito de uma palavra-chave desconhecida */
 void Unrecognized(char name)
 {
     Abort("Unrecognized keyword %c", name);
 }
 
-/* avisa a respeito de um identificador que não é variável */
+/* Avisa a respeito de um identificador que não é variável */
 void NotVar(char name)
 {
     Abort("'%c' is not a variable", name);
 }
 
-/* retorna o tipo de um identificador */
+/* Retorna o tipo de um identificador */
 char SymbolType(char name)
 {
     return SymbolTable[name - 'A'];
 }
 
-/* verifica se "name" consta na tabela de símbolos */
+/* Verifica se "name" consta na tabela de símbolos */
 char InTable(char name)
 {
     return (SymbolTable[name - 'A'] != ' ');
 }
 
-/* adiciona novo identificador à tabela de símbolos */
+/* Adiciona nova entrada à tabela de símbolos */
 void AddEntry(char name, char type)
 {
     if (InTable(name))
@@ -191,7 +191,7 @@ void AddEntry(char name, char type)
     SymbolTable[name - 'A'] = type;
 }
 
-/* verifica se identificador é variável */
+/* Verifica se identificador é variável */
 void CheckVar(char name)
 {
     if (!InTable(name))
@@ -200,33 +200,33 @@ void CheckVar(char name)
         NotVar(name);
 }
 
-/* testa operadores de adição */
+/* Testa operadores de adição */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* testa operadores de multiplicação */
+/* Testa operadores de multiplicação */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
-/* pula caracteres em branco */
+/* Pula caracteres em branco */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
-/* reconhece uma quebra de linha */
+/* Reconhece uma quebra de linha */
 void NewLine()
 {
     if (Look == '\n')
         NextChar();
 }
 
-/* verifica se Look combina com caracter esperado */
+/* Verifica se Look combina com caracter esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -235,7 +235,7 @@ void Match(char c)
     SkipWhite();
 }
 
-/* analisa e traduz um nome (identificador ou palavra-chave) */
+/* Analisa e traduz um nome (identificador ou palavra-chave) */
 char GetName()
 {
     char name;
@@ -249,7 +249,7 @@ char GetName()
     return name;
 }
 
-/* analisa e traduz um número inteiro */
+/* Analisa e traduz um número inteiro */
 char GetNum()
 {
     char num;
@@ -263,20 +263,20 @@ char GetNum()
     return num;
 }
 
-/* carrega uma variável no registrador primário */
+/* Carrega uma variável no registrador primário */
 void AsmLoadVar(char name)
 {
     CheckVar(name);
     EmitLn("MOV AX, WORD PTR %c", name);
 }
 
-/* armazena registrador primário em variável */
+/* Armazena registrador primário em variável */
 void AsmStoreVar(char name)
 {
     EmitLn("MOV WORD PTR %c, AX", name);
 }
 
-/* aloca espaço de armazenamento para variável */
+/* Aloca espaço de armazenamento para variável */
 void AsmAllocVar(char name)
 {
     if (InTable(name))
@@ -285,13 +285,13 @@ void AsmAllocVar(char name)
     printf("%c\tdw 0\n", name);
 }
 
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 void Expression()
 {
     AsmLoadVar(GetName());
 }
 
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name;
@@ -302,7 +302,7 @@ void Assignment()
     AsmStoreVar(name);
 }
 
-/* analiza e traduz um bloco de comandos */
+/* Analiza e traduz um bloco de comandos */
 void DoBlock()
 {
     while (Look != 'e') {
@@ -311,7 +311,7 @@ void DoBlock()
     }
 }
 
-/* analiza e traduz um bloco begin */
+/* Analiza e traduz um bloco begin */
 void BeginBlock()
 {
     Match('b');
@@ -321,14 +321,14 @@ void BeginBlock()
     NewLine();
 }
 
-/* analiza e traduz a declaração de uma variável */
+/* Analiza e traduz uma declaração de variável */
 void Declaration()
 {
     Match('v');
     AsmAllocVar(GetName());
 }
 
-/* analiza e traduz as declarações globais */
+/* Analiza e traduz as declarações globais */
 void TopDeclarations()
 {
     while (Look != 'b') {

@@ -58,7 +58,7 @@ Agora que você sabe PORQUE iremos ver tudo isso, vamos lá. Apenas para pratica
 Como desta vez vamos fazer aritmética, a primeira coisa a fazer é alterar a função `GetNum()`, pois até agora ela estava retornando um caracter (ou uma string) e agora é melhor que ela retorne um inteiro. FAÇA UMA CÓPIA do [berço](src/cap01-craddle.c) (não altere o berço em si!) e modifique `GetNum()` como segue:
 
 ~~~c
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 int GetNum()
 {
     char num;
@@ -75,7 +75,7 @@ int GetNum()
 Agora escreva a seguinte versão de `Expression()`:
 
 ~~~c
-/* avalia o resultado de uma expressão */
+/* Avalia o resultado de uma expressão */
 int Expression()
 {
     return GetNum();
@@ -95,13 +95,13 @@ Tudo o que este programa faz é "analisar" e traduzir uma simples "expressão" i
 Vamos estender isso para incluir operadores de adição. Mude `Expression()` pra ficar assim:
 
 ~~~c
-/* reconhece operador aditivo */
+/* Reconhece operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* avalia o resultado de uma expressão */
+/* Avalia o resultado de uma expressão */
 int Expression()
 {
     int val;
@@ -133,7 +133,7 @@ A estrutura de `Expression()` combina com o que fizemos antes, então não vamos
 E então? O tradutor funcionou? Vamos para o próximo passo. Não deve ser difícil descobrir como a rotina `Term()` deveria ser agora. Troque as chamadas a `GetNum()` em `Expression()` por uma chamada a `Term()` e entre com o seguinte código:
 
 ~~~c
-/* avalia um termo */
+/* Avalia um termo */
 int Term()
 {
     int val;
@@ -161,7 +161,7 @@ Agora faça o teste. Mas não se esqueça de duas coisas. Em primeiro lugar, est
 Isto parece ser uma restrição boba neste ponto, logo que nós já sabemos como é simples estender a função `GetNum()`. Então vamos arrumá-la agora mesmo:
 
 ~~~c
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 int GetNum()
 {
     int i;
@@ -184,7 +184,7 @@ int GetNum()
 Se você compilou e testou esta versão do interpretador, o próximo passo é acrescentar a função `Factor()`, completa com as expressões entre parênteses. Por enquanto vamos ficar um pouco mais sem os nomes de variáveis. Primeiro, altere as referências a `GetNum()`, na função `Term()`, de forma que elas passem a ser referências a `Factor()`. Então crie a seguinte versão de `Factor()`:
 
 ~~~c
-/* avalia um fator */
+/* Avalia um fator */
 int Factor()
 {
     int val;
@@ -233,7 +233,7 @@ int VarTable[MAXVAR];
 Também precisamos inicializar a matriz, então adicione isto:
 
 ~~~c
-/* inicializa variáveis */
+/* Inicializa variáveis */
 void InitVar()
 {
     int i;
@@ -248,7 +248,7 @@ Adicione uma chamada a `InitVar()` em `Init()`. Não esqueça de fazer isto, ou 
 Agora que temos uma matriz de variáveis, podemos modificar `Factor()` para usá-la.  Como ainda não temos uma forma de alterar as variáveis, `Factor()` sempre vai retornar zero para o valor delas, mas vamos fazê-lo de qualquer forma. Aqui está a nova versão:
 
 ~~~c
-/* avalia um fator */
+/* Avalia um fator */
 int Factor()
 {
     int val;
@@ -273,7 +273,7 @@ Eu acho que você já adivinhou o próximo passo: precisamos implementar um coma
 O comando de atribuição combina com o que fizemos antes:
 
 ~~~c
-/* avalia um comando de atribuição */
+/* Avalia um comando de atribuição */
 void Assignment()
 {
     char name;
@@ -293,7 +293,7 @@ Uma das coisas mais complicadas de lidar em qualquer tradutor é como determinar
 O que nós precisamos é de um caracter delimitador. Eu voto para o ponto final (".") do Pascal. Uma complicação menor é que a linguagem C termina cada linha com um caracter de fim-de-linha ("\n"). No fim de cada linha precisamos eliminar estes caracteres antes de processar a próxima. Uma maneira natural de fazer isso seria com a rotina "match", exceto que "match" emite uma mensagem de erro com o caracter esperado, o que não ficaria tão bom com um "\n". O que precisamos é de uma rotina especial pra isso, que nós vamos usar sem dúvida várias vezes. Aqui está ela:
 
 ~~~c
-/* captura um caracter de nova linha */
+/* Captura um caracter de nova linha */
 void NewLine()
 {
     if (Look == '\n')
@@ -304,7 +304,7 @@ void NewLine()
 Insira esta rotina em um lugar conveniente no seu programa. Agora reescreva o programa principal desta forma:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -324,7 +324,7 @@ Bem, agora nós temos um interpretador funcional. Não é lá muito útil porém
 Vamos completar isso, adicionando rotinas de entrada e saída. Como estamos mantendo os tokens de um único caracter, vou usar "?" para um comando de entrada e "!" para a saída, com um caracter seguindo imediatamente funcionando como uma lista de parâmetros de um token. Aqui estão as rotinas:
 
 ~~~c
-/* interpreta um comando de entrada */
+/* Interpreta um comando de entrada */
 void Input()
 {
     char name;
@@ -337,7 +337,7 @@ void Input()
     VarTable[name - 'A'] = atoi(buffer);
 }
 
-/* interpreta um comando de saída */
+/* Interpreta um comando de saída */
 void Output()
 {
     char name;
@@ -353,7 +353,7 @@ Eles não são muito bacanas, eu admito... mas eles fazem o trabalho.
 As mudanças correspondentes no programa principal são mostradas abaixo. Note que estamos usando um truque comum de um comando switch baseado no caracter "lookahead" atual, para decidir o que fazer.
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();

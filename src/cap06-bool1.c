@@ -16,7 +16,7 @@ Este código é de livre distribuição e uso.
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
-/* protótipos */
+/* Protótipos */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -58,7 +58,7 @@ void Add();
 void Subtract();
 void Expression();
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -66,19 +66,19 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     NextChar();
 }
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -92,7 +92,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -108,7 +108,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -124,7 +124,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -132,7 +132,7 @@ void Match(char c)
     NextChar();
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 char GetName()
 {
     char name;
@@ -145,7 +145,7 @@ char GetName()
     return name;
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 char GetNum()
 {
     char num;
@@ -158,7 +158,7 @@ char GetNum()
     return num;
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -172,37 +172,37 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* reconhece operador aditivo */
+/* Reconhece operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* reconhece operador multiplicativo */
+/* Reconhece operador multiplicativo */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
-/* reconhece operador relacional */
+/* Reconhece operador relacional */
 int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '>' || c == '<');
 }
 
-/* reconhece uma literal Booleana */
+/* Reconhece uma literal Booleana */
 int IsBoolean(char c)
 {
     return (c == 'T' || c == 'F');
 }
 
-/* reconhece um operador OU */
+/* Reconhece um operador OU */
 int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
-/* recebe uma literal Booleana */
+/* Recebe uma literal Booleana */
 int GetBoolean()
 {
     int boolean;
@@ -215,19 +215,19 @@ int GetBoolean()
     return boolean;
 }
 
-/* gera um novo rótulo único */
+/* Gera um novo rótulo único */
 int NewLabel()
 {
     return LabelCount++;
 }
 
-/* emite um rótulo */
+/* Emite um rótulo */
 void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 
-/* analisa e traduz um fator booleano */
+/* Analisa e traduz um fator booleano */
 void BoolFactor()
 {
     if (IsBoolean(Look)) {
@@ -239,7 +239,7 @@ void BoolFactor()
         Relation();
 }
 
-/* analisa e traduz um fator booleno com NOT opcional */
+/* Analisa e traduz um fator booleno com NOT opcional */
 void NotFactor()
 {
     if (Look == '!') {
@@ -250,7 +250,7 @@ void NotFactor()
         BoolFactor();
 }
 
-/* analisa e traduz um termo booleano*/
+/* Analisa e traduz um termo booleano*/
 void BoolTerm()
 {
     NotFactor();
@@ -263,7 +263,7 @@ void BoolTerm()
     }
 }
 
-/* reconhece e traduz um operador OR */
+/* Reconhece e traduz um operador OR */
 void BoolOr()
 {
     Match('|');
@@ -272,7 +272,7 @@ void BoolOr()
     EmitLn("OR AX, BX");
 }
 
-/* reconhece e traduz um operador XOR */
+/* Reconhece e traduz um operador XOR */
 void BoolXor()
 {
     Match('~');
@@ -281,7 +281,7 @@ void BoolXor()
     EmitLn("XOR AX, BX");
 }
 
-/* analisa e traduz uma expressão booleana */
+/* Analisa e traduz uma expressão booleana */
 void BoolExpression()
 {
     BoolTerm();
@@ -298,7 +298,7 @@ void BoolExpression()
     }
 }
 
-/* reconhece e traduz um operador de igualdade */
+/* Reconhece e traduz um operador de igualdade */
 void Equals()
 {
     int l1, l2;
@@ -317,7 +317,7 @@ void Equals()
     PostLabel(l2);
 }
 
-/* reconhece e traduz um operador de não-igualdade */
+/* Reconhece e traduz um operador de não-igualdade */
 void NotEquals()
 {
     int l1, l2;
@@ -336,7 +336,7 @@ void NotEquals()
     PostLabel(l2);
 }
 
-/* reconhece e traduz um operador de maior que */
+/* Reconhece e traduz um operador de maior que */
 void Greater()
 {
     int l1, l2;
@@ -355,7 +355,7 @@ void Greater()
     PostLabel(l2);
 }
 
-/* reconhece e traduz um operador de menor que */
+/* Reconhece e traduz um operador de menor que */
 void Less()
 {
     int l1, l2;
@@ -374,7 +374,7 @@ void Less()
     PostLabel(l2);
 }
 
-/* analisa e traduz uma relação */
+/* Analisa e traduz uma relação */
 void Relation()
 {
     Expression();
@@ -397,7 +397,7 @@ void Relation()
     }
 }
 
-/* analisa e traduz um identificador */
+/* Analisa e traduz um identificador */
 void Ident()
 {
     char name;
@@ -411,7 +411,7 @@ void Ident()
         EmitLn("MOV AX, [%c]", name);
 }
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     if (Look == '(') {
@@ -424,7 +424,7 @@ void Factor()
         EmitLn("MOV AX, %c", GetNum());
 }
 
-/* analisa e traduz um fator com sinal opcional */
+/* Analisa e traduz um fator com sinal opcional */
 void SignedFactor()
 {
     int minusSign = (Look == '-');
@@ -437,7 +437,7 @@ void SignedFactor()
         EmitLn("NEG AX");
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 void Multiply()
 {
     Match('*');
@@ -446,7 +446,7 @@ void Multiply()
     EmitLn("IMUL BX");
 }
 
-/* reconhece e traduz uma divisão */
+/* Reconhece e traduz uma divisão */
 void Divide()
 {
     Match('/');
@@ -457,7 +457,7 @@ void Divide()
     EmitLn("IDIV BX");
 }
 
-/* analisa e traduz um termo matemático */
+/* Analisa e traduz um termo matemático */
 void Term()
 {
     SignedFactor();
@@ -474,7 +474,7 @@ void Term()
     }
 }
 
-/* reconhece e traduz uma soma */
+/* Reconhece e traduz uma soma */
 void Add()
 {
     Match('+');
@@ -483,7 +483,7 @@ void Add()
     EmitLn("ADD AX, BX");
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -493,7 +493,7 @@ void Subtract()
     EmitLn("NEG AX");
 }
 
-/* analisa e traduz uma expressão matemática */
+/* Analisa e traduz uma expressão matemática */
 void Expression()
 {
     Term();

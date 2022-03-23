@@ -39,7 +39,7 @@ O Problema
 O problema começa a se apresentar na rotina `Block()`, que eu reproduzi abaixo:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     int follow = 0;
@@ -97,7 +97,7 @@ A Solução
 Vamos começar a arrumar o problema reintroduzindo as duas rotinas:
 
 ~~~c
-/* recebe o nome de um identificador ou palavra-chave */
+/* Recebe o nome de um identificador ou palavra-chave */
 void GetName()
 {
     int i;
@@ -113,7 +113,7 @@ void GetName()
     Token = 'x';
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum()
 {
     int i;
@@ -135,7 +135,7 @@ Estes dois procedimentos são funcionalmente quase idênticos aos que eu mostrei
 Podemos fazer o mesmo para operadores, mesmo multi-caracter, com uma rotina como:
 
 ~~~c
-/* analisa e traduz um operador */
+/* Analisa e traduz um operador */
 void GetOp()
 {
     int i;
@@ -154,7 +154,7 @@ Repare que `GetOp()` retorna, como seu token codificado, o PRIMEIRO caracter do 
 Temos que juntar estas rotinas em uma rotina única que trata dos três casos. A rotina seguinte lê qualquer um dos três tipos e sempre deixa a entrada posicionada depois do token:
 
 ~~~c
-/* pega o próximo token de entrada */
+/* Pega o próximo token de entrada */
 void NextToken()
 {
     SkipWhite();
@@ -176,7 +176,7 @@ Mas agora, com a chamada a `SkipWhite()` no início, é exatamente o comportamen
 Isto significa que podemos simplificar muito o programa e os conceitos, tratando a quebra de linha como um caracter de espaço, e eliminando `NewLine()`. Apenas trocamos o teste em `SkipWhite()`:
 
 ~~~c
-/* pula caracteres em branco */
+/* Pula caracteres em branco */
 void SkipWhite()
 {
     while (isspace(Look))
@@ -194,14 +194,14 @@ Se quiser fazer o teste:
 
 ~~~c
 #define MAXTOKEN 16
-char Token; /* código do token atual */
-char TokenText[MAXTOKEN+1]; /* texto do token atual */
+char Token; /* Código do token atual */
+char TokenText[MAXTOKEN+1]; /* Texto do token atual */
 ~~~
 
 - Por último, chame `NextToken()` com o seguinte programa:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -223,7 +223,7 @@ Felizmente, há uma forma melhor de resolver todos estes problemas. Como quase t
 Aqui está a versão final de `GetOp()`:
 
 ~~~c
-/* analisa e traduz um operador */
+/* Analisa e traduz um operador */
 void GetOp()
 {
     SkipWhite();
@@ -251,7 +251,7 @@ Na [parte 7](07_analise_lexica.md) a função de `NextToken()` estava combinada 
 A maneira correta de tratar disto é simplesmente separar as funções de capturar tokens e procurar por palavras-chave. A versão de `Scan()` mostrada abaixo não faz NADA a não ser verificar palavras-chave. Repare que ela opera no token corrente e NÃO avança na entrada.
 
 ~~~c
-/* analisador léxico. analisa identificador ou palavra-chave */
+/* Analisador léxico */
 void Scan()
 {
     int kw;
@@ -269,7 +269,7 @@ Há um último detalhe. No compilador há alguns lugares onde temos que verifica
 A seguinte versão de `MatchString()` toma o lugar da versão caracter. Note que, como em `Match()`, ela AVANÇA na entrada.
 
 ~~~c
-/* compara string com texto do token atual */
+/* Compara string com texto do token atual */
 void MatchString(char *s)
 {
     if (strcmp(TokenText, s) != 0)
@@ -286,7 +286,7 @@ Armados com estas novas rotinas de análise léxica, podemos começar a arrumar 
 Em primeiro lugar, o código para a rotina `Block()` não muda, mas sua função sim:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     int follow = 0;
@@ -323,7 +323,7 @@ Lembre-se que a nova versão de `Scan()` não avança na entrada, apenas procura
 Em geral, temos que trocar todo teste em `Look` por um similar em `Token`. Por exemplo:
 
 ~~~c
-/* analisa e traduz uma expressão booleana */
+/* Analisa e traduz uma expressão booleana */
 void BoolExpression()
 {
     BoolTerm();
@@ -344,7 +344,7 @@ void BoolExpression()
 Em rotinas como `Add()`, não temos mais que usar `Match()`. Só temos que chamar `NextToken()` para avançar na entrada:
 
 ~~~c
-/* reconhece e traduz uma adição */
+/* Reconhece e traduz uma adição */
 void Add()
 {
     NextToken();
@@ -356,7 +356,7 @@ void Add()
 As estruturas de controle são na verdade mais simples. Simplesmente chamamos `NextToken()` para avançar nas palavras-chave de controle:
 
 ~~~c
-/* analiza e traduz um comando IF-ELSE-ENDIF */
+/* Analiza e traduz um comando IF-ELSE-ENDIF */
 void DoIf()
 {
     int l1, l2;

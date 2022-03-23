@@ -1,7 +1,7 @@
 #include "input.h"
 #include "parser.h"
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     InitInput();

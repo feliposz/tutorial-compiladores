@@ -51,12 +51,12 @@ Para traduzir isto, vamos começar com uma nova cópia do ["berço"](src/cap01-c
 Adicione o seguinte numa nova cópia do "berço":
 
 ~~~c
-/* analisa e traduz um programa Pascal */
+/* Analisa e traduz um programa Pascal */
 void Program()
 {
     char name;
 
-    Match('p'); /* trata do cabeçalho do programa */
+    Match('p'); /* Trata do cabeçalho do programa */
     name = GetName();
     AsmProlog(name);
     Match('.');
@@ -67,7 +67,7 @@ void Program()
 Insira uma chamada no programa principal:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -82,7 +82,7 @@ As rotinas `AsmProlog()` e `AsmEpilog()` executam ações necessárias para perm
 O DOS em particular é de certa forma fácil de lidar se você quer algo simples. É possível brincar um pouco mais com modelos de memória, organização dos segmentos, etc. Mas eu preferi usar algo mais simples e que funciona! Você pode adaptar os códigos da forma que preferir. Estes são os códigos para o `AsmProlog()` e `AsmEpilog()`:
 
 ~~~c
-/* emite código para o prólogo de um programa */
+/* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
     EmitLn(".model small");
@@ -92,7 +92,7 @@ void AsmProlog()
     EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
-/* emite código para o epílogo de um programa */
+/* Emite código para o epílogo de um programa */
 void AsmEpilog(char name)
 {
     printf("exit_prog:\n");
@@ -126,7 +126,7 @@ Adicionando Código
 Para adicionar código ao compilador, só precisamos tratar das características da linguagem uma a uma. Eu gosto de começar com uma rotina que não faz nada, e então adicionar detalhes de forma incremental. Vamos começar processando um bloco, de acordo com a PDL acima. Podemos fazer isto em dois estágios. Primeiro, adicione a rotina:
 
 ~~~c
-/* analisa e traduz um bloco Pascal */
+/* Analisa e traduz um bloco Pascal */
 void Block(char name)
 {
 }
@@ -135,12 +135,12 @@ void Block(char name)
 Então altere `Program()`:
 
 ~~~c
-/* analisa e traduz um programa */
+/* Analisa e traduz um programa */
 void Program()
 {
     char name;
     
-    Match('p'); /* trata do cabeçalho do programa */
+    Match('p'); /* Trata do cabeçalho do programa */
     name = GetName();
     AsmProlog();
     Block(name);
@@ -152,7 +152,7 @@ void Program()
 Isto certamente não deve alterar o funcionamento do nosso programa, e não altera. Mas agora a definição de `Program()` está completa, e podemos prosseguir com `Block()`. Isto é feito diretamente da definição BNF:
 
 ~~~c
-/* analisa e traduz um bloco pascal */
+/* Analisa e traduz um bloco pascal */
 void Block(char name)
 {
     Declarations();
@@ -186,7 +186,7 @@ A BNF para declarações em pascal é:
 Como de costume, vamos permitir que um simples caracter represente cada um destes tipos de declaração. A nova forma de `Declarations()` é:
 
 ~~~c
-/* analisa e traduz declarações pascal */
+/* Analisa e traduz declarações pascal */
 void Declarations()
 {
     int valid;
@@ -209,7 +209,7 @@ void Declarations()
 É claro que vamos precisar de rotinas pra cada um destes tipos de declaração. Desta vez, elas não podem ser apenas rotinas vazias, pois senão teríamos um laço infinito. No mínimo, cada reconhecedor deve eliminar o caracter que o invocou. Insira as seguintes rotinas:
 
 ~~~c
-/* funções de declaração pascal */
+/* Funções de declaração pascal */
 
 void Labels()
 {
@@ -254,7 +254,7 @@ Podemos inserir a parte dos comandos de forma similar. A BNF é assim:
 Note que os comandos podem começar com qualquer identificador exceto END. Então a primeira forma de `Statements()` é:
 
 ~~~c
-/* analisa e traduz um bloco de comandos pascal */
+/* Analisa e traduz um bloco de comandos pascal */
 void Statements()
 {
     Match('b');
@@ -341,7 +341,7 @@ Em Small C, as funções só podem ter o tipo padrão `int`, que não é declara
 Apesar de estarmos mais interessados em C completo aqui, eu vou mostrar o código correspondente a esta estrutura de nível mais alto de Small C. Este código é apenas para ilustração, não é necessário alterar seu programa.
 
 ~~~c
-/* analisa e traduz um programa Small C */
+/* Analisa e traduz um programa Small C */
 void Program()
 {
     while (Look != EOF) {
@@ -385,7 +385,7 @@ Podemos construir uma rotina de análise para as definições de classe e tipo, 
 Para começar, entre com a seguinte versão do programa principal:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -407,13 +407,13 @@ O programa funciona? Bem, seria difícil dizer que não, já que não estamos pe
 Agora, vamos fazer `GetClass()` fazer algo de valor. Declare a variável global:
 
 ~~~c
-char CurrentClass; /* classe atual lida por getClass */
+char CurrentClass; /* Classe atual lida por getClass */
 ~~~
 
 E agora altere `GetClass()`:
 
 ~~~c
-/* recebe uma classe de armazenamento C */
+/* Recebe uma classe de armazenamento C */
 void GetClass()
 {
     if (Look == 'a' || Look == 'x' || Look == 's') {
@@ -429,7 +429,7 @@ Aqui, eu usei 3 caracteres para representar os 3 tipos de classe de armazenament
 Podemos fazer algo semelhante para tipos. Entre com a seguinte rotina:
 
 ~~~c
-/* recebe um tipo de dado C */
+/* Recebe um tipo de dado C */
 void GetType()
 {
     CurrentType = ' ';
@@ -450,8 +450,8 @@ void GetType()
 Não esqueça de adicionar agora as variáveis globais:
 
 ~~~c
-char CurrentType; /* tipo atual lido por getType */
-char CurrentSigned; /* indica se tipo atual é com ou sem sinal */
+char CurrentType; /* Tipo atual lido por getType */
+char CurrentSigned; /* Indica se tipo atual é com ou sem sinal */
 ~~~
 
 Com estas duas rotinas, o compilador vai processar a classe de armazenamento a definição de tipo e armazenar o que encontrou. Podemos agora processar o resto da declaração.
@@ -461,7 +461,7 @@ Não estamos de forma alguma livres da complicação ainda, pois há ainda muita
 Insira agora `TopDeclaration()`:
 
 ~~~c
-/* analisa uma declaração global */
+/* Analisa uma declaração global */
 void TopDeclaration()
 {
     char name;
@@ -479,7 +479,7 @@ void TopDeclaration()
 Finalmente, adicione as rotinas `functionDeclaration` e `dataDeclaration`:
 
 ~~~c
-/* analisa uma declaração de função */
+/* Analisa uma declaração de função */
 void FunctionDeclaration(char name)
 {
     Match('(');
@@ -492,7 +492,7 @@ void FunctionDeclaration(char name)
         CurrentClass, CurrentSigned, CurrentType, name);
 }
 
-/* analisa uma declaração de variável */
+/* Analisa uma declaração de variável */
 void DoData(char name)
 {
     if (CurrentType == ' ')

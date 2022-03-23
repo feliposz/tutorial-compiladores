@@ -16,9 +16,9 @@ Este código é de livre distribuição e uso.
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define SYMBOLTABLE_SIZE 26
-char SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
+char SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
 
-/* rotinas utilitárias */
+/* Rotinas utilitárias */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -27,7 +27,7 @@ void Expected(char *fmt, ...);
 void Unrecognized(char name);
 void EmitLn(char *fmt, ...);
 
-/* tratamento da tabela de símbolos */
+/* Tratamento da tabela de símbolos */
 void DumpTable();
 char SymbolType(char name);
 char InTable(char name);
@@ -35,7 +35,7 @@ void Duplicate(char name);
 void CheckDuplicate(char name);
 void AddEntry(char name, char type);
 
-/* geração de código */
+/* Geração de código */
 void AsmAllocVar(char name, char type);
 void AsmLoadVar(char name, char type);
 void AsmStoreVar(char name, char type);
@@ -49,7 +49,7 @@ char AsmSameType(char t1, char t2, int ordMatters);
 char AsmPopAdd(char t1, char t2);
 char AsmPopSub(char t1, char t2);
 
-/* analisador léxico rudimentar */
+/* Analisador léxico */
 int IsAddOp(char c);
 int IsMulOp(char c);
 int IsOrOp(char c);
@@ -61,7 +61,7 @@ void Match(char c);
 char GetName();
 long GetNum();
 
-/* analisador sintático */
+/* Analisador sintático */
 void AllocVar(char name, char type);
 char LoadVar(char name);
 char LoadNum(long val);
@@ -78,7 +78,7 @@ char Expression();
 void Assignment();
 void Block();
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -91,7 +91,7 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     int i;
@@ -103,13 +103,13 @@ void Init()
     SkipWhite();
 }
 
-/* lê próximo caracter da entrada em lookahead */
+/* Lê próximo caracter da entrada em lookahead */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -123,7 +123,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -139,7 +139,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -155,13 +155,13 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* avisa a respeito de uma palavra-chave desconhecida */
+/* Avisa a respeito de uma palavra-chave desconhecida */
 void Unrecognized(char name)
 {
     Abort("Unrecognized keyword %c", name);
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -175,7 +175,7 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* exibe a tabela de símbolos */
+/* Exibe a tabela de símbolos */
 void DumpTable()
 {
     int i;
@@ -187,43 +187,43 @@ void DumpTable()
             printf("%c = %c\n", i + 'A', SymbolTable[i]);
 }
 
-/* retorna o tipo de um identificador */
+/* Retorna o tipo de um identificador */
 char SymbolType(char name)
 {
         return SymbolTable[name - 'A'];
 }
 
-/* verifica se "name" consta na tabela de símbolos */
+/* Verifica se "name" consta na tabela de símbolos */
 char InTable(char name)
 {
         return (SymbolTable[name - 'A'] != '?');
 }
 
-/* avisa a respeito de um identificador desconhecido */
+/* Avisa a respeito de um identificador desconhecido */
 void Duplicate(char name)
 {
     fprintf(stderr, "Error: Duplicated identifier %c\n", name);
     exit(1);
 }
 
-/* verifica se um identificador já foi declarado */
+/* Verifica se um identificador já foi declarado */
 void CheckDuplicate(char name)
 {
         if (InTable(name))
                 Duplicate(name);
 }
 
-/* adiciona novo identificador à tabela de símbolos */
+/* Adiciona nova entrada à tabela de símbolos */
 void AddEntry(char name, char type)
 {
     CheckDuplicate(name);
         SymbolTable[name - 'A'] = type;
 }
 
-/* gera código para armazenamento de variável */
+/* Gera código para armazenamento de variável */
 void AsmAllocVar(char name, char type)
 {
-    int btype; /* tamanho em bytes */
+    int btype; /* Tamanho em bytes */
 
     switch (type) {
         case 'b':
@@ -237,7 +237,7 @@ void AsmAllocVar(char name, char type)
     printf("%c d%c 0\n", name, btype);
 }
 
-/* gera código para carregar variável de acordo com o tipo */
+/* Gera código para carregar variável de acordo com o tipo */
 void AsmLoadVar(char name, char type)
 {
     switch (type) {
@@ -253,7 +253,7 @@ void AsmLoadVar(char name, char type)
     }
 }
 
-/* gera código para armazenar variável de acordo com o tipo */
+/* Gera código para armazenar variável de acordo com o tipo */
 void AsmStoreVar(char name, char type)
 {
     switch (type) {
@@ -269,7 +269,7 @@ void AsmStoreVar(char name, char type)
     }
 }
 
-/* converte tipo origem para destino */
+/* Converte tipo origem para destino */
 void AsmConvert(char src, char dst)
 {
     if (src == dst)
@@ -280,7 +280,7 @@ void AsmConvert(char src, char dst)
         EmitLn("CWD");
 }
 
-/* gera código para carregar uma constante de acordo com o tipo */
+/* Gera código para carregar uma constante de acordo com o tipo */
 void AsmLoadConst(long val, char type)
 {
     switch (type) {
@@ -297,23 +297,23 @@ void AsmLoadConst(long val, char type)
     }
 }
 
-/* zera o registrador primário */
+/* Zera o registrador primário */
 void AsmClear()
 {
     EmitLn("XOR AX, AX");
 }
 
-/* coloca valor na pilha */
+/* Coloca valor na pilha */
 void AsmPush(char type)
 {
     if (type == 'b')
-        EmitLn("CBW"); /* só é possível empilhar "word"s */
+        EmitLn("CBW"); /* Só é possível empilhar "word"s */
     if (type == 'l')
         EmitLn("PUSH DX");
     EmitLn("PUSH AX");
 }
 
-/* coloca em registrador(es) secundário(s) valor da pilha */
+/* Coloca em registrador(es) secundário(s) valor da pilha */
 void AsmPop(char type)
 {
     EmitLn("POP BX");
@@ -321,7 +321,7 @@ void AsmPop(char type)
         EmitLn("POP CX");
 }
 
-/* gera código para trocar registradores primário e secundário */
+/* Gera código para trocar registradores primário e secundário */
 void AsmSwap(char type)
 {
     switch (type) {
@@ -338,7 +338,7 @@ void AsmSwap(char type)
     }
 }
 
-/* faz a promoção dos tipos dos operandos e inverte a ordem dos mesmos se necessário */
+/* Faz a promoção dos tipos dos operandos e inverte a ordem dos mesmos se necessário */
 char AsmSameType(char t1, char t2, int ordMatters)
 {
     int swaped = 0;
@@ -361,7 +361,7 @@ char AsmSameType(char t1, char t2, int ordMatters)
     return type;
 }
 
-/* soma valor na pilha com valor no registrador primário */
+/* Soma valor na pilha com valor no registrador primário */
 char AsmPopAdd(char t1, char t2)
 {
     char type;
@@ -384,7 +384,7 @@ char AsmPopAdd(char t1, char t2)
     return type;
 }
 
-/* subtrai do valor da pilha o valor no registrador primário */
+/* Subtrai do valor da pilha o valor no registrador primário */
 char AsmPopSub(char t1, char t2)
 {
     char type;
@@ -407,51 +407,51 @@ char AsmPopSub(char t1, char t2)
     return type;
 }
 
-/* testa operadores de adição */
+/* Testa operadores de adição */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* testa operadores de multiplicação */
+/* Testa operadores de multiplicação */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
-/* testa operadores OU */
+/* Testa operadores OU */
 int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
-/* testa operadores relacionais */
+/* Testa operadores relacionais */
 int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
 
-/* reconhece um tipo de variável válido */
+/* Reconhece um tipo de variável válido */
 int IsVarType(char c)
 {
     return (c == 'b' || c == 'w' || c == 'l');
 }
 
-/* pula caracteres em branco */
+/* Pula caracteres em branco */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
-/* reconhece uma quebra de linha */
+/* Reconhece uma quebra de linha */
 void NewLine()
 {
     if (Look == '\n')
         NextChar();
 }
 
-/* verifica se Look combina com caracter esperado */
+/* Verifica se Look combina com caracter esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -460,7 +460,7 @@ void Match(char c)
     SkipWhite();
 }
 
-/* analisa e traduz um nome (identificador ou palavra-chave) */
+/* Analisa e traduz um nome (identificador ou palavra-chave) */
 char GetName()
 {
     char name;
@@ -474,7 +474,7 @@ char GetName()
     return name;
 }
 
-/* analisa e traduz um número inteiro longo */
+/* Analisa e traduz um número inteiro longo */
 long GetNum()
 {
     long num;
@@ -491,14 +491,14 @@ long GetNum()
     return num;
 }
 
-/* aloca espaço de armazenamento para variável */
+/* Aloca espaço de armazenamento para variável */
 void AllocVar(char name, char type)
 {
     AddEntry(name, type);
     AsmAllocVar(name, type);
 }
 
-/* carrega variável */
+/* Carrega variável */
 char LoadVar(char name)
 {
     char type = VarType(name);
@@ -506,7 +506,7 @@ char LoadVar(char name)
     return type;
 }
 
-/* carrega uma constante no registrador primário */
+/* Carrega uma constante no registrador primário */
 char LoadNum(long val)
 {
     char type;
@@ -522,7 +522,7 @@ char LoadNum(long val)
     return type;
 }
 
-/* armazena variável */
+/* Armazena variável */
 void StoreVar(char name, char srcType)
 {
     char dstType = VarType(name);
@@ -530,13 +530,13 @@ void StoreVar(char name, char srcType)
     AsmStoreVar(name, dstType);
 }
 
-/* avisa a respeito de um identificador que não é uma variável */
+/* Avisa a respeito de um identificador que não é uma variável */
 void NotVar(char name)
 {
     Abort("'%c' is not a variable", name);
 }
 
-/* pega o tipo da variável da tabela de símbolos */
+/* Pega o tipo da variável da tabela de símbolos */
 char VarType(char name)
 {
     char type;
@@ -548,7 +548,7 @@ char VarType(char name)
     return type;
 }
 
-/* analiza e traduz a declaração de uma variável */
+/* Analiza e traduz uma declaração de variável */
 void Declaration()
 {
     char type = Look;
@@ -556,7 +556,7 @@ void Declaration()
     AllocVar(GetName(), type);
 }
 
-/* analiza e traduz as declarações globais */
+/* Analiza e traduz as declarações globais */
 void TopDeclarations()
 {
     while (Look != 'B') {
@@ -574,14 +574,14 @@ void TopDeclarations()
     }
 }
 
-/* tratamento de operador unário */
+/* Tratamento de operador unário */
 char UnaryOp()
 {
     AsmClear();
     return 'w';
 }
 
-/* analisa e traduz um termo */
+/* Analisa e traduz um termo */
 char Term()
 {
     char type;
@@ -594,21 +594,21 @@ char Term()
     return type;
 }
 
-/* reconhece e traduz uma soma */
+/* Reconhece e traduz uma soma */
 char Add(char type)
 {
     Match('+');
     return AsmPopAdd(type, Term());
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 char Subtract(char type)
 {
     Match('-');
     return AsmPopSub(type, Term());
 }
 
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 char Expression()
 {
     char type;
@@ -632,7 +632,7 @@ char Expression()
     return type;
 }
 
-/* analisa e traduz uma atribuição */
+/* Analisa e traduz uma atribuição */
 void Assignment()
 {
     char name, type;
@@ -643,7 +643,7 @@ void Assignment()
     StoreVar(name, type);
 }
 
-/* analisa traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     while (Look != '.') {

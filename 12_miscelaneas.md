@@ -98,7 +98,7 @@ Dada qualquer uma destas sintaxes, é simples (agora que reorganizamos o analisa
 Pra começar, eu tornei as coisas mais fáceis, introduzindo um novo reconhecedor:
 
 ~~~c
-/* reconhece um ponto-e-vírgula */
+/* Reconhece um ponto-e-vírgula */
 void Semicolon()
 {
     MatchString(";");
@@ -110,7 +110,7 @@ Esta rotina funciona de forma muito parecida com à antiga `Match()`. Ela insist
 Como um ponto-e-vírgula segue um comando, a rotina `Block()` é praticamente a única que deve ser alterada:
 
 ~~~c
-/* analisa e traduz um bloco de comandos estilo "C/Ada" */
+/* Analisa e traduz um bloco de comandos estilo "C/Ada" */
 void Block()
 {
     int follow = 0;
@@ -149,7 +149,7 @@ Repare cuidadosamente na pequena alteração no comando switch. A chamada a `Ass
 Como as declarações são comandos também, também devemos adicionar uma chamada a `Semicolon()` dentro de `TopDeclarations()`:
 
 ~~~c
-/* analisa e traduz declarações */
+/* Analisa e traduz declarações */
 void TopDeclarations()
 {
     Scan();
@@ -166,7 +166,7 @@ void TopDeclarations()
 Finalmente, precisamos de mais uma para o comando PROGRAM.
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -190,7 +190,7 @@ int main()
 A versão Pascal é um pouco mais complicada, mas ainda assim ela requer apenas mudanças menores, e somente para a rotina `Block()` . Para manter as coisas o mais simples possível, vou separar a rotina em duas partes. A rotina seguinte trata de apenas um comando:
 
 ~~~c
-/* analisa e traduz um único comando */
+/* Analisa e traduz um único comando */
 void Statement()
 {
     Scan();
@@ -217,7 +217,7 @@ void Statement()
 Usando a rotina, podemos agora reescrever `Block()` :
 
 ~~~c
-/* analiza e traduz um bloco de comandos estilo "Pascal" */
+/* Analiza e traduz um bloco de comandos estilo "Pascal" */
 void Block()
 {
     Statement();
@@ -241,7 +241,7 @@ Então eu tenho algo em mente que parece ser um bom meio-termo: fazê-los OPCION
 Considere a seguinte versão de "semicolon":
 
 ~~~c
-/* reconhece um ponto-e-vírgula opcional */
+/* Reconhece um ponto-e-vírgula opcional */
 void Semicolon()
 {
     if (Token == ';')
@@ -270,7 +270,7 @@ Uma abordagem é eliminar os comentários no instante em que os encontramos na e
 Agora, vamos precisar de uma rotina que pule os comentários. Então, entre com esta nova rotina:
 
 ~~~c
-/* pula um campo de comentário */
+/* Pula um campo de comentário */
 void SkipComment()
 {
     while (Look != '}') {
@@ -285,7 +285,7 @@ Evidentemente, o que está rotina faz é simplesmente ler e descartar caracteres
 Agora podemos escrever uma nova versão de `NextChar()` que usa "skipComment" para remover os comentários:
 
 ~~~c
-/* lê próximo caracter da entrada e pula quaisquer comentários */
+/* Lê próximo caracter da entrada e pula quaisquer comentários */
 void NextChar()
 {
     NextCharX();
@@ -307,7 +307,7 @@ Mas se você preferir o tratamento convencional, então temos que mover o ponto 
 Para fazer isto, volte à versão anterior de `NextChar()` da forma como ela era antes e altere a chamada em `SkipComment()`. Então, vamos adicionar a chave esquerda ("{") como um possível caracter de espaço, alterando a rotina `SkipWhite()`:
 
 ~~~c
-/* pula caracteres em branco */
+/* Pula caracteres em branco */
 void SkipWhite()
 {
     while (isspace(Look) || Look == '{') {
@@ -328,12 +328,12 @@ Há mais um item a ser tratado: comentários aninhados. Alguns programadores gos
 Mas para arrumar isto é incrivelmente simples. Tudo o que precisamos fazer é tornar s `SkipComment()` recursivo:
 
 ~~~c
-/* pula um campo de comentário */
+/* Pula um campo de comentário */
 void SkipComment()
 {
     while (Look != '}') {
         NextChar();
-        if (Look == '{') /* trata comentários aninhados */
+        if (Look == '{') /* Trata comentários aninhados */
             SkipComment();
     }
     NextChar();
@@ -352,7 +352,7 @@ Para a situação multi-caracter, a coisa mais fácil a fazer é interceptar o d
 Vamos assumir que estamos usando os delimitadores de C "/*" e "*/". Primeiro, temos que voltar a abordagem `NextCharX()`. Em outra cópia do compilador, renomeie `NextChar()` para `NextCharX()` e então entre com a nova versão de `NextChar()`:
 
 ~~~c
-/* lê próximo caracter e intercepta início de comentário*/
+/* Lê próximo caracter e intercepta início de comentário*/
 void NextChar()
 {
     if (TempChar != ' ') {
@@ -384,7 +384,7 @@ char TempChar = ' ';
 Agora, precisamos de uma nova versão de `SkipComment()`:
 
 ~~~c
-/* pula um campo de comentário */
+/* Pula um campo de comentário */
 void SkipComment()
 {
     do {
@@ -407,7 +407,7 @@ Comentários de Uma Linha
 Até aqui eu mostrei como tratar de todo tipo de comentários delimitados pela esquerda e direita. Isto só deixa de lado os comentários de linha, como aqueles de linguagem Assembly (`;`), Ada (`--`) ou mesmo os de C++ (`//`), que são terminados pelo final da linha. De certa forma, este caso é até mais simples. A única rotina que deve ser alterada é `SkipComment()`, que agora deve terminar no final da linha:
 
 ~~~c
-/* pula um campo de comentário de uma só linha*/
+/* Pula um campo de comentário de uma só linha*/
 void SkipComment()
 {
     do {
@@ -420,7 +420,7 @@ void SkipComment()
 Se o caracter de início do comentário é único, como ";" de assembly, é praticamente isto. Basta alterar `SkipWhite()` para usá-lo. Repare que você não pode usar o ";" propriamente dito na nossa versão atual de TINY por razões óbvias. Como alternativa, podemos experimentar "#".
 
 ~~~c
-/* pula caracteres em branco */
+/* Pula caracteres em branco */
 void SkipWhite()
 {
     while (isspace(Look) || Look == '#') {

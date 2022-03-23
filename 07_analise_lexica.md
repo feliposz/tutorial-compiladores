@@ -81,7 +81,7 @@ Vamos escrever duas rotinas, que são muito similares à que usamos antes:
 
 
 ~~~c
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName(char *name)
 {
     int i;
@@ -95,7 +95,7 @@ void GetName(char *name)
     name[i] = '\0';
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum(char *num)
 {
     int i;
@@ -124,7 +124,7 @@ Note também que `GetNum()` usa uma string não um inteiro.
 Você pode verificar facilmente que estas rotinas funcionam fazendo uma chamada no programa principal, por exemplo:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     char name[MAXNAME+1];
@@ -145,7 +145,7 @@ Espaço em Branco
 Já tratamos também de espaços em branco antes, usando a rotina `SkipWhite()`:
 
 ~~~c
-/* pula caracteres de espaço */
+/* Pula caracteres de espaço */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
@@ -156,7 +156,7 @@ void SkipWhite()
 Adicione `SkipWhite()` no final de `GetName()` e `GetNum()` e esta nova rotina:
 
 ~~~c
-/* analisador léxico */
+/* Analisador léxico */
 void Scan(char *token)
 {
     if (isalpha(Look))
@@ -175,7 +175,7 @@ void Scan(char *token)
 Podemos chamar esta rotina do programa principal:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -267,7 +267,7 @@ Este tipo de comportamento não é tão ruim quanto parece. Em um compilador rea
 Certo, vamos arrumar o problema. Para fazer isto, volte para a versão anterior de `SkipWhite()` e faça uso da rotina `NewLine()` que eu introduzi da última vez:
 
 ~~~c
-/* reconhece uma linha em branco */
+/* Reconhece uma linha em branco */
 void NewLine()
 {
     if (Look == '\n')
@@ -280,7 +280,7 @@ Se ela não está na versão atual do "berço" acrescente-a agora.
 Modifique o programa principal para ficar assim:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -321,13 +321,13 @@ Além disso, outras linguagens tem operadores multi-caracter. como o ":=" de Pas
 Não é necessário dizer, podemos tratar de operadores de forma muito similar aos outros tokens. Vamos começar com um reconhecedor, entre com estas rotinas:
 
 ~~~c
-/* testa se caracter é um operador */
+/* Testa se caracter é um operador */
 int IsOp(char c)
 {
     return (strchr("+-*/<>:=", c) != NULL);
 }
 
-/* recebe um operador */
+/* Recebe um operador */
 void GetOp(char *op)
 {
     int i;
@@ -420,11 +420,11 @@ Uma das primeiras coisas que temos que fazer é arranjar um modo de identificar 
 Adicione as seguintes declarações ao programa junto com as outras variáveis globais:
 
 ~~~c
-/* tabela de definições de símbolos */
+/* Tabela de definições de símbolos */
 #define SYMBOLTABLE_SIZE 1000
 char *SymbolTable[SYMBOLTABLE_SIZE];
 
-/* definição de palavras-chave e tipos de token */
+/* Definição de palavras-chave e tipos de token */
 #define KEYWORDLIST_SIZE 4
 char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "END"};
 ~~~
@@ -434,7 +434,7 @@ A tabela de símbolos vai ter um tamanho limitado por enquanto. Só pra facilita
 Depois insira a seguinte função nova:
 
 ~~~c
-/* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
+/* Se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
 int Lookup(char *s, char *list[], int size)
 {
     int i;
@@ -452,7 +452,7 @@ int Lookup(char *s, char *list[], int size)
 Para testá-la, você pode alterar temporariamente o programa principal como segue:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -471,7 +471,7 @@ Agora que podemos reconhecer palavras-chave, a próxima coisa a fazer é retorna
 Que tipo de código deveríamos retornar? Há apenas duas escolhas razoáveis. Uma delas parece ser ideal para a aplicação do tipo enumerado. Por exemplo, é possível definir algo assim:
 
 ~~~c
-/* a ordem deve obedecer a lista de palavras-chave */
+/* A ordem deve obedecer a lista de palavras-chave */
 enum {
     KW_IF, KW_ELSE, KW_ENDIF, KW_END, 
     TK_IDENT, TK_NUMBER, TK_OPERATOR
@@ -524,7 +524,7 @@ void Scan()
 Finalmente altere o programa principal:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -564,7 +564,7 @@ Certo, compile e entre com algumas seqüências. Se tudo der certo, você vai pe
 O que temos agora, está funcionando perfeitamente, e foi fácil de gerar a partir do que tinhamos anteriormente. De qualquer forma, ainda está um pouco esquisito pra mim. Podemos simplificar as coisas um pouco permitindo que `GetName()`, `GetNum()`, `GetOp()` e `Scan()` trabalharem com as variáveis globais `Token` e `TokenText`, eliminando portando as cópias locais. E parece também mais "limpo" mover o teste em `Lookup()` dentro de `GetName()`. A nova forma para as rotinas é:
 
 ~~~c
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName()
 {
     int i, kw;
@@ -583,7 +583,7 @@ void GetName()
         Token = kw;
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum()
 {
     int i;
@@ -598,7 +598,7 @@ void GetNum()
     Token = TK_NUMBER;
 }
 
-/* recebe um operador */
+/* Recebe um operador */
 void GetOp()
 {
     int i;
@@ -613,7 +613,7 @@ void GetOp()
     Token = TK_OPERATOR;
 }
 
-/* analisador léxico */
+/* Analisador léxico */
 void Scan()
 {
     int kw;
@@ -656,14 +656,14 @@ Primeiro, você pode apagar a declaração das constantes agora... não vamos pr
 No lugar das constantes enumeradas, adicione a seguinte constante string:
 
 ~~~c
-/* a ordem deve obedecer a lista de palavras-chave */
+/* A ordem deve obedecer a lista de palavras-chave */
 const char *KeywordCode = "ilee";
 ~~~
 
 Por último modifique `Scan()` e seus parentes, como segue:
 
 ~~~c
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName()
 {
     int i, kw;
@@ -682,7 +682,7 @@ void GetName()
         Token = KeywordCode[kw];
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum()
 {
     int i;
@@ -697,7 +697,7 @@ void GetNum()
     Token = '#';
 }
 
-/* recebe um operador */
+/* Recebe um operador */
 void GetOp()
 {
     int i;
@@ -715,7 +715,7 @@ void GetOp()
         Token = '?';
 }
 
-/* analisador léxico */
+/* Analisador léxico */
 void Scan()
 {
     while (Look == '\n')
@@ -739,7 +739,7 @@ void Scan()
 Por último, modifique também o programa principal:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();

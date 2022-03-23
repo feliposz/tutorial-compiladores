@@ -18,7 +18,7 @@ Eu também não quero ficar me prendendo a lidar com comandos que não sejam con
 Começando com [uma nova cópia do "berço"](src/cap01-craddle.c), vamos definir a rotina:
 
 ~~~c
-/* reconhece e traduz um comando qualquer */
+/* Reconhece e traduz um comando qualquer */
 void Other()
 {
     EmitLn("; %c", GetName());
@@ -30,7 +30,7 @@ void Other()
 Agora inclua uma chamada no programa principal:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -56,7 +56,7 @@ O que indica o fim do bloco? Simplesmente, qualquer construção que não seja u
 Com estas idéias em mente, podemos continuar construindo nosso analisador. O código para o programa é:
 
 ~~~c
-/* analisa e traduz um programa completo */
+/* Analisa e traduz um programa completo */
 void Program()
 {
     Block();
@@ -71,7 +71,7 @@ Note que eu estou emitindo um "; END". Podemos considerá-lo como uma instruçã
 O código de "block" é:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     while (Look != 'e') {
@@ -127,7 +127,7 @@ Está claro portanto, que nós vamos precisar de uma rotina a mais para ajudar a
 Aqui está:
 
 ~~~c
-/* gera um novo rótulo único */
+/* Gera um novo rótulo único */
 int NewLabel()
 {
     return LabelCount++;
@@ -137,7 +137,7 @@ int NewLabel()
 Precisamos também de um comando para emitir o rótulo:
 
 ~~~c
-/* emite um rótulo */
+/* Emite um rótulo */
 void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
@@ -196,7 +196,7 @@ Com esta pequena explicação, finalmente estamos prontos para começar a codifi
 O código para `DoIf()` (repare que "if" é uma palavra reservada, logo, precisamos usar um identificador diferente) é:
 
 ~~~c
-/* analisa e traduz um comando IF */
+/* Analisa e traduz um comando IF */
 void DoIf()
 {
     int l;
@@ -214,7 +214,7 @@ void DoIf()
 Adicione esta rotina ao programa, altere `Block()` para se referir a `DoIf()` desta forma:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     while (Look != 'e') {
@@ -233,7 +233,7 @@ void Block()
 Note a referência à rotina `Condition()`. Eventualmente, vamos escrever uma rotina que possa analisar e traduzir expressões condicionais booleanas. Mas isto é assunto pra um capítulo inteiro ([o próximo](06_expressoes_booleanas.md), na verdade). Por enquanto, vamos apenas fazer uma rotina que só emite algum texto. Escreva a seguinte rotina:
 
 ~~~c
-/* analisa e traduz uma condição */
+/* Analisa e traduz uma condição */
 void Condition()
 {
     EmitLn("; condition");
@@ -310,7 +310,7 @@ O que nos leva à seguinte tradução dirigida pela sintaxe:
 Comparando isso com o caso de um IF sem ELSE nos dá uma dica de como tratar de ambas situações. O código abaixo faz isto. (Note que eu uso um "l" para ELSE, já que "e" está sendo usado pra outra coisa.)
 
 ~~~c
-/* analisa e traduz um comando IF */
+/* Analisa e traduz um comando IF */
 void DoIf()
 {
     int l1, l2;
@@ -386,7 +386,7 @@ Como antes, comparar as duas representações nos dá uma idéia de que ações 
 O código segue diretamente a sintaxe:
 
 ~~~c
-/* analisa e traduz um comando WHILE */
+/* Analisa e traduz um comando WHILE */
 void DoWhile()
 {
     int l1, l2;
@@ -409,7 +409,7 @@ void DoWhile()
 Como temos um comando novo, temos que adicionar a chamada à rotina `Block()`:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     while (Look != 'e' && Look != 'l') {
@@ -459,7 +459,7 @@ e a tradução dirigida pela sintaxe:
 O código correspondente é mostrado abaixo. Como eu já usei "l" pra ELSE, vou usar a última letra "p" como a "palavra-chave" no momento.
 
 ~~~c
-/* analisa e traduz um comando LOOP */
+/* Analisa e traduz um comando LOOP */
 void DoLoop()
 {
     int l;
@@ -497,7 +497,7 @@ A tradução dirigida fica assim:
 Como de costume o código é bem fácil:
 
 ~~~c
-/* analisa e traduz um REPEAT-UNTIL*/
+/* Analisa e traduz um REPEAT-UNTIL*/
 void DoRepeat()
 {
     int l;
@@ -515,7 +515,7 @@ void DoRepeat()
 Como sempre, tivemos que adicionar a chamada de `DoRepeat()` a `Block()`. Desta vez há uma diferença. Eu decidi usar "r" para REPEAT (naturalmente), mas também decidi usar "u" para UNTIL. Isto significa que o "u" deve ser adicionado ao conjunto de caracteres no teste do `while` em `Block()`. Estes são os caracteres que indicam o fim do bloco atual... os caracteres "seguidores" (follow), em jargão de compiladores. Eu alterei a rotina pra deixar o teste dentro do `switch`. Assim fica mais simples:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     int follow;
@@ -601,7 +601,7 @@ Uau! É um monte de código... a linha contendo <block> parece simplesmente se p
 Apesar disso, a rotina do analisador é bem simples agora que temos o código:
 
 ~~~c
-/* analisa e traduz um comando FOR*/
+/* Analisa e traduz um comando FOR*/
 void DoFor()
 {
     int l1, l2;
@@ -672,7 +672,7 @@ A sintaxe e a tradução:
 Isto é bem mais simples! O laço vai executar <expr> vezes. Este é o código:
 
 ~~~c
-/* analisa e traduz um comando DO */
+/* Analisa e traduz um comando DO */
 void DoDo()
 {
     int l;
@@ -706,7 +706,7 @@ O segredo é notar que todo comando BREAK deve ocorrer dentro de um bloco... nã
 Tudo isto é mais simples de mostrar do que de descrever. Eu vou mostrar primeiro com o laço mais fácil, que é o LOOP:
 
 ~~~c
-/* analisa e traduz um comando LOOP*/
+/* Analisa e traduz um comando LOOP*/
 void DoLoop()
 {
     int l1, l2;
@@ -727,7 +727,7 @@ Note que agora `DoLoop()` tem 2 rótulos, não apenas um. O segundo é para dar 
 Note também que agora `Block()` tem um parâmetro, que será sempre o endereço de saída do laço. A nova versão de `Block()` é:
 
 ~~~c
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block(int exitLabel)
 {
     int follow;
@@ -775,7 +775,7 @@ Novamente, repare que tudo o que `Block()` faz é passar o rótulo para `DoIf()`
 A nova versão de `DoIf()` é:
 
 ~~~c
-/* analisa e traduz um comando IF */
+/* Analisa e traduz um comando IF */
 void DoIf(int exitLabel)
 {
     int l1, l2;
@@ -803,7 +803,7 @@ Agora, a única coisa que muda é a adição do parâmetro à rotina `Block()`. 
 Agora, lembre-se que `Program()` também chama `Block()`, agora ele também tem que passar um rótulo. A tentativa de sair do bloco mais externo é um erro, então `Program()` passa um rótulo inválido que é detectado por `DoBreak()`:
 
 ~~~c
-/* analisa e traduz um comando BREAK */
+/* Analisa e traduz um comando BREAK */
 void DoBreak(int exitLabel)
 {
     Match('b');
@@ -816,7 +816,7 @@ void DoBreak(int exitLabel)
 E `Program()` fica assim:
 
 ~~~c
-/* analisa e traduz um programa completo */
+/* Analisa e traduz um programa completo */
 void Program()
 {
     Block(-1);
@@ -831,7 +831,7 @@ Isto cuida de quase tudo. Teste e veja se é possível fazer um BREAK de qualque
 Eu disse "quase" acima. Há um pequeno problema: se você der uma olhada no código gerado para DO, vai ver que se você sair deste laço, o valor do contador do laço vai ser deixado na pilha. Temos que arrumar isto! Uma vergonha... era uma das menores rotinas, mas não tem jeito. Aqui uma versão que não tem problemas:
 
 ~~~c
-/* analisa e traduz um comando DO*/
+/* Analisa e traduz um comando DO*/
 void DoDo()
 {
     int l1, l2;

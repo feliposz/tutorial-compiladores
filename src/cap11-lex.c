@@ -16,23 +16,23 @@ Este código é de livre distribuição e uso.
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
 #define MAXTOKEN 16
-char Token; /* código do token atual */
-char TokenText[MAXTOKEN+1]; /* texto do token atual */
+char Token; /* Código do token atual */
+char TokenText[MAXTOKEN+1]; /* Texto do token atual */
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* pula caracteres em branco */
+/* Pula caracteres em branco */
 void SkipWhite()
 {
     while (isspace(Look))
         NextChar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -46,7 +46,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -62,7 +62,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -79,7 +79,7 @@ void Expected(char *fmt, ...)
 }
 
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -92,7 +92,7 @@ void EmitLn(char *fmt, ...)
 
     putchar('\n');
 }
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -100,7 +100,7 @@ void Match(char c)
     NextChar();
 }
 
-/* recebe o nome de um identificador ou palavra-chave */
+/* Recebe o nome de um identificador ou palavra-chave */
 void GetName()
 {
     int i;
@@ -116,7 +116,7 @@ void GetName()
     Token = 'x';
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum()
 {
     int i;
@@ -132,7 +132,7 @@ void GetNum()
     Token = '#';
 }
 
-/* analisa e traduz um operador */
+/* Analisa e traduz um operador */
 void GetOp()
 {
     SkipWhite();
@@ -142,7 +142,7 @@ void GetOp()
     NextChar();
 }
 
-/* pega o próximo Token de entrada */
+/* Pega o próximo Token de entrada */
 void NextToken()
 {
     SkipWhite();
@@ -154,13 +154,13 @@ void NextToken()
         GetOp();
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     NextChar();
 }
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();

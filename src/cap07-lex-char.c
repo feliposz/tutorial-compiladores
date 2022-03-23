@@ -19,22 +19,22 @@ Este código é de livre distribuição e uso.
 #define MAXOP 2
 #define MAXTOKEN 30
 
-/* tabela de definições de símbolos */
+/* Tabela de definições de símbolos */
 #define SYMBOLTABLE_SIZE 1000
 char *SymbolTable[SYMBOLTABLE_SIZE];
 
-/* definição de palavras-chave e tipos de token */
+/* Definição de palavras-chave e tipos de token */
 #define KEYWORDLIST_SIZE 4
 char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "END"};
 
-/* a ordem deve obedecer a lista de palavras-chave */
+/* A ordem deve obedecer a lista de palavras-chave */
 const char *KeywordCode = "ilee";
 
 char Token;
 char TokenText[MAXTOKEN+1];
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
-/* protótipos */
+/* Protótipos */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -52,7 +52,7 @@ void GetOp();
 void Scan();
 int Lookup(char *s, char *list[], int size);
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -83,19 +83,19 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     NextChar();
 }
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -109,7 +109,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -125,7 +125,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -141,14 +141,14 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* pula caracteres de espaço */
+/* Pula caracteres de espaço */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
-/* pular uma vírgula */
+/* Pular uma vírgula */
 void SkipComma()
 {
     SkipWhite();
@@ -158,14 +158,14 @@ void SkipComma()
     }
 }
 
-/* reconhece uma linha em branco */
+/* Reconhece uma linha em branco */
 void NewLine()
 {
     if (Look == '\n')
         NextChar();
 }
 
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -173,13 +173,13 @@ void Match(char c)
     NextChar();
 }
 
-/* testa se caracter é um operador */
+/* Testa se caracter é um operador */
 int IsOp(char c)
 {
     return (strchr("+-*/<>:=", c) != NULL);
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -193,7 +193,7 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName()
 {
     int i, kw;
@@ -212,7 +212,7 @@ void GetName()
         Token = KeywordCode[kw];
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum()
 {
     int i;
@@ -227,7 +227,7 @@ void GetNum()
     Token = '#';
 }
 
-/* recebe um operador */
+/* Recebe um operador */
 void GetOp()
 {
     int i;
@@ -245,7 +245,7 @@ void GetOp()
         Token = '?';
 }
 
-/* analisador léxico */
+/* Analisador léxico */
 void Scan()
 {
     while (Look == '\n')
@@ -265,7 +265,7 @@ void Scan()
     SkipWhite();
 }
 
-/* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
+/* Se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
 int Lookup(char *s, char *list[], int size)
 {
     int i;

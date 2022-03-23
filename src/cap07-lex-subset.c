@@ -19,15 +19,15 @@ Este código é de livre distribuição e uso.
 #define MAXOP 2
 #define MAXTOKEN 30
 
-/* tabela de definições de símbolos */
+/* Tabela de definições de símbolos */
 #define SYMBOLTABLE_SIZE 1000
 char *SymbolTable[SYMBOLTABLE_SIZE];
 
-/* definição de palavras-chave e tipos de token */
+/* Definição de palavras-chave e tipos de token */
 #define KEYWORDLIST_SIZE 4
 char *KeywordList[KEYWORDLIST_SIZE] = { "IF", "ELSE", "ENDIF", "END" };
 
-/* a ordem deve obedecer a lista de palavras-chave */
+/* A ordem deve obedecer a lista de palavras-chave */
 const char *KeywordCode = "ilee";
 
 char Token;
@@ -36,7 +36,7 @@ char TokenText[MAXTOKEN + 1];
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
-                /* protótipos */
+                /* Protótipos */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -77,7 +77,7 @@ void DoIf();
 void Block();
 void Program();
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -86,7 +86,7 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     LabelCount = 0;
@@ -94,13 +94,13 @@ void Init()
     SkipWhite();
 }
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -114,7 +114,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -130,7 +130,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -146,7 +146,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* verifica se o caracter combina com o esperado */
+/* Verifica se o caracter combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -155,14 +155,14 @@ void Match(char c)
     SkipWhite();
 }
 
-/* verifica se a string combina com o esperado */
+/* Verifica se a string combina com o esperado */
 void MatchString(char *s)
 {
     if (strcmp(TokenText, s) != 0)
         Expected("'%s'", s);
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName()
 {
     int i;
@@ -181,7 +181,7 @@ void GetName()
     SkipWhite();
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum()
 {
     int i;
@@ -198,13 +198,13 @@ void GetNum()
     SkipWhite();
 }
 
-/* testa se caracter é um operador */
+/* Testa se caracter é um operador */
 int IsOp(char c)
 {
     return (strchr("+-*/<>:=", c) != NULL);
 }
 
-/* recebe um operador */
+/* Recebe um operador */
 void GetOp()
 {
     int i;
@@ -223,7 +223,7 @@ void GetOp()
         Token = '?';
 }
 
-/* analisador léxico */
+/* Analisador léxico */
 void Scan()
 {
     int kw;
@@ -234,7 +234,7 @@ void Scan()
         Token = KeywordCode[kw];
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -248,45 +248,45 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* reconhece uma linha em branco */
+/* Reconhece uma linha em branco */
 void NewLine()
 {
     if (Look == '\n')
         NextChar();
 }
 
-/* pula caracteres de espaço */
+/* Pula caracteres de espaço */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
-/* reconhece operador aditivo */
+/* Reconhece operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* reconhece operador multiplicativo */
+/* Reconhece operador multiplicativo */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
-/* gera um novo rótulo único */
+/* Gera um novo rótulo único */
 int NewLabel()
 {
     return LabelCount++;
 }
 
-/* emite um rótulo */
+/* Emite um rótulo */
 void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 
-/* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
+/* Se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
 int Lookup(char *s, char *list[], int size)
 {
     int i;
@@ -300,7 +300,7 @@ int Lookup(char *s, char *list[], int size)
     return -1;
 }
 
-/* analisa e traduz um identificador */
+/* Analisa e traduz um identificador */
 void Ident()
 {
     GetName();
@@ -314,7 +314,7 @@ void Ident()
         EmitLn("MOV AX, [%s]", TokenText);
 }
 
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name[MAXNAME + 1];
@@ -324,7 +324,7 @@ void Assignment()
     EmitLn("MOV [%s], AX", name);
 }
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     if (Look == '(')
@@ -342,7 +342,7 @@ void Factor()
     }
 }
 
-/* analisa e traduz um fator com sinal opcional */
+/* Analisa e traduz um fator com sinal opcional */
 void SignedFactor()
 {
     int minusSign = (Look == '-');
@@ -356,7 +356,7 @@ void SignedFactor()
         EmitLn("NEG AX");
 }
 
-/* reconhece e traduz uma soma */
+/* Reconhece e traduz uma soma */
 void Add()
 {
     Match('+');
@@ -365,7 +365,7 @@ void Add()
     EmitLn("ADD AX, BX");
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -375,7 +375,7 @@ void Subtract()
     EmitLn("NEG AX");
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 void Multiply()
 {
     Match('*');
@@ -384,7 +384,7 @@ void Multiply()
     EmitLn("IMUL BX");
 }
 
-/* reconhece e traduz uma divisão */
+/* Reconhece e traduz uma divisão */
 void Divide()
 {
     Match('/');
@@ -395,7 +395,7 @@ void Divide()
     EmitLn("IDIV BX");
 }
 
-/* código comum a firstTerm e term */
+/* Código comum usado por "term" e "firstTerm" */
 void TermCommon()
 {
     while (IsMulOp(Look))
@@ -413,21 +413,21 @@ void TermCommon()
     }
 }
 
-/* analisa e traduz um termo matemático no início de uma expressão */
+/* Analisa e traduz um termo matemático no início de uma expressão */
 void FirstTerm()
 {
     SignedFactor();
     TermCommon();
 }
 
-/* analisa e traduz um termo matemático */
+/* Analisa e traduz um termo matemático */
 void Term()
 {
     Factor();
     TermCommon();
 }
 
-/* analisa e traduz uma expressão matemática */
+/* Analisa e traduz uma expressão matemática */
 void Expression()
 {
     FirstTerm();
@@ -446,7 +446,7 @@ void Expression()
     }
 }
 
-/* analisa e traduz uma condição */
+/* Analisa e traduz uma condição */
 void Condition()
 {
     EmitLn("; condition");
@@ -472,7 +472,7 @@ void DoIf()
     MatchString("ENDIF");
 }
 
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     int follow = 0;
@@ -493,7 +493,7 @@ void Block()
     }
 }
 
-/* analisa e traduz um programa completo */
+/* Analisa e traduz um programa completo */
 void Program()
 {
     Block();

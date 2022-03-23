@@ -5,7 +5,7 @@
 #include "errors.h"
 #include "parser.h"
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     if (isdigit(Look))

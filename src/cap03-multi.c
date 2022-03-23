@@ -18,7 +18,7 @@ Este código é de livre distribuição e uso.
 
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 
-/* protótipos */
+/* Protótipos */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -40,7 +40,7 @@ void Multiply();
 void Divide();
 int IsAddOp(char c);
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -51,20 +51,20 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     NextChar();
     SkipWhite();
 }
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -78,7 +78,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -94,7 +94,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -110,14 +110,14 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* pula caracteres de espaço */
+/* Pula caracteres de espaço */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
         NextChar();
 }
 
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -126,7 +126,7 @@ void Match(char c)
     SkipWhite();
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName(char *name)
 {
     int i;
@@ -142,7 +142,7 @@ void GetName(char *name)
     SkipWhite();
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum(char *num)
 {
     int i;
@@ -158,7 +158,7 @@ void GetNum(char *num)
     SkipWhite();
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -172,7 +172,7 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* analisa e traduz um identificador */
+/* Analisa e traduz um identificador */
 void Ident()
 {
     char name[MAXNAME+1];
@@ -185,7 +185,7 @@ void Ident()
         EmitLn("MOV AX, [%s]", name);
 }
 
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name[MAXNAME+1];
@@ -195,7 +195,7 @@ void Assignment()
     EmitLn("MOV [%s], AX", name);
 }
 
-/* analisa e traduz um fator */
+/* Analisa e traduz um fator */
 void Factor()
 {
     char num[MAXNUM+1];
@@ -211,7 +211,7 @@ void Factor()
     }
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 void Multiply()
 {
     Match('*');
@@ -220,7 +220,7 @@ void Multiply()
     EmitLn("IMUL BX");
 }
 
-/* reconhece e traduz uma divisão */
+/* Reconhece e traduz uma divisão */
 void Divide()
 {
     Match('/');
@@ -231,7 +231,7 @@ void Divide()
     EmitLn("IDIV BX");
 }
 
-/* analisa e traduz um termo */
+/* Analisa e traduz um termo */
 void Term()
 {
     Factor();
@@ -248,7 +248,7 @@ void Term()
     }
 }
 
-/* reconhece e traduz uma adição */
+/* Reconhece e traduz uma adição */
 void Add()
 {
     Match('+');
@@ -257,7 +257,7 @@ void Add()
     EmitLn("ADD AX, BX");
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -267,7 +267,7 @@ void Subtract()
     EmitLn("NEG AX");
 }
 
-/* reconhece e traduz uma expressão */
+/* Reconhece e traduz uma expressão */
 void Expression()
 {
     if (IsAddOp(Look))
@@ -287,7 +287,7 @@ void Expression()
     }
 }
 
-/* reconhece operador aditivo */
+/* Reconhece operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');

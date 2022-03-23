@@ -46,7 +46,7 @@ No assembly 80x86 podemos fazer o seguinte para ler uma variável:
 Sabendo como fazer agora, vamos alterar o código de Factor():
 
 ~~~c
-/* analisa e traduz um fator */
+/* Analisa e traduz um fator */
 void Factor()
 {
     if (Look == '(') {
@@ -79,7 +79,7 @@ Como nós não estamos tratando de listas de parâmetro ainda, não há nada a s
 Agora que há duas possibilidades no `if (isalpha(Look))` do teste em `Factor()`, vamos tratá-las em uma rotina separada. Modifique `Factor()` assim:
 
 ~~~c
-/* analisa e traduz um fator */
+/* Analisa e traduz um fator */
 void Factor()
 {
     if (Look == '(') {
@@ -96,7 +96,7 @@ void Factor()
 E adicione a seguinte função:
 
 ~~~c
-/* analisa e traduz um identificador */
+/* Analisa e traduz um identificador */
 void Ident()
 {
     char name;
@@ -154,7 +154,7 @@ Neste ponto nós temos um analisador que funciona muito bem. Eu gostaria de ress
 Estamos a apenas um passo de analisar um comando de atribuição, então vamos dar este último passo. Adicione esta nova rotina:
 
 ~~~c
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name;
@@ -186,7 +186,7 @@ A definição usual de um identificador é que o primeiro caracter deve ser uma 
 Altere a função `GetName()` da seguinte forma:
 
 ~~~c
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName(char *name)
 {
     int i;
@@ -205,7 +205,7 @@ void GetName(char *name)
 Da mesma forma, altere GetNum():
 
 ~~~c
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum(char *num)
 {
     int i;
@@ -231,7 +231,7 @@ Declare as definições para os valores de MAXNAME e MAXNUM. Eu coloquei estes v
 Além destas funções você deve alterar também estas outras que usam GetName() e GetNum():
 
 ~~~c
-/* analisa e traduz um identificador */
+/* Analisa e traduz um identificador */
 void Ident()
 {
     char name[MAXNAME+1];
@@ -244,7 +244,7 @@ void Ident()
         EmitLn("MOV AX, [%s]", name);
 }
 
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name[MAXNAME+1];
@@ -254,7 +254,7 @@ void Assignment()
     EmitLn("MOV [%s], AX", name);
 }
 
-/* analisa e traduz um fator */
+/* Analisa e traduz um fator */
 void Factor()
 {
     char num[MAXNUM+1];
@@ -290,7 +290,7 @@ Parece ser uma regra boa, portanto é a que vamos usar. Isto significa que toda 
 Precisamos de uma rotina para "engolir" caracteres de espaço em branco, até que encontre um que não seja.
 
 ~~~c
-/* pula caracteres de espaço */
+/* Pula caracteres de espaço */
 void SkipWhite()
 {
     while (Look == ' ' || Look == '\t')
@@ -301,7 +301,7 @@ void SkipWhite()
 Agora adicione chamadas a SkipWhite() a Match(), GetName() e GetNum() conforme abaixo:
 
 ~~~c
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -310,7 +310,7 @@ void Match(char c)
     SkipWhite();
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 void GetName(char *name)
 {
     int i;
@@ -326,7 +326,7 @@ void GetName(char *name)
     SkipWhite();
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum(char *num)
 {
     int i;
@@ -346,7 +346,7 @@ void GetNum(char *num)
 Finalmente, vamos pular também os espaços iniciais em Init().
 
 ~~~c
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     NextChar();

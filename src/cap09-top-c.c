@@ -14,23 +14,23 @@ Este código é de livre distribuição e uso.
 #include <ctype.h>
 
 int Look; /* O caracter lido "antecipadamente" (lookahead) */
-char CurrentClass; /* classe atual lida por getClass */
-char CurrentType; /* tipo atual lido por getType */
-char CurrentSigned; /* indica se tipo atual é com ou sem sinal */
+char CurrentClass; /* Classe atual lida por getClass */
+char CurrentType; /* Tipo atual lido por getType */
+char CurrentSigned; /* Indica se tipo atual é com ou sem sinal */
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     NextChar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -44,7 +44,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -60,7 +60,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -76,7 +76,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -84,7 +84,7 @@ void Match(char c)
     NextChar();
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 char GetName()
 {
     char name;
@@ -97,7 +97,7 @@ char GetName()
     return name;
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 char GetNum()
 {
     char num;
@@ -110,7 +110,7 @@ char GetNum()
     return num;
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -124,7 +124,7 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* recebe uma classe de armazenamento C */
+/* Recebe uma classe de armazenamento C */
 void GetClass()
 {
     if (Look == 'a' || Look == 'x' || Look == 's') {
@@ -134,7 +134,7 @@ void GetClass()
         CurrentClass = 'a';
 }
 
-/* recebe um tipo de dado C */
+/* Recebe um tipo de dado C */
 void GetType()
 {
     CurrentType = ' ';
@@ -151,7 +151,7 @@ void GetType()
     }
 }
 
-/* analisa uma declaração de função */
+/* Analisa uma declaração de função */
 void FunctionDeclaration(char name)
 {
     Match('(');
@@ -164,7 +164,7 @@ void FunctionDeclaration(char name)
         CurrentClass, CurrentSigned, CurrentType, name);
 }
 
-/* analisa uma declaração de variável */
+/* Analisa uma declaração de variável */
 void DoData(char name)
 {
     if (CurrentType == ' ')
@@ -180,7 +180,7 @@ void DoData(char name)
     Match(';');
 }
 
-/* analisa uma declaração */
+/* Analisa uma declaração */
 void TopDeclaration()
 {
     char name;
@@ -192,7 +192,7 @@ void TopDeclaration()
         DoData(name);
 }
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();

@@ -16,7 +16,7 @@ Este código é de livre distribuição e uso.
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
-/* protótipos */
+/* Protótipos */
 void Init();
 void NextChar();
 void Error(char *fmt, ...);
@@ -44,7 +44,7 @@ void DoBreak(int exitLabel);
 void Block(int exitLabel);
 void Program();
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -53,20 +53,20 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     LabelCount = 0;
     NextChar();
 }
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -80,7 +80,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -96,7 +96,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -112,7 +112,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -120,7 +120,7 @@ void Match(char c)
     NextChar();
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 char GetName()
 {
     char name;
@@ -133,7 +133,7 @@ char GetName()
     return name;
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 char GetNum()
 {
     char num;
@@ -146,7 +146,7 @@ char GetNum()
     return num;
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -160,37 +160,37 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* gera um novo rótulo único */
+/* Gera um novo rótulo único */
 int NewLabel()
 {
     return LabelCount++;
 }
 
-/* emite um rótulo */
+/* Emite um rótulo */
 void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 
-/* analisa e traduz uma condição */
+/* Analisa e traduz uma condição */
 void Condition()
 {
     EmitLn("; condition");
 }
 
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 void Expression()
 {
     EmitLn("; expression");
 }
 
-/* reconhece e traduz um comando qualquer */
+/* Reconhece e traduz um comando qualquer */
 void Other()
 {
     EmitLn("; %c", GetName());
 }
 
-/* analisa e traduz um comando IF */
+/* Analisa e traduz um comando IF */
 void DoIf(int exitLabel)
 {
     int l1, l2;
@@ -212,7 +212,7 @@ void DoIf(int exitLabel)
     PostLabel(l2);
 }
 
-/* analisa e traduz um comando WHILE */
+/* Analisa e traduz um comando WHILE */
 void DoWhile()
 {
     int l1, l2;
@@ -229,7 +229,7 @@ void DoWhile()
     PostLabel(l2);
 }
 
-/* analisa e traduz um comando LOOP*/
+/* Analisa e traduz um comando LOOP*/
 void DoLoop()
 {
     int l1, l2;
@@ -244,7 +244,7 @@ void DoLoop()
     PostLabel(l2);
 }
 
-/* analisa e traduz um REPEAT-UNTIL*/
+/* Analisa e traduz um REPEAT-UNTIL*/
 void DoRepeat()
 {
     int l1, l2;
@@ -260,7 +260,7 @@ void DoRepeat()
     PostLabel(l2);
 }
 
-/* analisa e traduz um comando FOR*/
+/* Analisa e traduz um comando FOR*/
 void DoFor()
 {
     int l1, l2;
@@ -291,7 +291,7 @@ void DoFor()
     EmitLn("POP AX");
 }
 
-/* analisa e traduz um comando DO */
+/* Analisa e traduz um comando DO */
 void DoDo()
 {
     int l1, l2;
@@ -312,7 +312,7 @@ void DoDo()
     EmitLn("POP CX");
 }
 
-/* analisa e traduz um comando BREAK */
+/* Analisa e traduz um comando BREAK */
 void DoBreak(int exitLabel)
 {
     Match('b');
@@ -321,7 +321,7 @@ void DoBreak(int exitLabel)
     EmitLn("JMP L%d", exitLabel);
 }
 
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block(int exitLabel)
 {
     int follow;
@@ -363,7 +363,7 @@ void Block(int exitLabel)
     }
 }
 
-/* analisa e traduz um programa completo */
+/* Analisa e traduz um programa completo */
 void Program()
 {
     Block(-1);

@@ -73,7 +73,7 @@ Crie o arquivo `main.c`:
 #include <stdio.h>
 #include "input.h"
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     InitInput();
@@ -117,7 +117,7 @@ Teste a nova unidade com o seguinte programa (altere o arquivo `main.c`):
 #include "input.h"
 #include "output.h"
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     InitInput();
@@ -159,7 +159,7 @@ Como de costume, aí vai um programa de teste (altere o arquivo `main.c`):
 #include "output.h"
 #include "errors.h"
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     char name = 'A';
@@ -201,7 +201,7 @@ O seguinte fragmento de código provê um bom teste para o analisador léxico (a
 #include "input.h"
 #include "scanner.h"
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     InitInput();
@@ -233,7 +233,7 @@ Já que esta já faz parte da nossa versão multi-caracter, convém copiar todos
 Copie o código da unidade anterior OBSERVANDO a mudança dos nomes das unidade e adicione as rotinas abaixo:
 
 ~~~c
-/* retorna um identificador */
+/* Retorna um identificador */
 void GetName(char *name)
 {
     int i;
@@ -249,7 +249,7 @@ void GetName(char *name)
     name[i] = '\0';
 }
 
-/* retorna um número */
+/* Retorna um número */
 void GetNum(char *num)
 {
     int i;
@@ -279,7 +279,7 @@ Altere o arquivo `main.c`:
 #include "input.h"
 #include "scanner.h"
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
@@ -331,7 +331,7 @@ O que finalmente me levou de volta à abordagem com strings foi a aplicação ag
 Para aqueles de vocês que acham que vamos precisar da versão inteira (e de fato talvez precisemos), aqui está ela:
 
 ~~~c
-/* retorna um número */
+/* Retorna um número */
 long GetNum()
 {
     long num = 0;
@@ -382,7 +382,7 @@ Crie o arquivo [parser.c](src/cap15/MULTI/parser.c):
 #include "codegen.h"
 #include "parser.h"
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     char num[MAXNUM+1];
@@ -415,7 +415,7 @@ Crie o arquivo [codegen.c](src/cap15/MULTI/codegen.c):
 #include "output.h"
 #include "codegen.h"
 
-/* carrega uma constante no registrador primário */
+/* Carrega uma constante no registrador primário */
 void AsmLoadConst(char *s)
 {
     EmitLn("MOV AX, %s", s);
@@ -428,7 +428,7 @@ Compile e teste esta unidade com o seguinte programa principal:
 #include "input.h"
 #include "parser.h"
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     InitInput();
@@ -443,7 +443,7 @@ Ai está, o código está sendo gerado conforme esperado.
 Agora, eu espero que você possa ver a vantagem do nosso novo projeto baseado em unidades separadas. Agora temos um programa principal que possui cinco linhas de tamanho. É tudo o que precisamos ver no programa, a menos que queiramos ver mais. E mesmo assim, todas as outras unidades estão lá, esperando para nos ajudar. Agora temos um código simples e curto, mas aliados poderosos. O que precisa ser feito agora é adicionar códigos às unidades para combinar com as capacidades desenvolvidas nos capítulos anteriores. Nós vamos fazer isto no próximo capítulo, mas antes de terminar, vamos terminar a análise de um fator, apenas para ficarmos satisfeitos de que ainda sabemos como fazê-lo. A versão final de "codegen" inclui o novo procedimento `AsmLoadVar()`. Inclua este novo procedimento na implementação do módulo (e não esqueça de acrescentá-lo no cabeçalho também):
 
 ~~~c
-/* carrega uma variável no registrador primário */
+/* Carrega uma variável no registrador primário */
 void AsmLoadVar(char *s)
 {
     EmitLn("MOV AX, [%s]", s);
@@ -460,7 +460,7 @@ O módulo de análise em si não muda, mas temos uma versão mais complexa de `F
 #include "errors.h"
 #include "parser.h"
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];

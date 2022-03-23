@@ -3,6 +3,6 @@
 
 #include <stdarg.h>
 
-void EmitLn(char *s, ...); /* emite uma instrução */
+void EmitLn(char *s, ...); /* Emite uma instrução */
 
 #endif

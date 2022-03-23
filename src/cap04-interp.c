@@ -18,7 +18,7 @@ char Look; /* O caracter lido "antecipadamente" (lookahead) */
 #define MAXVAR 26
 int VarTable[MAXVAR];
 
-/* protótipos */
+/* Protótipos */
 void Init();
 void InitVar();
 void NextChar();
@@ -39,7 +39,7 @@ void Output();
 int IsAddOp(char c);
 int IsMulOp(char c);
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -61,14 +61,14 @@ int main()
     return 0;
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     InitVar();
     NextChar();
 }
 
-/* inicializa variáveis */
+/* Inicializa variáveis */
 void InitVar()
 {
     int i;
@@ -77,20 +77,20 @@ void InitVar()
         VarTable[i] = 0;
 }
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* captura um caracter de nova linha */
+/* Captura um caracter de nova linha */
 void NewLine()
 {
     if (Look == '\n')
         NextChar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -104,7 +104,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -120,7 +120,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -136,7 +136,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* verifica se entrada combina com o esperado */
+/* Verifica se entrada combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -144,7 +144,7 @@ void Match(char c)
     NextChar();
 }
 
-/* recebe o nome de um identificador */
+/* Recebe o nome de um identificador */
 char GetName()
 {
     char name;
@@ -157,7 +157,7 @@ char GetName()
     return name;
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 int GetNum()
 {
     int i;
@@ -176,7 +176,7 @@ int GetNum()
     return i;
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -190,19 +190,19 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* reconhece operador aditivo */
+/* Reconhece operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* reconhece operador multiplicativo */
+/* Reconhece operador multiplicativo */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
-/* avalia um comando de atribuição */
+/* Avalia um comando de atribuição */
 void Assignment()
 {
     char name;
@@ -212,7 +212,7 @@ void Assignment()
     VarTable[name - 'A'] = Expression();
 }
 
-/* avalia um fator */
+/* Avalia um fator */
 int Factor()
 {
     int val;
@@ -229,7 +229,7 @@ int Factor()
     return val;
 }
 
-/* avalia um termo */
+/* Avalia um termo */
 int Term()
 {
     int val;
@@ -251,7 +251,7 @@ int Term()
     return val;
 }
 
-/* avalia o resultado de uma expressão */
+/* Avalia o resultado de uma expressão */
 int Expression()
 {
     int val;
@@ -277,7 +277,7 @@ int Expression()
     return val;
 }
 
-/* interpreta um comando de entrada */
+/* Interpreta um comando de entrada */
 void Input()
 {
     char name;
@@ -290,7 +290,7 @@ void Input()
     VarTable[name - 'A'] = atoi(buffer);
 }
 
-/* interpreta um comando de saída */
+/* Interpreta um comando de saída */
 void Output()
 {
     char name;

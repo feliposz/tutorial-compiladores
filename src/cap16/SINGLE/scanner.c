@@ -3,19 +3,19 @@
 #include "errors.h"
 #include "scanner.h"
 
-/* reconhece um operador aditivo */
+/* Reconhece um operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-' || c == '|' || c == '~');
 }
 
-/* reconhece um operador multiplicativo */
+/* Reconhece um operador multiplicativo */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/' || c == '&');
 }
 
-/* verifica se caracter combina com o esperado */
+/* Verifica se caracter combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -23,7 +23,7 @@ void Match(char c)
     NextChar();        
 }
 
-/* retorna um identificador */
+/* Retorna um identificador */
 char GetName()
 {
     char name;
@@ -36,7 +36,7 @@ char GetName()
     return name;
 }
 
-/* retorna um número */
+/* Retorna um número */
 char GetNum()
 {
     char num;

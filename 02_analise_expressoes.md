@@ -18,7 +18,7 @@ Mantendo o mesmo lema desta série (KISS, lembra?), vamos começar com o caso ma
 Antes de começar a programar, certifique-se de ter uma cópia do "berço" que você viu na lição passada. Nós vamos usá-la novamente para outros experimentos. Adicione este código:
 
 ~~~c
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 void Expression()
 {
     EmitLn("MOV AX, %c", GetNum());
@@ -28,7 +28,7 @@ void Expression()
 Não esqueça de adicionar o protótipo desta função ao programa. Depois adicione a chamada a `Expression()` no programa principal, de forma que fique assim:
 
 ~~~c
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();
@@ -62,7 +62,7 @@ Para fazer isso, precisamos de uma rotina que reconhece um termo e deixa seu res
 OK, basicamente o que nós queremos é que a rotina `Term()` faça o que a rotina `Expression()` estava fazendo anteriormente, portanto, nós vamos apenas RENOMEAR a rotina `Expression()` para `Term()`, e entrar com a seguinte nova versão de `Expression()`:
 
 ~~~c
-/* reconhece e traduz uma expressão */
+/* Reconhece e traduz uma expressão */
 void Expression()
 {
     Term();
@@ -84,7 +84,7 @@ void Expression()
 Adicione também as seguintes rotinas:
 
 ~~~c
-/* reconhece e traduz uma adição */
+/* Reconhece e traduz uma adição */
 void Add()
 {
     Match('+');
@@ -92,7 +92,7 @@ void Add()
     EmitLn("ADD AX, BX");
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -126,7 +126,7 @@ Há uma lição a se tirar disso: o código gerado pelo nosso compilador é meno
 Falando nisso: o nosso NÃO FUNCIONA! O código está ERRADO! Conforme as coisas estão funcionando agora, o processo de subtração está subtraindo BX (que é o PRIMEIRO argumento na verdade) de AX (que é o segundo). Este é o jeito errado! Portanto, nós acabamos com o sinal errado para o resultado. Vamos arrumar o procedimento `Subtract()` com uma mudança de sinal, de forma que fique:
 
 ~~~c
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -153,7 +153,7 @@ No mundo real, uma expressão pode consistir de um ou mais termos, separados por
 Nós podemos acomodar esta definição de uma expressão com a adição de um simples laço de repetição na rotina `Expression()`:
 
 ~~~c
-/* reconhece e traduz uma expressão */
+/* Reconhece e traduz uma expressão */
 void Expression()
 {
     Term();
@@ -196,7 +196,7 @@ Felizmente, há uma solução simples. Como todo processador moderno, o 80x86 po
 Portando, vamos alterar as funções `Expression()`, `Add()` e `Subtract()`, de forma que fiquem assim:
 
 ~~~c
-/* reconhece e traduz uma expressão */
+/* Reconhece e traduz uma expressão */
 void Expression()
 {
     Term();
@@ -216,7 +216,7 @@ void Expression()
     }
 }
 
-/* reconhece e traduz uma adição */
+/* Reconhece e traduz uma adição */
 void Add()
 {
     Match('+');
@@ -225,7 +225,7 @@ void Add()
     EmitLn("ADD AX, BX");
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -261,13 +261,13 @@ O que é um fator? Por enquanto, é o que um termo costumava ser... um dígito s
 Note a simetria: um termo tem a mesma forma de uma expressão. Nós podemos adicionar isso ao nosso compilador cuidadosamente apenas copiando e renomeando as coisas. Mas para evitar confusão, abaixo está a listagem completa do conjunto de rotinas de análise sintática. (Repare no modo como é tratada a inversão de operandos na divisão. Além disso, é preciso usar a instrução CWD antes de dividir, pois a multiplicação e a divisão usam o par de registradores DX:AX para armazenar os valores. CWD expande o valor de AX para DX:AX. Para quem não conhece bem estas particularidades do processador 80x86, o assunto é tratado mais pra frente, portanto não se preocupe.)
 
 ~~~c
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     EmitLn("MOV AX, %c", GetNum());
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 void Multiply()
 {
     Match('*');
@@ -276,7 +276,7 @@ void Multiply()
     EmitLn("IMUL BX");
 }
 
-/* reconhece e traduz uma divisão */
+/* Reconhece e traduz uma divisão */
 void Divide()
 {
     Match('/');
@@ -287,7 +287,7 @@ void Divide()
     EmitLn("IDIV BX");
 }
 
-/* analisa e traduz um termo */
+/* Analisa e traduz um termo */
 void Term()
 {
     Factor();
@@ -307,7 +307,7 @@ void Term()
     }
 }
 
-/* reconhece e traduz uma adição */
+/* Reconhece e traduz uma adição */
 void Add()
 {
     Match('+');
@@ -316,7 +316,7 @@ void Add()
     EmitLn("ADD AX, BX");
 }
 
-/* reconhece e traduz uma subtração */
+/* Reconhece e traduz uma subtração */
 void Subtract()
 {
     Match('-');
@@ -326,7 +326,7 @@ void Subtract()
     EmitLn("NEG AX");
 }
 
-/* reconhece e traduz uma expressão */
+/* Reconhece e traduz uma expressão */
 void Expression()
 {
     Term();
@@ -370,7 +370,7 @@ A chave para incorporar parênteses em nosso analisador é perceber que não imp
 Complicado ou não, podemos cuidar disso ajustando apenas umas poucas linhas do programa na rotina Factor():
 
 ~~~c
-/* analisa e traduz um fator */
+/* Analisa e traduz um fator */
 void Factor()
 {
     if (Look == '(') {
@@ -399,7 +399,7 @@ OPA! Não funcionou, funcionou? A rotina `Expression()` espera que tudo comece c
 Há várias formas de resolver o problema. A mais fácil (embora não a melhor) é usar um zero imaginário na frente da expressão: então -3, se torna 0-3. Podemos colocar isto facilmente em nossa versão de `Expression()`:
 
 ~~~c
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 void Expression()
 {
     if (IsAddOp(Look))
@@ -428,7 +428,7 @@ void Expression()
 Eu DISSE que fazer mudanças era fácil! Desta vez foram mudadas apenas 3 linhas de código. Note a nova referência à função `IsAddOp()`. Como o teste para saber se é um operador de soma aparece duas vezes, eu decidi colocá-lo em uma função separada. A forma de `IsAddOp()` deve ser assim:
 
 ~~~c
-/* reconhece operador aditivo */
+/* Reconhece operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');

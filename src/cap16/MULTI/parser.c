@@ -5,7 +5,7 @@
 #include "errors.h"
 #include "parser.h"
 
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name[MAXNAME+1];
@@ -16,7 +16,7 @@ void Assignment()
     AsmStoreVar(name);
 }
 
-/* analisa e traduz uma expressão */
+/* Analisa e traduz uma expressão */
 void Expression()
 {
     SignedTerm();
@@ -38,7 +38,7 @@ void Expression()
     }
 }
 
-/* analisa e traduz um termo */
+/* Analisa e traduz um termo */
 void Term()
 {
     NotFactor();
@@ -57,7 +57,7 @@ void Term()
     }
 }
 
-/* analisa e traduz um termo com um sinal opcional */
+/* Analisa e traduz um termo com um sinal opcional */
 void SignedTerm()
 {
     char sign = Look;
@@ -68,7 +68,7 @@ void SignedTerm()
         AsmNegate();
 }
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     char name[MAXNAME+1], num[MAXNUM+1];
@@ -87,7 +87,7 @@ void Factor()
         Error("Unrecognized character: '%c'", Look);
 }
 
-/* analisa e traduz um fator com NOT opcional */
+/* Analisa e traduz um fator com NOT opcional */
 void NotFactor()
 {
     if (Look == '!') {
@@ -98,7 +98,7 @@ void NotFactor()
         Factor();
 }
 
-/* analisa e traduz uma operação de soma */
+/* Analisa e traduz uma operação de soma */
 void Add()
 {
     Match('+');
@@ -107,7 +107,7 @@ void Add()
     AsmPopAdd();
 }
 
-/* analisa e traduz uma operação de subtração */
+/* Analisa e traduz uma operação de subtração */
 void Subtract()
 {
     Match('-');
@@ -116,7 +116,7 @@ void Subtract()
     AsmPopSub();
 }
 
-/* analisa e traduz uma operação de multiplicação */
+/* Analisa e traduz uma operação de multiplicação */
 void Multiply()
 {
     Match('*');
@@ -125,7 +125,7 @@ void Multiply()
     AsmPopMul();
 }
 
-/* analisa e traduz uma operação de divisão */
+/* Analisa e traduz uma operação de divisão */
 void Divide()
 {
     Match('/');
@@ -134,7 +134,7 @@ void Divide()
     AsmPopDiv();
 }
 
-/* analisa e traduz uma operação OU booleana */
+/* Analisa e traduz uma operação OU booleana */
 void BoolOr()
 {
     Match('|');
@@ -143,7 +143,7 @@ void BoolOr()
     AsmPopOr();
 }
 
-/* analisa e traduz uma operação OU-exclusivo booleana */
+/* Analisa e traduz uma operação OU-exclusivo booleana */
 void BoolXor()
 {
     Match('~');
@@ -152,7 +152,7 @@ void BoolXor()
     AsmPopXor();
 }
 
-/* analisa e traduz uma operação AND */
+/* Analisa e traduz uma operação AND */
 void BoolAnd()
 {
     Match('&');

@@ -15,40 +15,40 @@ Este código é de livre distribuição e uso.
 #include <string.h>
 
 #define SYMBOLTABLE_SIZE 1000
-char *SymbolTable[SYMBOLTABLE_SIZE]; /* tabela de símbolos */
-char SymbolType[SYMBOLTABLE_SIZE]; /* tabela de tipos de símbolos */
-int SymbolCount; /* número de entradas na tabela de símbolos */
+char *SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
+char SymbolType[SYMBOLTABLE_SIZE]; /* Tabela de tipos de símbolos */
+int SymbolCount; /* Número de entradas na tabela de símbolos */
 
 char Look; /* O caracter lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 #define KEYWORDLIST_SIZE 9
 
-/* lista de palavras-chave */
+/* Lista de palavras-chave */
 char *KeywordList[KEYWORDLIST_SIZE] = {"IF", "ELSE", "ENDIF", "WHILE", "ENDWHILE",
                            "READ", "WRITE", "VAR", "END"};
 
-/* códigos de palavras-chave: a ordem deve obedecer a lista de palavras-chave */
+/* Códigos de palavras-chave: a ordem deve obedecer a lista de palavras-chave */
 char *KeywordCode = "ileweRWve";
 
 #define MAXTOKEN 16
-char TokenText[MAXTOKEN+1]; /* texto do token atual */
-char Token; /* código do token atual */
+char TokenText[MAXTOKEN+1]; /* Texto do token atual */
+char Token; /* Código do token atual */
 
-/* lê próximo caracter da entrada */
+/* Lê próximo caracter da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* pula caracteres de espaço */
+/* Pula caracteres de espaço */
 void SkipWhite()
 {
     while (isspace(Look))
         NextChar();
 }
 
-/* exibe uma mensagem de erro formatada */
+/* Exibe uma mensagem de erro formatada */
 void Error(char *fmt, ...)
 {
     va_list args;
@@ -62,7 +62,7 @@ void Error(char *fmt, ...)
     fputc('\n', stderr);
 }
 
-/* exibe uma mensagem de erro formatada e sai */
+/* Exibe uma mensagem de erro formatada e sai */
 void Abort(char *fmt, ...)
 {
     va_list args;
@@ -78,7 +78,7 @@ void Abort(char *fmt, ...)
     exit(1);
 }
 
-/* alerta sobre alguma entrada esperada */
+/* Alerta sobre alguma entrada esperada */
 void Expected(char *fmt, ...)
 {
     va_list args;
@@ -94,26 +94,26 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* avisa a respeito de um identificador desconhecido */
+/* Avisa a respeito de um identificador desconhecido */
 void Undefined(char *name)
 {
     Abort("Error: Undefined identifier %s\n", name);
 }
 
-/* avisa a respeito de um identificador duplicado */
+/* Avisa a respeito de um identificador duplicado */
 void Duplicate(char *name)
 {
     Abort("Error: Duplicated identifier %s\n", name);
 }
 
-/* reporta um erro se Token NÃO for um identificador */
+/* Reporta um erro se Token NÃO for um identificador */
 void CheckIdent()
 {
     if (Token != 'x')
         Expected("Identifier");
 }
 
-/* recebe o nome de um identificador ou palavra-chave */
+/* Recebe o nome de um identificador ou palavra-chave */
 void GetName()
 {
     int i;
@@ -129,7 +129,7 @@ void GetName()
     Token = 'x';
 }
 
-/* recebe um número inteiro */
+/* Recebe um número inteiro */
 void GetNum()
 {
     int i;
@@ -145,7 +145,7 @@ void GetNum()
     Token = '#';
 }
 
-/* analisa e traduz um operador */
+/* Analisa e traduz um operador */
 void GetOp()
 {
     SkipWhite();
@@ -155,7 +155,7 @@ void GetOp()
     NextChar();
 }
 
-/* pega o próximo Token de entrada */
+/* Pega o próximo Token de entrada */
 void NextToken()
 {
     SkipWhite();
@@ -167,7 +167,7 @@ void NextToken()
         GetOp();
 }
 
-/* se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
+/* Se a string de entrada estiver na tabela, devolve a posição ou -1 se não estiver */
 int Lookup(char *s, char *list[], int size)
 {
     int i;
@@ -180,7 +180,7 @@ int Lookup(char *s, char *list[], int size)
     return -1;
 }
 
-/* analisador léxico. analisa identificador ou palavra-chave */
+/* Analisador léxico */
 void Scan()
 {
     int kw;
@@ -192,7 +192,7 @@ void Scan()
     }
 }
 
-/* verifica se a string combina com o esperado */
+/* Verifica se a string combina com o esperado */
 void MatchString(char *s)
 {
     if (strcmp(TokenText, s) != 0)
@@ -200,7 +200,7 @@ void MatchString(char *s)
     NextToken();
 }
 
-/* emite uma instrução seguida por uma nova linha */
+/* Emite uma instrução seguida por uma nova linha */
 void EmitLn(char *fmt, ...)
 {
     va_list args;
@@ -214,57 +214,57 @@ void EmitLn(char *fmt, ...)
     putchar('\n');
 }
 
-/* reconhece operador aditivo */
+/* Reconhece operador aditivo */
 int IsAddOp(char c)
 {
     return (c == '+' || c == '-');
 }
 
-/* reconhece operador multiplicativo */
+/* Reconhece operador multiplicativo */
 int IsMulOp(char c)
 {
     return (c == '*' || c == '/');
 }
 
-/* reconhece um operador OU */
+/* Reconhece um operador OU */
 int IsOrOp(char c)
 {
     return (c == '|' || c == '~');
 }
 
-/* reconhece operadores relacionais */
+/* Reconhece operadores relacionais */
 int IsRelOp(char c)
 {
     return (c == '=' || c == '#' || c == '<' || c == '>');
 }
 
-/* verifica se símbolo está na tabela */
+/* Verifica se símbolo está na tabela */
 int InTable(char *name)
 {
     return (Lookup(name, SymbolTable, SymbolCount) >= 0);
 }
 
-/* retorna o endereço do identificador na tabela de símbolos */
+/* Retorna o endereço do identificador na tabela de símbolos */
 int Locate(char *name)
 {
     return Lookup(name, SymbolTable, SymbolCount);
 }
 
-/* reporta um erro se identificador NÃO constar na tabela de símbolos */
+/* Reporta um erro se identificador NÃO constar na tabela de símbolos */
 void CheckTable(char *name)
 {
     if (!InTable(name))
         Undefined(name);
 }
 
-/* reporta um erro se identificador JÁ constar na tabela de símbolos */
+/* Reporta um erro se identificador JÁ constar na tabela de símbolos */
 void CheckDuplicate(char *name)
 {
     if (InTable(name))
         Duplicate(name);
 }
 
-/* adiciona uma nova entrada à tabela de símbolos */
+/* Adiciona uma nova entrada à tabela de símbolos */
 void AddEntry(char *name, char type)
 {
     char *newSymbol;
@@ -286,19 +286,19 @@ void AddEntry(char *name, char type)
     SymbolCount++;
 }
 
-/* gera um novo rótulo único */
+/* Gera um novo rótulo único */
 int NewLabel()
 {
     return LabelCount++;
 }
 
-/* emite um rótulo */
+/* Emite um rótulo */
 void PostLabel(int lbl)
 {
     printf("L%d:\n", lbl);
 }
 
-/* cabeçalho inicial para o montador */
+/* Cabeçalho inicial para o montador */
 void AsmHeader()
 {
     EmitLn(".model small");
@@ -309,7 +309,7 @@ void AsmHeader()
     EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
-/* emite código para o prólogo de um programa */
+/* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
     printf("MAIN:\n");
@@ -318,7 +318,7 @@ void AsmProlog()
     EmitLn("MOV ES, AX");
 }
 
-/* emite código para o epílogo de um programa */
+/* Emite código para o epílogo de um programa */
 void AsmEpilog()
 {
     EmitLn("MOV AX, 4C00h");
@@ -327,50 +327,50 @@ void AsmEpilog()
     EmitLn("end MAIN");
 }
 
-/* zera o registrador primário */
+/* Zera o registrador primário */
 void AsmClear()
 {
     EmitLn("XOR AX, AX");
 }
 
-/* negativa o registrador primário */
+/* Negativa o registrador primário */
 void AsmNegate()
 {
     EmitLn("NEG AX");
 }
 
-/* carrega uma constante numérica no registrador primário */
+/* Carrega uma constante numérica no registrador primário */
 void AsmLoadConst(char *num)
 {
     EmitLn("MOV AX, %s", num);
 }
 
-/* carrega uma variável no registrador primário */
+/* Carrega uma variável no registrador primário */
 void AsmLoadVar(char *name)
 {
     EmitLn("MOV AX, WORD PTR %s", name);
 }
 
-/* armazena registrador primário em variável */
+/* Armazena registrador primário em variável */
 void AsmStore(char *name)
 {
     EmitLn("MOV WORD PTR %s, AX", name);
 }
 
-/* coloca registrador primário na pilha */
+/* Coloca registrador primário na pilha */
 void AsmPush()
 {
     EmitLn("PUSH AX");
 }
 
-/* adiciona o topo da pilha ao registrador primário */
+/* Adiciona topo da pilha ao registrador primário */
 void AsmPopAdd()
 {
     EmitLn("POP BX");
     EmitLn("ADD AX, BX");
 }
 
-/* subtrai o registrador primário do topo da pilha */
+/* Subtrai o registrador primário do topo da pilha */
 void AsmPopSub()
 {
     EmitLn("POP BX");
@@ -378,14 +378,14 @@ void AsmPopSub()
     EmitLn("NEG AX");
 }
 
-/* multiplica o topo da pilha pelo registrador primário */
+/* Multiplica o topo da pilha pelo registrador primário */
 void AsmPopMul()
 {
     EmitLn("POP BX");
     EmitLn("IMUL BX");
 }
 
-/* divide o topo da pilha pelo registrador primário */
+/* Divide o topo da pilha pelo registrador primário */
 void AsmPopDiv()
 {
     EmitLn("POP BX");
@@ -394,41 +394,41 @@ void AsmPopDiv()
     EmitLn("IDIV BX");
 }
 
-/* inverte registrador primário */
+/* Inverte registrador primário */
 void AsmNot()
 {
     EmitLn("NOT AX");
 }
 
-/* aplica "E" binário ao topo da pilha com registrador primário */
+/* Aplica "E" binário ao topo da pilha com registrador primário */
 void AsmPopAnd()
 {
     EmitLn("POP BX");
     EmitLn("AND AX, BX");
 }
 
-/* aplica "OU" binário ao topo da pilha com registrador primário */
+/* Aplica "OU" binário ao topo da pilha com registrador primário */
 void AsmPopOr()
 {
     EmitLn("POP BX");
     EmitLn("OR AX, BX");
 }
 
-/* aplica "OU-exclusivo" binário ao topo da pilha com registrador primário */
+/* Aplica "OU-exclusivo" binário ao topo da pilha com registrador primário */
 void AsmPopXor()
 {
     EmitLn("POP BX");
     EmitLn("XOR AX, BX");
 }
 
-/* compara topo da pilha com registrador primário */
+/* Compara topo da pilha com registrador primário */
 void AsmPopCompare()
 {
     EmitLn("POP BX");
     EmitLn("CMP BX, AX");
 }
 
-/* altera registrador primário (e flags, indiretamente) conforme a comparação */
+/* Altera registrador primário (e flags, indiretamente) conforme a comparação */
 void AsmRelOp(char op)
 {
     char *jump;
@@ -454,37 +454,37 @@ void AsmRelOp(char op)
     PostLabel(l2);
 }
 
-/* desvio incondicional */
+/* Desvio incondicional */
 void AsmBranch(int label)
 {
     EmitLn("JMP L%d", label);
 }
 
-/* desvio se falso (0) */
+/* Desvio se falso (0) */
 void AsmBranchFalse(int label)
 {
     EmitLn("JZ L%d", label);
 }
 
-/* lê um valor a partir da entrada e armazena-o no registrador primário */
+/* Lê um valor a partir da entrada e armazena-o no registrador primário */
 void AsmRead()
 {
     EmitLn("CALL READ");
 }
 
-/* mostra valor do registrador primário */
+/* Mostra valor do registrador primário */
 void AsmWrite()
 {
     EmitLn("CALL WRITE");
 }
 
-/* alocação de memória para uma variável global */
+/* Alocação de memória para uma variável global */
 void AllocVar(char *name, int value)
 {
     printf("%s:\tdw %d\n", name, value);
 }
 
-/* analisa uma lista de declaração de variáveis */
+/* Analisa uma lista de declaração de variáveis */
 void Declaration()
 {
     NextToken();
@@ -495,7 +495,7 @@ void Declaration()
     NextToken();
 }
 
-/* analisa e traduz declarações globais */
+/* Analisa e traduz declarações globais */
 void TopDeclarations()
 {
     Scan();
@@ -507,9 +507,9 @@ void TopDeclarations()
     }
 }
 
-void BoolExpression(); /* declaração adianta */
+void BoolExpression(); /* Declaração adianta */
 
-/* analisa e traduz um fator matemático */
+/* Analisa e traduz um fator matemático */
 void Factor()
 {
     if (Token == '(') {
@@ -528,7 +528,7 @@ void Factor()
     }
 }
 
-/* reconhece e traduz uma multiplicação */
+/* Reconhece e traduz uma multiplicação */
 void Multiply()
 {
     NextToken();
@@ -536,7 +536,7 @@ void Multiply()
     AsmPopMul();
 }
 
-/* reconhece e traduz uma divisão */
+/* Reconhece e traduz uma divisão */
 void Divide()
 {
     NextToken();
@@ -544,7 +544,7 @@ void Divide()
     AsmPopDiv();
 }
 
-/* analisa e traduz um termo matemático */
+/* Analisa e traduz um termo matemático */
 void Term()
 {
     Factor();
@@ -561,7 +561,7 @@ void Term()
     }
 }
 
-/* reconhece e traduz uma adição */
+/* Reconhece e traduz uma adição */
 void Add()
 {
     NextToken();
@@ -569,7 +569,7 @@ void Add()
     AsmPopAdd();
 }
 
-/* reconhece e traduz uma subtração*/
+/* Reconhece e traduz uma subtração*/
 void Subtract()
 {
     NextToken();
@@ -577,7 +577,7 @@ void Subtract()
     AsmPopSub();
 }
 
-/* analisa e traduz uma expressão matemática */
+/* Analisa e traduz uma expressão matemática */
 void Expression()
 {
     if (IsAddOp(Token))
@@ -597,7 +597,7 @@ void Expression()
     }
 }
 
-/* analisa e traduz uma relação */
+/* Analisa e traduz uma relação */
 void Relation()
 {
     char op;
@@ -605,16 +605,16 @@ void Relation()
     Expression();
     if (IsRelOp(Token)) {
         op = Token;
-        NextToken(); /* só para remover o operador do caminho */
+        NextToken(); /* Só para remover o operador do caminho */
         if (op == '<') {
-            if (Token == '>') { /* trata operador <> */
+            if (Token == '>') { /* Trata operador <> */
                 NextToken();
                 op = '#';
-            } else if (Token == '=') { /* trata operador <= */
+            } else if (Token == '=') { /* Trata operador <= */
                 NextToken();
                 op = 'L';
             }
-        } else if (op == '>' && Token == '=') { /* trata operador >= */
+        } else if (op == '>' && Token == '=') { /* Trata operador >= */
             NextToken();
             op = 'G';
         }
@@ -625,7 +625,7 @@ void Relation()
     }
 }
 
-/* analisa e traduz um fator booleano com NOT inicial */
+/* Analisa e traduz um fator booleano com NOT inicial */
 void NotFactor()
 {
     if (Token == '!') {
@@ -636,7 +636,7 @@ void NotFactor()
         Relation();
 }
 
-/* analisa e traduz um termo booleano */
+/* Analisa e traduz um termo booleano */
 void BoolTerm()
 {
     NotFactor();
@@ -648,7 +648,7 @@ void BoolTerm()
     }
 }
 
-/* reconhece e traduz um "OR" */
+/* Reconhece e traduz um operador OR */
 void BoolOr()
 {
     NextToken();
@@ -656,7 +656,7 @@ void BoolOr()
     AsmPopOr();
 }
 
-/* reconhece e traduz um "xor" */
+/* Reconhece e traduz um operador XOR */
 void BoolXor()
 {
     NextToken();
@@ -664,7 +664,7 @@ void BoolXor()
     AsmPopXor();
 }
 
-/* analisa e traduz uma expressão booleana */
+/* Analisa e traduz uma expressão booleana */
 void BoolExpression()
 {
     BoolTerm();
@@ -681,7 +681,7 @@ void BoolExpression()
     }
 }
 
-/* analisa e traduz um comando de atribuição */
+/* Analisa e traduz um comando de atribuição */
 void Assignment()
 {
     char name[MAXTOKEN+1];
@@ -696,7 +696,7 @@ void Assignment()
 
 void Block();
 
-/* analisa e traduz um comando IF */
+/* Analisa e traduz um comando IF */
 void DoIf()
 {
     int l1, l2;
@@ -718,7 +718,7 @@ void DoIf()
     MatchString("ENDIF");
 }
 
-/* analisa e traduz um comando WHILE */
+/* Analisa e traduz um comando WHILE */
 void DoWhile()
 {
     int l1, l2;
@@ -735,7 +735,7 @@ void DoWhile()
     PostLabel(l2);
 }
 
-/* processa um comando READ */
+/* Processa um comando READ */
 void DoRead()
 {
     NextToken();
@@ -753,7 +753,7 @@ void DoRead()
     MatchString(")");
 }
 
-/* processa um comando WRITE */
+/* Processa um comando WRITE */
 void DoWrite()
 {
     NextToken();
@@ -768,7 +768,7 @@ void DoWrite()
     MatchString(")");
 }
 
-/* analisa e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void Block()
 {
     int follow = 0;
@@ -799,7 +799,7 @@ void Block()
     } while (!follow);
 }
 
-/* inicialização do compilador */
+/* Inicialização do compilador */
 void Init()
 {
     SymbolCount = 0;
@@ -808,7 +808,7 @@ void Init()
     NextToken();
 }
 
-/* PROGRAMA PRINCIPAL */
+/* Programa principal */
 int main()
 {
     Init();

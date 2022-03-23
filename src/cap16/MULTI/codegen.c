@@ -1,44 +1,44 @@
 #include "output.h"
 #include "codegen.h"
 
-/* carrega uma constante no registrador primário */
+/* Carrega uma constante no registrador primário */
 void AsmLoadConst(char *s)
 {
     EmitLn("MOV AX, %s", s);
 }
 
-/* carrega uma variável no registrador primário */
+/* Carrega uma variável no registrador primário */
 void AsmLoadVar(char *s)
 {
     EmitLn("MOV AX, %s", s);
 }
 
-/* armazena valor do registrador primário em variável */
+/* Armazena valor do registrador primário em variável */
 void AsmStoreVar(char *s)
 {
     EmitLn("MOV %s, AX", s);
 }
 
-/* inverte sinal de registrador primário */
+/* Inverte sinal de registrador primário */
 void AsmNegate()
 {
     EmitLn("NEG AX");
 }
 
-/* coloca registrador primário na pilha */
+/* Coloca registrador primário na pilha */
 void AsmPush()
 {
     EmitLn("PUSH AX");
 }
 
-/* adiciona topo da pilha ao registrador primário */
+/* Adiciona topo da pilha ao registrador primário */
 void AsmPopAdd()
 {
     EmitLn("POP BX");
     EmitLn("ADD AX, BX");
 }
 
-/* subtrai do topo da pilha o registrador primário */
+/* Subtrai do topo da pilha o registrador primário */
 void AsmPopSub()
 {
     EmitLn("POP BX");
@@ -46,14 +46,14 @@ void AsmPopSub()
     AsmNegate();
 }
 
-/* multiplica topo da pilha e registrador primário */
+/* Multiplica topo da pilha e registrador primário */
 void AsmPopMul()
 {
     EmitLn("POP BX");
     EmitLn("IMUL BX");
 }
 
-/* divide o topo da pilha pelo registrador primário */
+/* Divide o topo da pilha pelo registrador primário */
 void AsmPopDiv()
 {
     EmitLn("POP BX");
@@ -62,28 +62,28 @@ void AsmPopDiv()
     EmitLn("IDIV BX");
 }
 
-/* aplica OU com topo da pilha a registrador primário */
+/* Aplica OU com topo da pilha a registrador primário */
 void AsmPopOr()
 {
     EmitLn("POP BX");
     EmitLn("OR AX, BX");
 }
 
-/* aplica OU-exclusivo com topo da pilha a registrador primário */
+/* Aplica OU-exclusivo com topo da pilha a registrador primário */
 void AsmPopXor()
 {
     EmitLn("POP BX");
     EmitLn("XOR AX, BX");
 }
 
-/* aplica AND com topo da pilha e registrador primário */
+/* Aplica AND com topo da pilha e registrador primário */
 void AsmPopAnd()
 {
     EmitLn("POP BX");
     EmitLn("AND AX, BX");
 }
 
-/* aplica NOT ao registrador primário */
+/* Aplica NOT ao registrador primário */
 void AsmNot()
 {
     EmitLn("NOT AX");
