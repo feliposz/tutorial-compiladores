@@ -1,17 +1,18 @@
-# 1 - Introdução
+Parte 1 - Introdução
+====================
 
-- Autor: Jack W. Crenshaw, Ph.D. (24/07/1988)
-- Tradução e adaptação: Felipo Soranz (13/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (24/07/1988)<br>
+> **Tradução e adaptação:** Felipo Soranz (13/05/2002)
 
 Esta série de artigos é um tutorial sobre a teoria e prática do desenvolvimento de analisadores sintáticos (parsers) e compiladores. Antes de chegarmos ao fim, serão cobertos todos os aspectos da construção de compiladores, uma nova linguagem de programação será projetada, e um compilador funcional será construído.
 
->**NOTA DE TRADUÇÃO:** Isto não é totalmente verdadeiro, o tutorial foi interrompido na parte 16 e eu (o tradutor) não tenho esperanças de que o autor venha a terminá-lo tão cedo. De qualquer forma, a parte que está completa e disponível é de excelente qualidade e serve como um formidável ponto de partida para quem está começando e louco para ver um compilador funcionando, ainda que não 100% completo.
+>**Nota de tradução:** Isto não é totalmente verdadeiro, o tutorial foi interrompido na parte 16 e eu (o tradutor) não tenho esperanças de que o autor venha a terminá-lo tão cedo. De qualquer forma, a parte que está completa e disponível é de excelente qualidade e serve como um formidável ponto de partida para quem está começando e louco para ver um compilador funcionando, ainda que não 100% completo.
 
 Apesar de eu não ser um cientista da computação formado (meu Ph.D. é em uma área diferente, Física), eu me interesso por compiladores há muitos anos. Eu comprei e tentei compreender o conteúdo de virtualmente todos os livros já escritos sobre o assunto. Eu não me importo em lhe dizer que foi um processo demorado. Livros sobre compiladores são escritos para cientistas da computação de alto nível, e são bem difíceis para o resto de nós. Mas com o tempo, parte do conteúdo começou a fazer sentido. O que realmente fez a coisa acontecer foi quando eu comecei a pesquisar por mim mesmo e a tentar as coisas no meu próprio computador. Agora eu pretendo compartilhar com você o que eu aprendi. No final deste tutorial você não será de modo algum um cientista da computação, nem vai conhecer todo o esoterismo da teoria dos compiladores. Eu pretendo ignorar completamente os aspectos mais teóricos do assunto. O que você VAI conhecer são todos os aspectos práticos que alguém deve saber para construir um sistema funcional.
 
 Esta é uma série do tipo "aprenda fazendo". No decorrer da série eu vou fazer alguns experimentos em um computador. Você deveria tentar também, seguindo os experimentos que eu faço, e fazendo alguns por conta própria. Eu vou usar um compilador C (compatível com o padrão ANSI C) em um computador PC (80x86). Eu vou periodicamente inserir exemplos escritos em C. Você deverá compilar e executar no seu próprio computador usando o compilador da sua preferência. Se você não tiver um compilador C instalado, creio que você não vai acompanhar de forma satisfatória o que está acontecendo. Se você não tem um compilador ou um ambiente de desenvolvimento para linguagem C (preferivelmente compatível com o padrão ANSI, como todo compilador C moderno) eu recomendo seriamente que você arrume um. Afinal de contas, um compilador C pode ser útil para várias outras coisas. Há muitos compiladores C disponíveis gratuitamente na Internet. Eu recomendo que você procure por alguma versão do GCC que seja adequada ao seu sistema. 
 
->**NOTA DE TRADUÇÃO:** Este tutorial foi criado originalmente baseado no compilador Turbo Pascal da Borland. Eu decidi adaptá-lo à linguagem C pois ela é muito mais usada hoje em dia do que Pascal e porque eu particularmente gosto mais de C. No entanto, mesmo para aqueles que não conhecem a linguagem C, o conteúdo do texto e o estilo de programação são claros o suficiente, para que o leitor possa aplicar os conhecimentos em outra linguagem.
+>**Nota de tradução:** Este tutorial foi criado originalmente baseado no compilador Turbo Pascal da Borland. Eu decidi adaptá-lo à linguagem C pois ela é muito mais usada hoje em dia do que Pascal e porque eu particularmente gosto mais. No entanto, mesmo para aqueles que não a conhecem, o conteúdo do texto e o estilo de programação são claros o suficiente, para que o leitor possa aplicar os conhecimentos em outra linguagem.
 
 Alguns artigos sobre compiladores mostram exemplos, ou mostram (como é o caso do Small C) um produto completo, que você pode então copiar e usar sem entender muito bem o funcionamento dele. Eu espero fazer muito mais do que isso. Eu espero ensinar como as coisas são feitas, de forma que você possa fazer as coisas por si mesmo e não somente reproduzir aquilo que eu fiz, mas também melhorá-lo.
 
@@ -42,7 +43,7 @@ Eu também tenho uma tendência de deixar pra fazer depois um módulo, até que 
 
 Um aviso final: Um dos princípios que nós vamos seguir aqui é que não vamos perder tempo com P-code (código intermediário ou pseudo-código) ou CPUs imaginárias, mas vamos começar desde o primeiro dia produzindo código funcional e executável, pelo menos na forma de um programa fonte em linguagem Assembly. Porém, talvez você não goste muito da minha escolha de linguagem Assembly. Eu vou usar assembly para máquinas 80x86, mas usando apenas registradores de 16-bits e nossa plataforma alvo será um sistema MS-DOS ou compatível. Se você usar outro Assembly ou outra plataforma eu espero que a tradução seja simples e se possível óbvia (admitindo que você conheça um pouco de programação assembly).
 
->**NOTA DE TRADUÇÃO:** No original o Assembly usado era para processadores 68000 da Motorola. Eu preferi tentar passar os nossos exemplos para Assembly 80x86 por ser muito mais comum (e por ser o único que eu conheço :).
+>**Nota de tradução:** No original o Assembly usado era para processadores Motorola 68000. Eu preferi tentar passar os nossos exemplos para Assembly 80x86 por ser muito mais comum (e por ser o único que eu conheço).
 
 ## O "Berço"
 
@@ -50,13 +51,14 @@ Todo programa precisa de uma parte de suporte... rotinas de entrada e saída, de
 
 Há mais de uma forma para se organizar as atividades de análise de um analisador. Em sistemas Unix, os autores tendem a usar as funções `getchar()` e `ungetc()`. Eu tive muito boa sorte com a abordagem apresentada aqui, que é usar um único caractere "antecipado" (lookahead character) global. Parte da rotina de inicialização (a única parte, por enquanto!) serve pra preparar o analisador, lendo um caractere inicial da entrada (input stream). Nenhuma outra técnica especial é necessária... cada chamada sucessiva a `nextChar()` vai ler o próximo caractere da entrada.
 
->**NOTA DE TRADUÇÃO:** Eu procurei manter o código o mais próximo possível da versão Pascal original. Porém toda linguagem de programação tem suas particularidades e obviamente mudanças tiveram que ser feitas. De qualquer forma eu espero ter feito um trabalho que no mínimo funcione e seja fácil de entender. Note que eu nem precisei colocar muitos comentários pois o funcionamento das funções é simples e óbvio e seus nomes já são *autoexplicativos*. Pra manter uma semelhança maior com o código original, preferi manter os nomes das funções em inglês e inalterados na maioria dos casos (e pra você se acostumar com os termos em inglês também).
+>**Nota de tradução:** Eu procurei manter o código o mais próximo possível da versão Pascal original. Porém toda linguagem de programação tem suas particularidades e obviamente mudanças tiveram que ser feitas. De qualquer forma eu espero ter feito um trabalho que no mínimo funcione e seja fácil de entender. Note que eu nem precisei colocar muitos comentários pois o funcionamento das funções é simples e óbvio e seus nomes já são *autoexplicativos*. Pra manter uma semelhança maior com o código original, preferi manter os nomes das funções em inglês e inalterados na maioria dos casos (e pra você se acostumar com os termos em inglês também).
 
 ~~~c
 {% include_relative src/cap01-craddle.c %}
 ~~~
 
-Faça download do código-fonte: [cap01-craddle.c](src/cap01-craddle.c) (Original em Pascal: [orig01-craddle.pas](src/pascal/orig01-craddle.pas))
+> Download do código-fonte: [cap01-craddle.c](src/cap01-craddle.c)<br>
+> Original em Pascal: [orig01-craddle.pas](src/pascal/orig01-craddle.pas)
 
 Por enquanto é só isso. Compile o código acima. Tenha certeza que ele é compilado e executado corretamente. Então continue com a próxima lição, que é sobre [análise de expressões](02_analise_expressoes.md).
 

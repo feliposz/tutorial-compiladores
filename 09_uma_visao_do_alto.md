@@ -1,8 +1,8 @@
 Parte 9: Uma visão do alto
 ==========================
 
-- Autor: Jack W. Crenshaw, Ph.D. (16/04/1989)
-- Tradução e adaptação: Felipo Soranz (22/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (16/04/1989)<br>
+> **Tradução e adaptação:** Felipo Soranz (22/05/2002)
 
 Nos capítulos anteriores, aprendemos muitas das técnicas necessárias para construir um compilador completo. Nós já fizemos comandos de atribuição (com [expressões](02_analise_expressoes.md) [aritméticas](03_mais_expressoes.md) e [booleanas](06_expressoes_booleanas.md)), operadores relacionais, e [estruturas de controle](05_estruturas_controle.md). Ainda não tratamos de chamadas de procedimentos e funções, mas mesmo assim podemos construir uma mini-linguagem sem elas. Eu sempre achei interessante ver quão pequena pode ser uma linguagem e ainda assim ser útil. Estamos QUASE em uma posição para fazer isto agora. O problema é: apesar de sabermos como analisar e traduzir as construções, ainda não sabemos muito bem como colocá-las juntas em uma linguagem.
 
@@ -85,25 +85,25 @@ O DOS em particular é de certa forma fácil de lidar se você quer algo simples
 /* emite código para o prólogo de um programa */
 void prolog()
 {
-    printf("\t.model small\n");
-    printf("\t.stack\n");
-    printf("\t.code\n");
+    emit(".model small");
+    emit(".stack");
+    emit(".code");
     printf("PROG segment byte public\n");
-    printf("\tassume cs:PROG,ds:PROG,es:PROG,ss:PROG\n");
+    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
 /* emite código para o epílogo de um programa */
 void epilog(char name)
 {
-    printf("exit_prog:\n");
-    printf("\tMOV AX,4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)\n");
-    printf("\tINT 21h       ; chamada de sistema DOS\n");
+    printf("exit_prog:");
+    emit("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
+    emit("INT 21h       ; chamada de sistema DOS");
     printf("PROG ends\n");
-    printf("\tend %c\n", name);
+    emit("end %c", name);
 }
 ~~~
 
->**NOTA DE TRADUÇÃO**: Esta parte do tutorial precisa desesperadamente de uma "modernização"! Peço desculpas ao leitor que precisará fazer adaptações para poder transformar o código assembly gerado em algo executável num computador moderno. O código gerado funciona, mas só consegui testá-lo (em 2022!) usando [DOSBOX](https://www.dosbox.com/).
+>**Nota de tradução:** Esta parte do tutorial precisa desesperadamente de uma "modernização"! Peço desculpas ao leitor que precisará fazer adaptações para poder transformar o código assembly gerado em algo executável num computador moderno. O código gerado funciona, mas só consegui testá-lo (em 2022!) usando [DOSBOX](https://www.dosbox.com/).
 
 Adicione este código e teste o "compilador". Neste ponto, a única entrada válida é:
 
@@ -308,7 +308,7 @@ O código completo do nosso compilador "Pascal":
 {% include_relative src/cap09-top-pascal.c %}
 ~~~
 
-Download do [compilador "Pascal"](src/cap09-top-pascal.c).
+> Download do [compilador "Pascal"](src/cap09-top-pascal.c).
 
 
 A Estrutura de C
@@ -525,7 +525,7 @@ O código completo do nosso compilador "C":
 {% include_relative src/cap09-top-c.c %}
 ~~~
 
-Download do [compilador "C"](src/cap09-top-c.c).
+> Download do [compilador "C"](src/cap09-top-c.c).
 
 Neste ponto, eu acho que você consegue ver como a estrutura do compilador evolui a partir da definição da linguagem. As estruturas que vimos para os dois exemplos, Pascal e C, são tão diferentes como o dia e a noite. Pascal foi projetada ao menos parcialmente para ser fácil de analisar, e isto é refletido no compilador. Em geral, em Pascal há mais estrutura e temos uma idéia melhor de que tipo de construções esperar em cada ponto. Em C, por outro lado, o programa é essencialmente uma lista de declarações, terminados apenas pelo fim do arquivo.
 

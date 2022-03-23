@@ -1,8 +1,8 @@
 Parte 5: Estruturas de controle
 ===============================
 
-- Autor: Jack W. Crenshaw, Ph.D. (19/08/1988)
-- Tradução e adaptação: Felipo Soranz (16/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (19/08/1988)<br>
+> **Tradução e adaptação:** Felipo Soranz (16/05/2002)
 
 Nos primeiros quatro capítulos desta série, nos concentramos na análise de expressões matemáticas e comandos de atribuição. Neste capítulo, vamos começar com uma tangente nova e excitante: a análise e tradução de construções de controle, como comandos IF e WHILE.
 
@@ -170,7 +170,7 @@ Estas ações podem ser mostradas de forma concisa, se escrevermos a sintaxe ass
                      L = newLabel()
                      emit(desvio se falso para L) }
     <block>
-    ENDIF        { postLabel(L) }
+    ENDIF          { postLabel(L) }
 ~~~
 
 Isto é um exemplo de tradução dirigida pela sintaxe. Nós fizemos isso o tempo todo... apenas nunca a escrevemos desta forma antes. O que está dentro das chaves representa as AÇÕES que devem ser executadas. A parte interessante desta representação é que ela não só mostra o que deve ser reconhecido, mas também que ações temos que tomar, e em que ordem. Uma vez que temos esta sintaxe, o código praticamente está pronto.
@@ -246,21 +246,21 @@ Insira esta rotina e execute o programa. Teste algo assim:
     AiBeCe
 ~~~
 
->**NOTA DE TRADUÇÃO:** Recomendo usar letras maiúsculas para os identificador, para não confundir com as diversas "palavras-chaves" de uma letra usadas a seguir. Se preferir, altere a função `getName()` para indicar um erro se for usado um identificador em minúscula, conforme abaixo:
-
-~~~c
-char getName()
-{
-    char name;
-
-    if (!isupper(look))
-        expected("Name");
-    name = look;
-    nextChar();
-
-    return name;
-}
-~~~
+>**Nota de tradução:** Recomendo usar letras maiúsculas para os identificadores, para não confundir com as diversas "palavras-chaves" de uma letra usadas a seguir. Se preferir, altere a função `getName()` para indicar um erro se for usado um identificador em minúscula, conforme abaixo:
+>
+> ~~~c
+> char getName()
+> {
+>     char name;
+> 
+>     if (!isupper(look))
+>         expected("Name");
+>     name = look;
+>     nextChar();
+> 
+>     return name;
+> }
+> ~~~
 
 Como você pode ver, o analisador reconhece a construção corretamente e insere o código nos lugares corretos. Agora tente alguns IFs aninhados, como:
 
@@ -404,7 +404,7 @@ void doWhile()
 }
 ~~~
 
->**NOTA DE TRADUÇÃO:** Por favor, não confundam `doWhile` com o comando `do ... while(<cond>);` da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
+>**Nota de tradução:** Por favor, não confundam `doWhile()` com o comando `do ... while(<cond>);` da linguagem C. O "do" foi acrescentado ao nome da rotina pra não confundí-lo com a palavra chave `while` de C.
 
 Como temos um comando novo, temos que adicionar a chamada à rotina `block()`:
 
@@ -439,7 +439,7 @@ O comando LOOP
 
 Poderíamos parar por aqui e ter uma linguagem que funciona. Já foi provado que uma linguagem de alto nível com duas construções, o IF e o WHILE, são suficientes para escrever código estruturado. Mas já que estamos no meio do caminho, vamos enriquecer um pouco o repertório.
 
-Esta estrutura é mais fácil ainda, já que ela não tem uma condição... é um laço de repetição infinito. Qual o objetivo de um laço destes? Nenhum, por si só, porém mais tarde, vamos adicionar o comando BREAK, que vai servir para sairmos do laço. Isto deixa a linguagem mais rica e evita coisas estranhas como `while(1)` ou `WHILE TRUE DO` de C e Pascal.
+Esta estrutura é mais fácil ainda, já que ela não tem uma condição... é um laço de repetição infinito. Qual o objetivo de um laço destes? Nenhum, por si só, porém mais tarde, vamos adicionar o comando BREAK, que vai servir para sairmos do laço. Isto deixa a linguagem mais rica e evita coisas estranhas como `while(1)` ou `WHILE TRUE DO` de C e Pascal, respectivamente.
 
 A sintaxe é simples:
 
@@ -575,7 +575,7 @@ Note que com esta definição de um laço FOR, <block> não será executado nenh
 O código 80x86 pra fazer isto é mais complicado do que tudo o que já fizemos até agora. Eu fiz uma série de tentativas, colocando o contador e o limite superior na pilha, ambos como registradores, etc. Finalmente eu cheguei a um arranjo híbrido, em que o contador do loop está na memória (de forma que ele possa ser acessado pelo laço), e o limite superior está na pilha. O código traduzido fica assim:
 
 
-~~~asm
+~~~
         <ident>           ; pega o nome do contador do laço
         <expr1>           ; pega o valor inicial
         DEC AX            ; pré-decrementa
@@ -701,7 +701,7 @@ Minha segunda tentativa era armazenar em alguma variável global o rótulo final
 
 Então eu decidi usar meu próprio conselho. Lembra-se da última parte quando eu disse como a pilha implícita de um analisador descendente recursivo estava nos ajudando? Eu disse que se você começar a ver uma necessidade para uma pilha externa você provavelmente estava fazendo alguma coisa errado. Bem, eu estava. É possível, de fato, fazer com que a recursão do analisador cuide de tudo, e a solução é tão simples que chega a ser surpreendente.
 
-O segredo é notar que todo comando BREAK deve ocorrer dentro de um bloco... não há outro lugar para ele estar. Então tudo o que temos que fazer é passar para a rotina `block()` o endereço de saída para o laço mais interno. Então ele pode passar o endereço para a rotina que traduz a instrução BREAK. Uma vez que o comando IF não faz nada para alterar o nível de aninhamento dos laços, a rotina `doIf` só tem que passar o rótulo para seus blocos (ambos se houver um ELSE). Como os laços ALTERAM os níveis, cada construção de laço simplesmente ignora o rótulo acima dele e passa o seu próprio rótulo de saída.
+O segredo é notar que todo comando BREAK deve ocorrer dentro de um bloco... não há outro lugar para ele estar. Então tudo o que temos que fazer é passar para a rotina `block()` o endereço de saída para o laço mais interno. Então ele pode passar o endereço para a rotina que traduz a instrução BREAK. Uma vez que o comando IF não faz nada para alterar o nível de aninhamento dos laços, a rotina `doIf()` só tem que passar o rótulo para seus blocos (ambos se houver um ELSE). Como os laços ALTERAM os níveis, cada construção de laço simplesmente ignora o rótulo acima dele e passa o seu próprio rótulo de saída.
 
 Tudo isto é mais simples de mostrar do que de descrever. Eu vou mostrar primeiro com o laço mais fácil, que é o LOOP:
 
@@ -867,5 +867,7 @@ Para referência, aqui está o analisador completo para esta parte do tutorial:
 ~~~c
 {% include_relative src/cap05-control.c %}
 ~~~
+
+> Download do código-fonte [cap05-control.c](src/cap05-control.c)
 
 {% include footer.md %}

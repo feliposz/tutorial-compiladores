@@ -1,10 +1,10 @@
 Parte 10: Apresentando "Tiny"
 =============================
 
-- Autor: Jack W. Crenshaw, Ph.D. (21/05/1989)
-- Tradução e adaptação: Felipo Soranz (23/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (21/05/1989)<br>
+> **Tradução e adaptação:** Felipo Soranz (23/05/2002)
 
-Na [última seção](09_uma_visao_do_alto.md), eu lhes mostrei a idéia geral para o desenvolvimento top-down de um compilador. Eu lhe mostrei os primeiros passos no processo para compiladores Pascal e C, mas eu parei muito antes de chegarmos a completá-los. A razão é simples: se vamos produzir um compilador real, funcional para alguma linguagem, eu prefiro que seja para KISS, a linguagem que eu venho definindo nesta série de tutoriais.
+Na [última seção](09_uma_visao_do_alto.md), eu lhes mostrei a idéia geral para o desenvolvimento top-down de um compilador. Eu lhe mostrei os primeiros passos no processo para compiladores do estilo "Pascal" e do estilo "C", mas eu parei muito antes de chegarmos a completá-los. A razão é simples: se vamos produzir um compilador real, funcional para alguma linguagem, eu prefiro que seja para KISS, a linguagem que eu venho definindo nesta série de tutoriais.
 
 Nesta seção, nós vamos fazer exatemente isto, para um subconjunto de KISS que eu decidi chamar de TINY.
 
@@ -320,7 +320,7 @@ Ok, tente esta versão de TINY e verifique que é possível, de fato, dar às va
 
 Isto está começando a parecer real! É claro que ainda não faz nada, mas parece bom, não parece?
 
-Antes de deixar esta seção, eu devo lembrá-lo que já usamos duas versões de `getNum()`. Uma, a primeira, retorna um valor em caracter, um dígito único. A outra aceita valores inteiros multi-dígitos e retorna um valor inteiro. Qualquer uma funcionaria aqui, bastaria alterar "%c" para "%d" em "printf". Mas não há razão para nos limitarmos ao dígito único aqui, então vamos corrigir esta versão e retornar inteiros. Aqui está:
+Antes de deixar esta seção, eu devo lembrá-lo que já usamos duas versões de `getNum()`. Uma, a primeira, retorna um valor em caracter, um dígito único. A outra aceita valores inteiros multi-dígitos e retorna um valor inteiro. Qualquer uma funcionaria aqui, bastaria alterar "%c" para "%d" em `printf()`. Mas não há razão para nos limitarmos ao dígito único aqui, então vamos corrigir esta versão e retornar inteiros. Aqui está:
 
 ~~~c
 /* recebe um número inteiro */
@@ -1056,7 +1056,7 @@ Para referência, a listagem completa de TINY Versão 0.1 é mostrada abaixo:
 {% include_relative src/cap10-tiny01.c %}
 ~~~
 
-Download do [compilador "Tiny 0.1"](src/cap10-tiny01.c).
+> Download do [compilador "Tiny 0.1"](src/cap10-tiny01.c).
 
 Análise Léxica
 --------------
@@ -1415,7 +1415,7 @@ void allocVar(char *name)
 }
 ~~~
 
-Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caracter único. Elas incluem `asmLoadVar()`, `asmStore()`, `undefined()` (apenas alteramos o tipo de "char" para "char *" e "%c" para "%s" nos `printf`'s), `factor()`, `declaration()` (alteramos "value[0]" para "value"). Em `assignment()` a mudança é um pouco diferente, mas nada complicada:
+Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caracter único. Elas incluem `asmLoadVar()`, `asmStore()`, `undefined()` (apenas alteramos o tipo de `char` para `char *` e `%c` para `%s` nos `printf`'s), `factor()`, `declaration()` (alteramos `value[0]` para `value`). Em `assignment()` a mudança é um pouco diferente, mas nada complicada:
 
 ~~~c
 /* analisa e traduz um comando de atribuição */
@@ -1450,7 +1450,7 @@ Mais Operadores Relacionais
 
 Ainda temos mais uma restrição de "caracter simples" para eliminar: a dos operadores relacionais. Alguns operadores relacionais são realmente caracteres únicos, mas outros requerem dois. Eles são "<=" e ">=". Eu também prefiro "<>" para diferente, ao invés de "#".
 
-Se você se lembrar, na parte 7 eu disse que a maneira convencional de lidar de operadores relacionais é incluí-los na lista de palavras-chave, e permitir que o analisador léxico os encontre. Mas novamente, para fazer isto teriamos que analisar léxicamente a expressão toda no processo, sendo que até aqui fomos capazes de limitar a análise léxica apenas no começo do comando.
+Se você se lembrar, na [parte 7](07_analise_lexica.md) eu disse que a maneira convencional de lidar de operadores relacionais é incluí-los na lista de palavras-chave, e permitir que o analisador léxico os encontre. Mas novamente, para fazer isto teriamos que analisar léxicamente a expressão toda no processo, sendo que até aqui fomos capazes de limitar a análise léxica apenas no começo do comando.
 
 Eu mencionei então que ainda podemos nos livrar disto, já que os operadores relacionais são tão poucos e tão limitados em seu uso. É fácil tratar deles apenas como casos especiais e lidar com eles de uma forma **ad hoc**.
 
@@ -1521,7 +1521,7 @@ Entrada/Saída
 
 Agora nós temos uma linguagem completa e funcional, exceto por uma pequena omissão: não há como obter dados ou mostrá-los. Precisamos de entrada/saída.
 
-A convenção nos dias de hoje, estabelecida em C e continuada em Ada e Modula-2, é deixar os comandos de E/S fora da linguagem em si, e incluí-los na biblioteca de rotinas. Isto seria bom, exceto pelo fato de que até aqui, não temos como tratar de subrotinas. De qualquer forma, com esta abordagem você acaba encontrando o problema de listas de parâmetros de tamanho variável. Em Pascal, os comandos de E/S estão embutidos na linguagem porque eles são os únicos em que a lista de parâmetros pode ter um número variado de entradas. Em C, as funções `scanf` e `printf` requerem que uma string com o formato da entrada seja passada e a partir desta string é determinada a quantidade de parâmetros. Em Ada e Modula-2 precisamos usar a estranha (e LENTA!) abordagem de uma chamada separada para cada parâmetro.
+A convenção nos dias de hoje, estabelecida em C e continuada em Ada e Modula-2, é deixar os comandos de E/S fora da linguagem em si, e incluí-los na biblioteca de rotinas. Isto seria bom, exceto pelo fato de que até aqui, não temos como tratar de subrotinas. De qualquer forma, com esta abordagem você acaba encontrando o problema de listas de parâmetros de tamanho variável. Em Pascal, os comandos de E/S estão embutidos na linguagem porque eles são os únicos em que a lista de parâmetros pode ter um número variado de entradas. Em C, as funções `scanf()` e `printf()` exigem que uma string com o formato da entrada seja passada e a partir desta string é determinada a quantidade de parâmetros. Em Ada e Modula-2 precisamos usar a estranha (e LENTA!) abordagem de uma chamada separada para cada parâmetro.
 
 Eu prefiro a abordagem Pascal de colocar a E/S na própria linguagem, mesmo que não tenhamos que fazer isto.
 
@@ -1669,6 +1669,6 @@ Para referência, a listagem completa de **TINY Versão 1.0** é mostrada abaixo
 {% include_relative src/cap10-tiny10.c %}
 ~~~
 
-Download do [compilador "Tiny 1.0"](src/cap10-tiny10.c).
+> Download do [compilador "Tiny 1.0"](src/cap10-tiny10.c).
 
 {% include footer.md %}

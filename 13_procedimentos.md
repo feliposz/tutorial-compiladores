@@ -1,8 +1,8 @@
 Parte 13: Procedimentos
 =======================
 
-- Autor: Jack W. Crenshaw, Ph.D. (07/08/1989)
-- Tradução e adaptação: Felipo Soranz (27/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (07/08/1989)<br>
+> **Tradução e adaptação:** Felipo Soranz (27/05/2002)
 
 Finalmente chegamos na parte boa!
 
@@ -532,7 +532,7 @@ Excetor por um pequeno detalhe: se todos os parâmetros são passados por valor,
 
 Houve duas respostas para este problema, que são equivalentes. Em Pascal, Wirth criou parâmetros VAR, que são passados por referência. O que um parâmetro VAR é, de fato, não é nada além do nosso amigo, o parâmetro FORTRAN, com um novo nome disfarçado. Wirth de uma forma engenhosa evita o problema de "mudança de literais" e também o problema do "endereço de uma expressão", permitindo que apenas variáveis sejam usadas como parâmetros de chamada no caso de passagem por referência. Em outras palvras, é a mesma restrição imposta pelos primeiros compiladores FORTRAN.
 
-C faz a mesma coisa, mas explicitamente. Em C, TODOS os parâmetros são passados por valor. No entanto, um dos tipos de variáveis suportados por C, é o ponteiro. Portanto, passar um ponteiro por valor, é o mesmo que passar uma referência. Em alguns casos isto funciona melhor ainda, pois mesmo que você possa alterar a variável apontada da forma que você quiser, ainda assim você NÃO pode alterar o ponteiro em si. Em uma função como `strcpy`, por exemplo, onde os ponteiros são incrementados conforme a string é copiada, estamos na verdade incrementando apenas cópias dos ponteiros, portanto os valores destes ponteiros no procedimento que fez a chamado permanecem os mesmos. Para modificar um ponteiro, é preciso passar um ponteiro para o ponteiro.
+C faz a mesma coisa, mas explicitamente. Em C, TODOS os parâmetros são passados por valor. No entanto, um dos tipos de variáveis suportados por C, é o ponteiro. Portanto, passar um ponteiro por valor, é o mesmo que passar uma referência. Em alguns casos isto funciona melhor ainda, pois mesmo que você possa alterar a variável apontada da forma que você quiser, ainda assim você NÃO pode alterar o ponteiro em si. Em uma função como `strcpy()`, por exemplo, onde os ponteiros são incrementados conforme a string é copiada, estamos na verdade incrementando apenas cópias dos ponteiros, portanto os valores destes ponteiros no procedimento que fez a chamado permanecem os mesmos. Para modificar um ponteiro, é preciso passar um ponteiro para o ponteiro.
 
 Como estamos fazendo experimentos aqui, vamos olhar para as duas abordagens: passagem por valor e por referência. Desta forma, poderemos usar qualquer um dos dois quando precisarmos (ou ambos). Devo mencionar que seria difícil usar a abordagem de ponteiros em C aqui, já que isto envolveria um tipo diferente e não estudamos tipos ainda!
 

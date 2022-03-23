@@ -1,8 +1,8 @@
 Parte 6: Expressões booleanas
 =============================
 
-- Autor: Jack W. Crenshaw, Ph.D. (31/08/1988)
-- Tradução e adaptação: Felipo Soranz (18/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (31/08/1988)<br>
+> **Tradução e adaptação:** Felipo Soranz (18/05/2002)
 
 Na [quinta parte](05_estruturas_controle.md) desta série, demos uma olhada nas estruturas de controle, e desenvolvemos rotinas para analisar e traduzir estas rotinas em código objeto. Terminamos com um conjunto bom e rico de construções.
 
@@ -259,7 +259,7 @@ void boolExpression()
 }
 ~~~
 
-Adicione esta rotina ao analisador sintático, e chame-a do programa principal (substituindo o `printf` que você colocou lá para teste). Como você pode ver, não temos muita coisa no analisador ainda, mas o código de saída está começando a parecer mais realista.
+Adicione esta rotina ao analisador sintático, e chame-a do programa principal (substituindo o `printf()` que você colocou lá para teste). Como você pode ver, não temos muita coisa no analisador ainda, mas o código de saída está começando a parecer mais realista.
 
 Depois, é claro, temos que expandir a definição de uma expressão booleana. Nós já temos a regra BNF:
 
@@ -437,13 +437,13 @@ Por exemplo, para fazer a comparação "1>2", usamos algo assim:
     L2:
 ~~~
 
->**NOTA DE TRADUÇÃO:** Existe uma instrução no 80x86 SET??, que tem um funcionamento parecido com os desvios, JNE, JG, etc. Ela coloca 1 no registrador passado como parâmetro ou zero, dependendo do estado dos flags. Poderia se usar SETG AX no trecho acima e evitar os desvios. Como estamos usando -1 (FFFF) para valores falsos, basta usar um NEG AX para acertar o valor depois. Eu preferi manter a forma com os desvios pois ela vai funcionar na maioria dos montadores Assembly de 16-bits, enquanto a instrução SET?? só vai dar certo em montadores de 32-bits, mas sinta-se livre para alterar da forma que você prefere.
+>**Nota de tradução:** Existe uma instrução no 80x86 SET**XX**, que tem um funcionamento parecido com os desvios, JNE, JG, etc. Ela coloca 1 no registrador passado como parâmetro ou zero, dependendo do estado dos flags. Poderia se usar SETG AX no trecho acima e evitar os desvios. Como estamos usando -1 (FFFF) para valores verdaderos, bastaria usar um NEG AX para acertar o valor depois. Eu preferi manter a forma com os desvios pois ela vai funcionar na maioria dos montadores Assembly de 16-bits, enquanto a instruçãoSET**XX** só vai dar certo em montadores de 32-bits, mas sinta-se livre para alterar da forma que você preferir.
 
 Eu devo mencionar agora que esta área, em minha opinião, é a que representa a maior diferença entre a eficiência do código programado à mão e o gerado pelo compilador. Nós já vimos que perdemos eficiência em operações aritméticas, embora eu tenha planejado mostrar mais tarde como melhorar isto um pouco. Nós já vimos também que as estruturas de controle em si podem ser feitas de forma bem eficiente... em geral é bem difícil melhorar o código gerado para um IF ou um WHILE. Porém, virtualmente todo compilador que eu já vi gera código terrível, comparado à programação manual, para computações envolvendo funções booleanas, e principalmente para relações. A razão é justamente o que eu falei acima. Quando escrevo código assembly, eu faço o teste da maneira mais conveniente possível, e faço a construção da maneira que deveria. Na verdade eu faço uma "lapidação" do código para cada situação. O compilador não tem como fazer isto (na prática), e também não tem como saber que nós não queremos armazenar o resultado em uma variável. Então ele precisa gerar o código em uma ordem muito particular, e no fim acaba carregando o resultado em uma variável booleana que pode acabar nunca sendo usada pra nada.
 
 Em todo caso, nós estamos prontos agora para ver o código para `relation()`. Ele é mostrado abaixo com suas rotinas acompanhantes:
 
->**NOTA:** Repare que eu precisei acrescentar o código para `newLabel()` e `postLabel()` em nosso programa por causa dos desvios. Não se esqueça de acrescentá-lo também, junto com a declaração da variável de controle dos rótulos.
+>**Nota de tradução:** Repare que eu precisei acrescentar o código para `newLabel()` e `postLabel()` em nosso programa por causa dos desvios. Não se esqueça de acrescentá-lo também, junto com a declaração da variável de controle dos rótulos.
 
 ~~~c
 /* reconhece e traduz um operador de igualdade */
@@ -796,6 +796,8 @@ Eis o [código completo](src/cap06-bool2.c) do nosso compilador até aqui:
 ~~~c
 {% include_relative src/cap06-bool2.c %}
 ~~~
+
+> Download do código fonte: [cap06-bool1.c](src/cap06-bool1.c) / [cap06-bool2.c](src/cap06-bool2.c)
 
 No [próximo capítulo](07_analise_lexica.md), vamos construir um analisador léxico e eliminar a barreira de um caracter de uma vez por todas. Nós vamos também escrever pela primeira vez nosso primeiro compilador completo, baseado no que fizemos nesta seção. Até lá!
 

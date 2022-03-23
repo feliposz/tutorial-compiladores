@@ -1,8 +1,8 @@
 Parte 14: Tipos
 ===============
 
-- Autor: Jack W. Crenshaw, Ph.D. (26/05/1990)
-- Tradução e adaptação: Felipo Soranz (31/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (26/05/1990)<br>
+> **Tradução e adaptação:** Felipo Soranz (31/05/2002)
 
 No último capítulo ([Parte 13: Procedimentos](13_procedimentos.md)) eu mencionei que naquela parte e nesta também, iríamos cobrir as duas características que tendem a separar as linguagens de brinquedo das linguagens reais e usáveis. Cobrimos chamadas de procedimentos no último capítulo e desta vez vamos tratar da segunda parte.
 
@@ -91,7 +91,7 @@ Se você é o tipo cuidadoso (como eu sou), vai preferir começar com um program
 {% include_relative src/cap14-base.c %}
 ~~~
 
-> Download [cap14-base.c](src/cap14-base.c)
+> Download do código-fonte [cap14-base.c](src/cap14-base.c)
 
 OK, execute este programa. Você deve obter como saída todas as letras do alfabeto (potenciais identificadores), cada um seguido por um sinal de interrogação. Nada muito excitante, mas é um começo.
 
@@ -1218,7 +1218,7 @@ Segue o código completo da nossa implementação de tipos inteiros:
 {% include_relative src/cap14-types.c %}
 ~~~
 
-> Download [cap14-types.c](src/cap14-types.c).
+> Download do código-fonte [cap14-types.c](src/cap14-types.c).
 
 
 Começando a se aprofundar

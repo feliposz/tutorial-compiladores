@@ -1,10 +1,10 @@
 Parte 7: Análise Léxica
 =======================
 
-- Autor: Jack W. Crenshaw, Ph.D. (07/11/1988)
-- Tradução e adaptação: Felipo Soranz (20/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (07/11/1988)<br>
+> **Tradução e adaptação:** Felipo Soranz (20/05/2002)
 
-No último capítulo, criamos um compilador que QUASE funciona, exceto pelo fato de estarmos limitados pelo a um caracter por token. O propósito deste seção é nos livrarmos desta restrição, de uma vez por todas. Isto significa que temos que lidar com o conceito de analisador léxico (lexical scanner).
+No [último capítulo](06_expressoes_booleanas.md), criamos um compilador que QUASE funciona, exceto pelo fato de estarmos limitados a um caracter por token. O propósito deste seção é nos livrarmos desta restrição, de uma vez por todas. Isto significa que temos que lidar com o conceito de analisador léxico (*lexical scanner*).
 
 Talvez eu deva mencionar porque precisamos de um analisador léxico, afinal conseguimos gerenciar as coisas sem precisar de um até agora. Mesmo quando fizemos uso de tokens de vários caracteres.
 
@@ -36,7 +36,7 @@ Algumas características de linguagens de programação (particularmente as mais
 
 A parte boa destes dois tipos é que há formas muito específicas de analisá-los. Foi demonstrado que qualquer tipo de gramática regular pode ser analisada  usando um certo tipo de máquina abstrata chamada máquina de estados (ou autômato finito). Nós já implementamos autômatos finitos em alguns de nossos reconhecedores.
 
-De forma similar, gramáticas de tipo 2 (gramáticas livres de contexto ou, "context-free grammars") podem sempre ser analisadas usando-se um autômato de pilha (uma máquina de estados com uma pilha). Nós também já implementamos estas máquinas. Ao invés de implementar a pilha literalmente, nós confiamos na pilha implícita deixando o código recursivo fazer o trabalho, e de fato esta é a abordagem preferida para análise sintática top-down.
+De forma similar, gramáticas de tipo 2 (gramáticas livres de contexto ou, *"context-free grammars"*) podem sempre ser analisadas usando-se um autômato de pilha (uma máquina de estados com uma pilha). Nós também já implementamos estas máquinas. Ao invés de implementar a pilha literalmente, nós confiamos na pilha implícita deixando o código recursivo fazer o trabalho, e de fato esta é a abordagem preferida para análise sintática top-down.
 
 Agora, acontece que em gramáticas práticas reais as partes que se classificam como expressões regulares tendem a ser as partes mais "baixo nível", como a definição de um identificador:
 
@@ -636,7 +636,7 @@ void scan()
 }
 ~~~
 
-Download do analisador léxico [usando constantes](src/cap07-lex-enum.c).
+> Download do analisador léxico [usando constantes](src/cap07-lex-enum.c).
 
 Retornando um caracter
 ----------------------
@@ -771,7 +771,7 @@ int main()
 }
 ~~~
 
-Download do analisador léxico [usando caracter como token](src/cap07-lex-char.c).
+> Download do analisador léxico [usando caracteres como token](src/cap07-lex-char.c).
 
 Este programa deve funcionar da mesma forma que o anterior. Com uma diferença mínima na estrutura, talvez, mas parece mais simplificado pra mim.
 
@@ -809,7 +809,7 @@ Todos os elementos do programa para analisar este subconjunto, usando tokens de 
 {% include_relative src/cap07-subset.c %}
 ~~~
 
-Download do [subconjunto](src/cap07-subset.c).
+> Download do [subconjunto](src/cap07-subset.c).
 
 Alguns comentários:
 
@@ -841,7 +841,7 @@ Aqui está o programa completo:
 {% include_relative src/cap07-lex-subset.c %}
 ~~~
 
-Download do [programa completo](src/cap07-lex-subset.c).
+> Download do [programa completo](src/cap07-lex-subset.c).
 
 Compare este programa com sua versão de um só caracter. Mesmo com as alterações que fizemos, perceba que as diferenças na estrutura são mínimas.
 

@@ -1,8 +1,8 @@
 Parte 12: Miscelâneas
 =====================
 
-- Autor: Jack W. Crenshaw, Ph.D. (05/06/1989)
-- Tradução e adaptação: Felipo Soranz (26/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (05/06/1989)<br>
+> **Tradução e adaptação:** Felipo Soranz (26/05/2002)
 
 Este capítulo é sobre outra daquelas incursões laterais que não parecem se encaixar em outro lugar nesta série. Como eu mencionei da última vez, foi quando eu estava escrevendo este capítulo que percebi que mudanças deveriam ser feitas na estrutura do compilador. Portanto tive que desviar um pouco do nosso curso padrão para desenvolver a nova estrutura e mostrá-la pra você.
 
@@ -454,7 +454,7 @@ Listagem completa:
 {% include_relative src/cap12-tiny13.c %}
 ~~~
 
-Download do [compilador "Tiny 1.3"](src/cap12-tiny13.c).
+> Download do [compilador "Tiny 1.3"](src/cap12-tiny13.c).
 
 Agora que já tratamos destas questões paralelas, podemos finalmente voltar ao núcleo da série. No próximo capítulo, vamos falar sobre procedimentos e passagem de parâmetros, e vamos adicionar estas importantes características a TINY.
 

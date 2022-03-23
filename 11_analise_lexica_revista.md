@@ -1,8 +1,8 @@
 Parte 11: Análise Léxica Revista
 ================================
 
-- Autor: Jack W. Crenshaw, Ph.D. (03/06/1989)
-- Tradução e adaptação: Felipo Soranz (25/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (03/06/1989)<br>
+> **Tradução e adaptação:** Felipo Soranz (25/05/2002)
 
 Eu tenho algumas notícias boas e ruins. A ruim é que este capítulo não vai ser a respeito do que eu havia prometido. E o que é pior, nem o próximo.
 
@@ -244,7 +244,7 @@ A listagem completa do analisador léxico até aqui:
 {% include_relative src/cap11-lex.c %}
 ~~~
 
-Download do [analisador léxico](src/cap11-lex.c).
+> Download do [analisador léxico](src/cap11-lex.c).
 
 Na [parte 7](07_analise_lexica.md) a função de `nextToken()` estava combinada com a rotina `scan()`, que também verificava cada identificador com uma lista de palavras-chave e codificava cada uma que fosse encontrada. Como eu havia mencionado no momento, a última coisa que gostaríamos de fazer é usar tal rotina em locais onde palavras-chave não deveriam aparecer, como em expressões. Se tivéssemos feito isto, a lista de palavras-chave seria comparada com cada identificador no código. Nada bom.
 
@@ -414,6 +414,6 @@ Listagem completa de TINY Versão 1.1:
 {% include_relative src/cap11-tiny11.c %}
 ~~~
 
-Download do [compilador "Tiny 1.1"](src/cap11-tiny11.c).
+> Download do [compilador "Tiny 1.1"](src/cap11-tiny11.c).
 
 {% include footer.md %}

@@ -1,8 +1,8 @@
 Parte 16: Construção dos Módulos
 ================================
 
-- Autor: Jack W. Crenshaw, Ph.D. (29/05/1995)
-- Tradução e adaptação: Felipo Soranz (07/06/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (29/05/1995)<br>
+> **Tradução e adaptação:** Felipo Soranz (07/06/2002)
 
 Esta série de tutoriais promete ser talvez uma das mais extensas mini-séries da história, rivalizada apenas pelo atraso do Volume IV d'[A Arte da Programação de Computadores](https://pt.wikipedia.org/wiki/The_Art_of_Computer_Programming) de [Donald Knuth](https://pt.wikipedia.org/wiki/Donald_Knuth). Começando em 1988, a série teve uma pausa de 4 anos em 1990 quando as "preocupações deste mundo", me fizeram mudar as prioridades e interesses, e a necessidade de sobreviver fez com que parássemos no [capítulo 14](14_tipos.md). Aqueles de vocês com muita paciência foram finalmente recompensados, no começo do ano passado, com o muito esperado [capítulo 15](15_de_volta_para_o_futuro.md). Nele eu comecei a colocar a série novamente no caminho, para que fosse mais fácil continuar até o objetivo final, que não só é prover-lhes entendimento suficiente das dificuldades no ramo da teoria dos compiladores, mas também as ferramentes, na forma de sub-rotinas e conceitos para que você fosse capaz de continuar por conta própria e se tornar proficientes o suficiente para construir seus próprios analisadores sintáticos e tradutores. Por causa desta longa pausa, eu decidi que era apropriado voltar e rever os conceitos que cobrimos até agora, e refazer parte do software, também. No passado, nós nunca nos preocupamos muito com o desenvolvimento de ferramentas com qualidade de produção... afinal de contas, eu estava tentando lhes ensinar (e aprender) conceitos, e não prática de produção. Para fazer isto, eu tentei lhes dar, não compiladores ou analisadores completos, mas apenas os fragmentos de código que ilustravam o ponto particular que estava sendo considerado no momento.
 
@@ -602,10 +602,10 @@ Repare que não há necessidade de parênteses - os níveis de precedência que 
 
 Se você tem acompanhado os níveis de precedência, esta definição coloca o "!" no topo da pilha. Os níveis se tornam:
 
-1. !
-2. - (unário)
-3. * / &
-4. + - | ~
+1. `!`
+2. `-` (unário)
+3. `*` `/` `&`
+4. `+` `-` `|` `~`
 
 Olhando para esta lista, certamente não é difícil ver porque teríamos problemas usando "~" como o símbolo para NOT!
 
@@ -682,6 +682,8 @@ Se olharmos na BNF que criamos, vamos descobrir que nossa algebra booleana adici
 Esta é uma grande melhoria em relação às tentativas passadas. Nossa sorte vai continuar quando tratarmos de operadores relacionais? Nós vamos descobrir em breve, mas isto terá que esperar pelo próximo capítulo. Chegamos num bom ponto de parada por enquanto, e estou ansioso para que este capítulo chegue às suas mãos logo. Já se passou um ano desde o [capítulo 15](15_de_volta_para_o_futuro.md). Eu devo admitir que parte destes capítulos atuais estiveram prontos por muito tomepo, com a exceção dos operadores relacionais. Mas a informação não tem valor algum, enquanto permanecer no meu disco rígido, e segurá-la até que os operadores relacionais estivessem prontos iria atrasar demais as coisas. Está na hora de liberá-la para que você possa tirar algum valor dela. Além disso, há uma série de questões filosóficas associadas aos operadores relacionais, também, e eu gostaria de deixá-las para um capítulo posterior, onde eu possa fazer justiça a elas.
 
 Divita-se com o novo analisador lógico e aritmético, e quem sabe em breve estaremos tratando dos operadores relacionais.
+
+## Conclusão
 
 Segue abaixo a listagem dos módulos modificados neste capítulo (somente a [versão MULTI](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap16/MULTI), [clique aqui para a versão SINGLE](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap16/SINGLE)).
 

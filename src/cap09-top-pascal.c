@@ -192,21 +192,21 @@ void block(char name)
 /* emite código para o prólogo de um programa */
 void prolog()
 {
-    printf("\t.model small\n");
-    printf("\t.stack\n");
-    printf("\t.code\n");
+    emit(".model small");
+    emit(".stack");
+    emit(".code");
     printf("PROG segment byte public\n");
-    printf("\tassume cs:PROG,ds:PROG,es:PROG,ss:PROG\n");
+    emit("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
 }
 
 /* emite código para o epílogo de um programa */
 void epilog(char name)
 {
-    printf("exit_prog:\n");
-    printf("\tMOV AX,4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)\n");
-    printf("\tINT 21h       ; chamada de sistema DOS\n");
+    printf("exit_prog:");
+    emit("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
+    emit("INT 21h       ; chamada de sistema DOS");
     printf("PROG ends\n");
-    printf("\tend %c\n", name);
+    emit("end %c", name);
 }
 
 /* analisa e traduz um programa Pascal */

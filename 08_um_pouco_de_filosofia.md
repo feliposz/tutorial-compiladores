@@ -1,8 +1,8 @@
 Parte 8: Um Pouco de Filosofia
 ==============================
 
-- Autor: Jack W. Crenshaw, Ph.D. (02/04/1989)
-- Tradução e adaptação: Felipo Soranz (21/05/2002)
+> **Autor:** Jack W. Crenshaw, Ph.D. (02/04/1989)<br>
+> **Tradução e adaptação:** Felipo Soranz (21/05/2002)
 
 Está vai ser uma seção de um tipo diferente das outras na nossa série de construção de analisadores e compiladores. Para esta seção, não haverá experimentos para codificar ou escrever. Apenas desta vez, eu gostaria de conversar com você por um instante. Será uma seção curta, e então poderemos continuar do ponto onde paramos, com vigor renovado, eu espero!
 
@@ -38,9 +38,9 @@ Eu não posso projetar estas linguagens pra você, mas eu posso fazer alguns com
 
 Estas construções farão parte das linguagens que eu construir. Eu tenho três linguagens em mente neste ponto, duas das quais você verá nos capítulos a seguir:
 
-TINY - Uma linguagem mínima mas usável na ordem de [Tiny BASIC](https://en.wikipedia.org/wiki/Tiny_BASIC#Formal_grammar) ou Tiny C. Não vai ser muito prática, mas vai ter poder o suficiente para permitir que você escreva e execute programas reais que façam algo de valor.
+- TINY - Uma linguagem mínima mas usável na ordem de [Tiny BASIC](https://en.wikipedia.org/wiki/Tiny_BASIC#Formal_grammar) ou Tiny C. Não vai ser muito prática, mas vai ter poder o suficiente para permitir que você escreva e execute programas reais que façam algo de valor.
 
-KISS - A linguagem que estou construindo para meu próprio uso. KISS deve ser uma linguagem de programação de sistemas. Ela não vai ter tipos fortemente definidos ou estruturas de dados fantasiosas, mas vai suportar a maioria das coisas que eu quero fazer com uma linguagem de alto nível, exceto escrever compiladores talvez.
+- KISS - A linguagem que estou construindo para meu próprio uso. KISS deve ser uma linguagem de programação de sistemas. Ela não vai ter tipos fortemente definidos ou estruturas de dados fantasiosas, mas vai suportar a maioria das coisas que eu quero fazer com uma linguagem de alto nível, exceto escrever compiladores talvez.
 
 Além disso, eu também estive brincando por anos com a idéia de um tipo de assembly de alto-nível, com construções de controle estruturadas e atribuições do tipo das linguagens de alto nível. Esta, de fato, foi o meu pontapé inicial por trás do meu interesse original em me aventurar na teoria dos compiladores. Pode até ser que eu nunca chegue a construí-la, simplesmente porque eu aprendi que é realmente mais simples implementar uma linguagem como KISS, que usa apenas um subconjunto das instruções da CPU. Como você sabe, a linguagem assembly pode ser bizarra e irregular ao extremo, e uma linguagem que mapeia as instruções uma-pra-uma pode ser realmente um desafio. De toda forma, eu sempre achei que a sintaxe dos montadores convencionais é boba... Diga-me por que
 
@@ -83,7 +83,7 @@ Desde que a série começou eu recebi muitos comentários. Muitos deles espelhav
 
 Recentemente, eu voltei e li alguns destes livros novamente, e até mesmo comprei alguns novos. Cada vez que eu fazia isso eu tinha a mesma sensação: estes caras fizeram com que parecesse muito difícil!
 
-O que está acontecendo? Por que a coisa toda parece tão difícil nos textos, mas tão simples pra nós? Quer dizer que nós somos bem mais espertos do que Aho, Ullman, Brinch Hansen, e todo o resto?
+O que está acontecendo? Por que a coisa toda parece tão difícil nos textos, mas tão simples pra nós? Quer dizer que nós somos bem mais espertos do que [Aho, Ullman, Brinch Hansen, e todo o resto](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools)?
 
 Dificilmente. Mas nós estamos fazendo as coisas de um modo um pouco diferente, e cada vez mais eu aprecio o valor da nossa abordagem, e a maneira que ela simplifica as coisas. Além dos atalhos óbvios que descrevemos na Parte 1, como tokens mono-caracter e entrada/saída pelo console, assumimos implicitamente e fizemos algumas coisas diferentemente daqueles que projetaram compiladores no passado. Como ficou claro, nossa abordagem tornou a vida bem mais fácil.
 
