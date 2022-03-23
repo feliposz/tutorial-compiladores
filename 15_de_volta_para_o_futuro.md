@@ -13,28 +13,13 @@ Novo começo, Mesma direção
 
 Como muitas outras coisas, linguagens e estilos de programação mudam com o tempo. Em 1994, parece um pouco deslocado estar programando em Turbo Pascal (linguagem em que se baseava o tutorial original), quando o resto do mundo parece estar voltado à programação em C++. Parece estranho também programar no estilo clássico enquanto todo mundo está usando métodos orientados a objeto. Mesmo assim, apesar do atraso de quatro anos, seria muito complicado mudar neste ponto para C++ com orientação a objeto.
 
->*NOTA DE TRADUÇÃO:* O autor faz menção às vantagens de usar Turbo Pascal ao invés de linguagem C na implementação de um compilador "educacional". Como temos visto até aqui, não tivemos muita dificuldade em trabalhar com C. Eu pensei se deveria me manter fiel ao original, mas acabei decidindo não incluir a discussão completa, por não acrescentar muita coisa ao objetivo do tutorial. Se tiver interesse, o texto está disponível em: <https://compilers.iecc.com/crenshaw/tutor15.txt>
+>*NOTA DE TRADUÇÃO:* O autor faz menção às vantagens de usar Turbo Pascal ao invés de linguagem C na implementação de um compilador "educacional". Como temos visto até aqui, não tivemos muita dificuldade em trabalhar com C. Eu pensei se deveria me manter fiel ao original, mas acabei decidindo não incluir a discussão completa, por não acrescentar muita coisa ao objetivo do tutorial. Para quem tiver interesse, o texto original está disponível em: <https://compilers.iecc.com/crenshaw/tutor15.txt>
 
 Eu disse desde o princípio que o propósito do tutorial não era gerar o compilador mais rápido, mas ensinar os fundamentos da tecnologia dos compiladores, sem perder muito tempo com a sintaxe da linguagem ou outros aspectos da implementação de software.
 
 Eu pensei muito a respeito de introduzir métodos orientados a objeto em nossa discussão. Eu sou um grande defensor da orientação a objeto para todos os usos, e tais métodos definitivamente tem seu lugar na tecnologia de compiladores. Na verdade, eu escrevi artigos justamente sobre estes assuntos (consulte as referências no final). Mas a arquitetura de um compilador baseado em abordagens orientadas a objeto é bem diferente do compilador mais clássico que estivemos construindo. Novamente, parece que seria demais trocar a base de tudo no meio do caminho. Como eu já disse, os estilos de programação mudam. Quem sabe, pode levar mais uns seis anos antes de terminarmos esta série, e se continuarmos mudando o código toda vez que o estilo de programação mudar, pode ser que NUNCA terminemos.
 
 Ao menos por enquanto, eu decidi continuar com o estilo clássico, embora possamos discutir objetos e orientação a objetos enquanto avançamos.
-
-Likewise, the target machine will remain 
-the Motorola 68000 family.  Of all the decisions to be made here, 
-this one has been the easiest.  Though I know that many of you 
-would like to see code for the 80x86, the 68000 has become, if 
-anything, even more popular as a platform for embedded systems, 
-and it's to that application that this whole effort began in the 
-first place.  Compiling for the PC, MSDOS platform, we'd have to 
-deal with all the issues of DOS system calls, DOS linker formats, 
-the PC file system and hardware, and all those other complications 
-of a DOS environment.  An embedded system, on the other hand, must 
-run standalone, and it's for this kind of application, as an 
-alternative to assembly language, that I've always imagined that a 
-language like KISS would thrive. Anyway, who wants to deal with 
-the 80x86 architecture if they don't have to?
 
 Desta vez vou fazer uso extensivo de compilação separada em módulos. No passado, procuramos manter o tamanho e a complexidade do código baixos. Muito trabalho foi feito na forma de experiências diretas no computador, observando apenas um aspecto da tecnologia de compiladores de cada vez. Fizemos isto para evitar ter que carregar programas grandes para discutir apenas conceitos simples. No processo, nós reinventamos a roda e reprogramamos as mesmas funções mais vezes do que eu gostaria de contar. Compilando os módulos separadamente teríamos a funcionalidade e simplicidade que desejamos ao mesmo tempo: você escreve código reutilizável, e faz uso dele numa única linha. Seu programa de testes continua pequeno, mas ele pode fazer coisas mais poderosas.
 
@@ -243,7 +228,7 @@ O Módulo de Análise Léxica
 
 A próxima, é de longe, a mais importante versão do nosso analisador léxico: é a que trata dos tokens multi-caracter, os quais toda linguagem real deve ter. Apenas duas funções, `getName()` e `getNum()`, foram alteradas entre as duas unidades.
 
-Já que esta já faz parte da nossa versão multi-caracter, convém copiar todos os arquivos para um diretório diferente (eu escolhi os nomes [SINGLE](src/cap15/SINGLE/) e [MULTI](src/cap15/MULTI/)).
+Já que esta já faz parte da nossa versão multi-caracter, convém copiar todos os arquivos para um diretório diferente (eu escolhi os nomes [SINGLE](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/SINGLE) e [MULTI](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/MULTI).
 
 Copie o código da unidade anterior OBSERVANDO a mudança dos nomes das unidade e adicione as rotinas abaixo:
 

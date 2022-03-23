@@ -146,6 +146,20 @@ echo x | cap15-single
 echo 12345 | cap15-multi
 echo alfa | cap15-multi
 
+echo a=-1 | cap16-single
+echo a=-x | cap16-single
+echo d=b*b-4*a*c/2 | cap16-single
+echo s=o^^^|n~s | cap16-single
+echo b=(a^^^|b)^^^&(c~d) | cap16-single
+echo x=a^^^&!b^^^|!a^^^&b | cap16-single
+
+echo a=-123 | cap16-multi
+echo a=-alfa | cap16-multi
+echo delta=beta*beta-412*alfa*cappa/2121 | cap16-multi
+echo ser=ou^^^|nao~ser | cap16-multi
+echo bool=(a^^^|b)^^^&(c~d) | cap16-multi
+echo myxor=a^^^&!b^^^|!a^^^&b | cap16-multi
+
 @echo,
 @echo =================
 @echo Testes de Falha

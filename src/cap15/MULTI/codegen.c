@@ -10,5 +10,5 @@ void asmLoadConstant(char *s)
 /* carrega uma variável no registrador primário */
 void asmLoadVariable(char *s)
 {
-    emit("MOV AX, [%s]", s);
+    emit("MOV AX, %s", s);
 }
