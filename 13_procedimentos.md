@@ -186,7 +186,33 @@ int main()
 }
 ~~~
 
-(Nota: Você pode reutilizar os códigos de `AsmHeader()`, `AsmProlog()` e `AsmEpilog()` usados anteriormente.)
+Vamos utilizar estas versões de `AsmHeader()`, `AsmProlog()` e `AsmEpilog()`:
+
+~~~c
+/* Cabeçalho inicial para o montador */
+void AsmHeader()
+{
+    printf("org 100h\n");
+    printf("section .text\n");
+    EmitLn("JMP _start");
+}
+
+/* Emite código para o prólogo de um programa */
+void AsmProlog()
+{
+    printf("section .text\n");
+    printf("_start:\n");
+}
+
+/* Emite código para o epílogo de um programa */
+void AsmEpilog()
+{
+    EmitLn("MOV AX, 4C00h");
+    EmitLn("INT 21h");
+}
+~~~
+
+> A instrução `JMP _start` é necessária pois será possível intercalar declarações de variáveis e procedimentos, mas o bloco principal só virá no final.
 
 Repare que `DoProcedure()` e `MainBlock()` não são muito simétricos. `DoProcedure()` faz uma chamada a `BeginBlock()`, mas `MainBlock()` não pode fazer isto. Isto porque um procedimento é identificado pela palavra-chave PROCEDURE (abreviada por "p" aqui), enquanto o programa principal não tem nenhuma palavra-chave além do próprio BEGIN.
 
@@ -546,8 +572,8 @@ Vamos apenas tentar algumas coisas simples e ver até onde elas nos levam. Come�
 Quase sempre a única forma razoável de se passar os dados é através da pilha da CPU. Então, o código que gostaríamos de ver gerado é algo assim:
 
 ~~~asm
-PUSH WORD PTR X
-PUSH WORD PTR Y
+PUSH X
+PUSH Y
 CALL FOO
 ~~~
 
@@ -582,8 +608,8 @@ O código de saída desejado deve ser algo como:
 
 ~~~asm
     FOO:
-        MOV AX, WORD PTR [SP+2]
-        MOV WORD PTR [SP+4], AX
+        MOV AX, [SP+2]
+        MOV [SP+4], AX
         RET
 ~~~
 
@@ -695,14 +721,14 @@ int AsmOffsetParam(int pos)
 void AsmLoadParam(int pos)
 {
     int offset = AsmOffsetParam(par);
-    EmitLn("MOV AX, WORD PTR [SP+%d]", offset);
+    EmitLn("MOV AX, [SP+%d]", offset);
 }
 
 /* Armazena conteúdo do registrador primário em parâmetro */
 void AsmStoreParam(int pos)
 {
     int offset = AsmOffsetParam(par);
-    EmitLn("MOV WORD PTR [SP+%d], AX", offset);
+    EmitLn("MOV [SP+%d], AX", offset);
 }
 
 /* Coloca registrador primário na pilha */
@@ -883,16 +909,16 @@ O código gerado por um analisador simplístico poderia ser:
 
 ~~~asm
     FOO:
-        MOV AX, WORD PTR [SP+4] ;acessa A
+        MOV AX, [SP+4]          ;acessa A
         PUSH AX                 ;coloca-o na pilha
-        MOV AX, WORD PTR [SP+2] ;acessa B
+        MOV AX, [SP+2]          ;acessa B
         POP BX                  ;recupera valor de A
         ADD AX, BX              ;adiciona B + A
-        MOV WORD PTR [SP+4], AX ;armazena resultado em A
+        MOV [SP+4], AX          ;armazena resultado em A
         RET
 ~~~
 
-Isto seria errado. Quando colocamos o primeito argumento da expressão na pilha, o deslocamento dos dois parâmetros formais não é mais 2 e 4, mas 4 e 6. Então o segundo acesso `MOV AX, WORD PTR [SP+2]` iria acessar A novamente, e não B como desejaríamos.
+Isto seria errado. Quando colocamos o primeito argumento da expressão na pilha, o deslocamento dos dois parâmetros formais não é mais 2 e 4, mas 4 e 6. Então o segundo acesso `MOV AX, [SP+2]` iria acessar A novamente, e não B como desejaríamos.
 
 Porém, isto não é o fim do mundo. Eu acho que você percebe que tudo o que devemos fazer é alterar o deslocamento cada vez que colocamos algo na pilha, e de fato é o que é feito quando a CPU não suporta outros métodos.
 
@@ -908,12 +934,12 @@ Usando esta técnica, o código para o procedimento anterior torna-se:
     FOO:
         PUSH BP                 ;armazena BP na pilha
         MOV BP, SP              ;move SP para BP
-        MOV AX, WORD PTR [BP+6] ;acessa A
+        MOV AX, [BP+6]          ;acessa A
         PUSH AX                 ;coloca-o na pilha
-        MOV AX, WORD PTR [BP+4] ;acessa B
+        MOV AX, [BP+4]          ;acessa B
         POP BX                  ;recupera valor de A
         ADD AX, BX              ;adiciona B + A
-        MOV WORD PTR [SP+6], AX ;armazena resultado em A
+        MOV [SP+6], AX          ;armazena resultado em A
         POP BP
         RET
 ~~~
@@ -924,6 +950,7 @@ Arrumar o compilador para gerar este código é muito mais fácil do que explic�
 /* Escreve o prólogo para um procedimento */
 void AsmProcProlog(char name)
 {
+    printf("section .text\n");
     printf("%c:\n", name);
     EmitLn("PUSH BP");
     EmitLn("MOV BP, SP");
@@ -936,6 +963,22 @@ void AsmProcEpilog()
     EmitLn("RET");
 }
 ~~~
+
+Altere também `AsmAllocVar()` para:
+
+~~~c
+/* Aloca espaço de armazenamento para variável */
+void AsmAllocVar(char name)
+{
+    if (InTable(name))
+        Duplicate(name);
+    AddEntry(name, 'v');
+    printf("section .data\n");
+    printf("%c\tdw 0\n", name);
+}
+~~~
+
+> As diretivas `section .text` e `section .data` a cada declaração podem parecer excessivas, mas como permitimos intercalar declarações de variáveis e procedimentos elas se fazem necessárias.
 
 A rotina `DoProcedure()` fica:
 
@@ -973,13 +1016,13 @@ int AsmOffsetParam(int pos)
 /* Carrega parâmetro em registrador primário */
 void AsmLoadParam(int pos)
 {
-    EmitLn("MOV AX, WORD PTR [BP+%d]", AsmOffsetParam(pos));
+    EmitLn("MOV AX, [BP+%d]", AsmOffsetParam(pos));
 }
 
 /* Armazena conteúdo do registrador primário em parâmetro */
 void AsmStoreParam(int pos)
 {
-    EmitLn("MOV WORD PTR [BP+%d], AX", AsmOffsetParam(pos));
+    EmitLn("MOV [BP+%d], AX", AsmOffsetParam(pos));
 }
 ~~~
 
@@ -1019,9 +1062,9 @@ Vamos começar observando o código que gostaríamos que fosse gerado para o nov
 seja traduzida para:
 
 ~~~asm
-    MOV AX, OFFSET X      ;obtém endereço de X
+    MOV AX, X             ;obtem endereco de X
     PUSH AX               ;coloca na pilha
-    MOV AX, OFFSET Y      ;obtém endereço de Y
+    MOV AX, Y             ;obtem endereco de Y
     PUSH AX               ;coloca na pilha
     CALL FOO              ;chama FOO
 ~~~
@@ -1047,11 +1090,11 @@ void AsmPushParam(char name)
 {
     switch (SymbolType(name)) {
         case 'v':
-            EmitLn("MOV AX, OFFSET %c\n", name);
+            EmitLn("MOV AX, %c\n", name);
             AsmPush();
             break;
         case 'f':
-            EmitLn("MOV AX, WORD PTR [BP+%d]", AsmOffsetParam(ParamNumber(name)));
+            EmitLn("MOV AX, [BP+%d]", AsmOffsetParam(ParamNumber(name)));
             AsmPush();
             break;
         default:
@@ -1062,19 +1105,19 @@ void AsmPushParam(char name)
 
 Na outra extremidade, as referências aos parâmetros formais devem ter um nível de indireção:
 
-~~~c
+~~~asm
 FOO:
     PUSH BP
     MOV BP, SP
-    MOV BX, WORD PTR [BP+6]   ;obtém endereço de A
-    MOV AX, WORD PTR [BX]     ;obtém A
+    MOV BX, [BP+6]            ;obtem endereco de A
+    MOV AX, [BX]              ;obtem A
     PUSH AX                   ;coloca-o na pilha
-    MOV BX, WORD PTR [BP+4]   ;obtém endereço de B
-    MOV AX, WORD PTR [BX]     ;obtém B
+    MOV BX, [BP+4]            ;obtem endereco de B
+    MOV AX, [BX]              ;obtem B
     POP BX                    ;retira A da pilha
     ADD AX, BX                ;e soma com B
-    MOV BX, WORD PTR [BP+6]   ;obtém endereço de A
-    MOV WORD PTR [BX], AX     ;armazena resultado em A
+    MOV BX, [BP+6]            ;obtem endereco de A
+    MOV [BX], AX              ;armazena resultado em A
     POP BP
     RET
 ~~~
@@ -1086,16 +1129,16 @@ Tudo isto pode ser tratado por mudanças a `AsmLoadParam()` e `AsmStoreParam()`:
 void AsmLoadParam(int pos)
 {
     int offset = AsmOffsetParam(pos);
-    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
-    EmitLn("MOV AX, WORD PTR [BX]");
+    EmitLn("MOV BX, [BP+%d]", offset);
+    EmitLn("MOV AX, [BX]");
 }
 
 /* Armazena conteúdo do registrador primário em parâmetro */
 void AsmStoreParam(int pos)
 {
     int offset = AsmOffsetParam(pos);
-    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
-    EmitLn("MOV WORD PTR [BX], AX");
+    EmitLn("MOV BX, [BP+%d]", offset);
+    EmitLn("MOV [BX], AX");
 }
 ~~~
 
@@ -1133,13 +1176,13 @@ Eu sempre acreditei que a razão tinha a ver com as duas diferenças principais 
 Mais recentemente porém, algumas pessoas me disseram que realmente não há uma grande penalidade na performance associada à alocação dinâmica. Uma instrução
 
 ~~~asm
-MOV AX, WORD PTR [BP+8]
+MOV AX, [BP+8]
 ~~~
 
 tem pouquíssima diferença de tempo de execução em relação a
 
 ~~~asm
-MOV AX, WORD PTR [X]
+MOV AX, [X]
 ~~~
 
 Portanto, estou convencido de que não há uma boa razão para NÃO usar alocação dinâmica.
@@ -1199,14 +1242,14 @@ void FormalList()
 void AsmLoadParam(int par)
 {
     int offset = AsmOffsetParam(par);
-    EmitLn("MOV AX, WORD PTR [BP%+d]", offset);
+    EmitLn("MOV AX, [BP%+d]", offset);
 }
 
 /* Armazena conteúdo do registrador primário em parâmetro */
 void AsmStoreParam(int par)
 {
     int offset = AsmOffsetParam(par);
-    EmitLn("MOV WORD PTR [BP%+d], AX", offset);
+    EmitLn("MOV [BP%+d], AX", offset);
 }
 ~~~
 
@@ -1265,6 +1308,7 @@ Repare na diferença da chamada a `AsmProcProlog()`. No lugar de passar o númer
 /* Escreve o prólogo para um procedimento */
 void AsmProcProlog(char name, int countLocals)
 {
+    printf("section .text\n");
     printf("%c:\n", name);
     EmitLn("PUSH BP");
     EmitLn("MOV BP, SP");

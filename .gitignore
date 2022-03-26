@@ -1,6 +1,8 @@
 .vscode
+a.out
 *.o
 *.obj
+*.com
 *.exe
 *.dll
 *.lib
@@ -12,4 +14,6 @@
 *.user
 *.map
 *.exp
+exemplo_elf32
+exemplo_elf64
 src/test.out

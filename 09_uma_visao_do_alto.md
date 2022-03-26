@@ -77,7 +77,7 @@ int main()
 }
 ~~~
 
-As rotinas `AsmProlog()` e `AsmEpilog()` executam ações necessárias para permitir que o programa se comunique com o sistema operacional, de forma que ele possa ser executado como um programa. É desnecessário dizer, **que esta parte é MUITO dependente do sistema operacional.** Lembre-se, estamos gerando código para uma CPU 80x86. Eu estou usando um sistema compatível com DOS e vou usar um montador compatível com TASM para gerar o programa executável. Eu compreendo que a maioria possa estar usando outro tipo de CPU e um sistema operacional mais moderno, mas já chegamos longe demais para mudar agora!
+As rotinas `AsmProlog()` e `AsmEpilog()` executam ações necessárias para permitir que o programa se comunique com o sistema operacional, de forma que ele possa ser executado como um programa. É desnecessário dizer, **que esta parte é MUITO dependente do sistema operacional.** Lembre-se, estamos gerando código para uma CPU 80x86. Eu estou usando um sistema compatível com DOS e vou usar um montador compatível com NASM para gerar o programa executável. Eu compreendo que a maioria possa estar usando outro tipo de CPU e um sistema operacional mais moderno, mas já chegamos longe demais para mudar agora!
 
 O DOS em particular é de certa forma fácil de lidar se você quer algo simples. É possível brincar um pouco mais com modelos de memória, organização dos segmentos, etc. Mas eu preferi usar algo mais simples e que funciona! Você pode adaptar os códigos da forma que preferir. Estes são os códigos para o `AsmProlog()` e `AsmEpilog()`:
 
@@ -85,25 +85,19 @@ O DOS em particular é de certa forma fácil de lidar se você quer algo simples
 /* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
-    EmitLn(".model small");
-    EmitLn(".stack");
-    EmitLn(".code");
-    printf("PROG segment byte public\n");
-    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    printf("org 100h\n");
+    printf("section .data\n");
+    printf("section .text\n");
+    printf("_start:\n");
 }
 
 /* Emite código para o epílogo de um programa */
-void AsmEpilog(char name)
+void AsmEpilog()
 {
-    printf("exit_prog:\n");
-    EmitLn("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
-    EmitLn("INT 21h       ; chamada de sistema DOS");
-    printf("PROG ends\n");
-    EmitLn("end %c", name);
+    EmitLn("MOV AX, 4C00h");
+    EmitLn("INT 21h");
 }
 ~~~
-
->**Nota de tradução:** Esta parte do tutorial precisa desesperadamente de uma "modernização"! Peço desculpas ao leitor que precisará fazer adaptações para poder transformar o código assembly gerado em algo executável num computador moderno. O código gerado funciona, mas só consegui testá-lo (em 2022!) usando [DOSBOX](https://www.dosbox.com/).
 
 Adicione este código e teste o "compilador". Neste ponto, a única entrada válida é:
 
@@ -115,10 +109,7 @@ Bem, como de costume nossa primeira tentativa não impressiona muito, mas neste 
 
 Isto é muito importante. A melhor característica da abordagem "top-down" é que a qualquer estágio é possível compilar um subconjunto da linguagem completa e obter um programa que pode ser executado na máquina alvo. Daqui por diante, nós só precisamos adicionar características melhorando as construções da linguagem. Tudo isto é muito similar ao que já fizemos, exceto pelo fato da abordagem agora ser inversa.
 
-Apenas para completar. Caso você queira transformar a saída do nosso programa em código executável, deve usar um montador (assembler) em um ligador (linker). Se você usar o [Turbo Assembler](https://winworldpc.com/product/turbo-assembler/1x) da Borland, pode fazer desta forma:
-
-    TASM programa.asm
-    TLINK programa.obj
+> Caso você queira transformar a saída do nosso programa em código executável, deve usar um montador (assembler). Nosso compilador atual produz código assembly compatível com o [Netwide Assembler](https://www.nasm.us/). Para mais detalhes de como gerar um executável, inclusive para outras plataformas, consulte o [apêndice](executavel.md).
 
 Adicionando Código
 ------------------
@@ -127,7 +118,7 @@ Para adicionar código ao compilador, só precisamos tratar das características
 
 ~~~c
 /* Analisa e traduz um bloco Pascal */
-void Block(char name)
+void Block()
 {
 }
 ~~~
@@ -143,9 +134,9 @@ void Program()
     Match('p'); /* Trata do cabeçalho do programa */
     name = GetName();
     AsmProlog();
-    Block(name);
+    Block();
     Match('.');
-    AsmEpilog(name);
+    AsmEpilog();
 }
 ~~~
 
@@ -153,15 +144,12 @@ Isto certamente não deve alterar o funcionamento do nosso programa, e não alte
 
 ~~~c
 /* Analisa e traduz um bloco pascal */
-void Block(char name)
+void Block()
 {
     Declarations();
-    printf("%c:\n", name);
     Statements();
 }
 ~~~
-
-Note que estamos emitindo um rótulo de desvio. Eu provavelmente devo explicar a razão de inserí-lo justamente ali. Tem a ver com a forma como o montador funciona. Ao contrário de outros montadores o TASM e seus compatíveis permitem que o ponto de entrada do programa seja em qualquer lugar. Tudo o que você deve fazer é dar um nome a este ponto. Nós colocamos o rótulo bem antes do primeiro comando executável no programa principal. Como o montador sabe qual dos rótulos é o ponto de entrada? É aquele que combina com o do comando END no fim do programa.
 
 Certo, agora adicione as rotinas `Declaration()` e `Statements()`. Elas são rotinas vazias assim como fizemos antes.
 
@@ -198,8 +186,8 @@ void Declarations()
             case 'c': Constants(); break;
             case 't': Types(); break;
             case 'v': Variables(); break;
-            case 'p': Procedure(); break;
-            case 'f': Function(); break;
+            case 'p': Procedures(); break;
+            case 'f': Functions(); break;
             default: valid = 0; break;
         }
     } while (valid);
@@ -231,12 +219,12 @@ void Variables()
     Match('v');
 }
 
-void Procedure()
+void Procedures()
 {
     Match('p');
 }
 
-void Function()
+void Functions()
 {
     Match('f');
 }

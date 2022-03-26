@@ -1,0 +1,9 @@
+del exemplo.com
+del exemplo_win32.exe
+del exemplo_win64.exe
+del exemplo_elf32.o
+del exemplo_elf64.o
+del exemplo_win32.obj
+del exemplo_win64.obj
+del exemplo_elf32 
+del exemplo_elf64

@@ -267,13 +267,13 @@ char GetNum()
 void AsmLoadVar(char name)
 {
     CheckVar(name);
-    EmitLn("MOV AX, WORD PTR %c", name);
+    EmitLn("MOV AX, [%c]", name);
 }
 
 /* Armazena registrador primário em variável */
 void AsmStoreVar(char name)
 {
-    EmitLn("MOV WORD PTR %c, AX", name);
+    EmitLn("MOV [%c], AX", name);
 }
 
 /* Aloca espaço de armazenamento para variável */

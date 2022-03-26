@@ -331,20 +331,16 @@ char GetNum()
 /* Cabeçalho inicial para o montador */
 void AsmHeader()
 {
-    EmitLn(".model small");
-    EmitLn(".stack");
-    EmitLn(".code");
-    printf("PROG segment byte public\n");
-    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    printf("org 100h\n");
+    printf("section .text\n");
+    EmitLn("JMP _start");
 }
 
 /* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
-    printf("MAIN:\n");
-    EmitLn("MOV AX, PROG");
-    EmitLn("MOV DS, AX");
-    EmitLn("MOV ES, AX");
+    printf("section .text\n");
+    printf("_start:\n");
 }
 
 /* Emite código para o epílogo de um programa */
@@ -352,21 +348,19 @@ void AsmEpilog()
 {
     EmitLn("MOV AX, 4C00h");
     EmitLn("INT 21h");
-    printf("PROG ends\n");
-    EmitLn("end MAIN");
 }
 
 /* Carrega uma variável no registrador primário */
 void AsmLoadVar(char name)
 {
     CheckVar(name);
-    EmitLn("MOV AX, WORD PTR %c", name);
+    EmitLn("MOV AX, [%c]", name);
 }
 
 /* Armazena registrador primário em variável */
 void AsmStoreVar(char name)
 {
-    EmitLn("MOV WORD PTR %c, AX", name);
+    EmitLn("MOV [%c], AX", name);
 }
 
 /* Aloca espaço de armazenamento para variável */
@@ -375,6 +369,7 @@ void AsmAllocVar(char name)
     if (InTable(name))
         Duplicate(name);
     AddEntry(name, 'v');
+    printf("section .data\n");
     printf("%c\tdw 0\n", name);
 }
 
@@ -405,16 +400,16 @@ int AsmOffsetParam(int par)
 void AsmLoadParam(int par)
 {
     int offset = AsmOffsetParam(par);
-    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
-    EmitLn("MOV AX, WORD PTR [BX]");
+    EmitLn("MOV BX, [BP+%d]", offset);
+    EmitLn("MOV AX, [BX]");
 }
 
 /* Armazena conteúdo do registrador primário em parâmetro por referência */
 void AsmStoreParam(int par)
 {
     int offset = AsmOffsetParam(par);
-    EmitLn("MOV BX, WORD PTR [BP+%d]", offset);
-    EmitLn("MOV WORD PTR [BX], AX");
+    EmitLn("MOV BX, [BP+%d]", offset);
+    EmitLn("MOV [BX], AX");
 }
 
 /* Coloca parâmetros na pilha */
@@ -422,11 +417,11 @@ void AsmPushParam(char name)
 {
     switch (SymbolType(name)) {
         case 'v':
-            EmitLn("MOV AX, OFFSET %c", name);
+            EmitLn("MOV AX, %c", name);
             AsmPush();
             break;
         case 'f':
-            EmitLn("MOV AX, WORD PTR [BP+%d]", AsmOffsetParam(ParamNumber(name)));
+            EmitLn("MOV AX, [BP+%d]", AsmOffsetParam(ParamNumber(name)));
             AsmPush();
             break;
         default:
@@ -450,6 +445,7 @@ void AsmCleanStack(int bytes)
 /* Escreve o prólogo para um procedimento */
 void AsmProcProlog(char name)
 {
+    printf("section .text\n");
     printf("%c:\n", name);
     EmitLn("PUSH BP");
     EmitLn("MOV BP, SP");

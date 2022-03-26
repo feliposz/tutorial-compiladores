@@ -41,7 +41,7 @@ A definição de mais alto nível é similar à de Pascal:
 
 Nós já chegamos num ponto de decisão. Minha primeira idéia era fazer do bloco principal opcional. Não faz sentido criar um "programa" sem uma rotina principal, mas faz sentido se permitirmos múltiplos módulos, que podem ser combinados depois. De fato, eu pretendo permitir insto em KISS. Mas então estaríamos começando com algo que eu prefiro deixar para depois. O termo PROGRAM não é realmente um nome muito bom. MODULE de Modula-2 ou Unit do Turbo Pascal seria mais apropriado. Em segundo lugar, o que dizer a respeito de regras de escopo? Nós precisaríamos de uma convenção para lidar com a visibilidade dos nomes através dos módulos. Por enquanto, é melhor manter as coisas simples e ignorar esta idéia.
 
-Há também uma decisão com relação a permitir que o programa principal fique somente no fim. Eu trabalhei com a idéia de permitir que sua posição fosse opcional, como em C. A natureza dos montadores como o TASM (que é o que eu estou usando) permitem que isto seja realmente fácil de fazer. Mas isto não faz muito sentido do ponto de vista da regra que estamos usando. Como em Pascal todos os dados e rotinas devem ser declarados antes de referenciados. Como o programa principal só pode chamar subrotinas que já foram declaradas, a única posição que faz sentido é no final, como em Pascal.
+Há também uma decisão com relação a permitir que o programa principal fique somente no fim. Eu trabalhei com a idéia de permitir que sua posição fosse opcional, como em C. A natureza dos montadores como o NASM (que é o que eu estou usando) permitem que isto seja realmente fácil de fazer. Mas isto não faz muito sentido do ponto de vista da regra que estamos usando. Como em Pascal todos os dados e rotinas devem ser declarados antes de referenciados. Como o programa principal só pode chamar subrotinas que já foram declaradas, a única posição que faz sentido é no final, como em Pascal.
 
 Dada a BNF acima, vamos criar o analisador que reconhece apenas os limitadores.
 
@@ -63,11 +63,8 @@ A rotina `AsmHeader()` apenas emite o código inicial necessário para o montado
 /* Cabeçalho inicial para o montador */
 void AsmHeader()
 {
-    EmitLn(".model small");
-    EmitLn(".stack");
-    EmitLn(".code");
-    printf("PROG segment byte public\n");
-    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    printf("org 100h\n");
+    printf("section .data\n");
 }
 ~~~
 
@@ -77,19 +74,15 @@ As rotinas `AsmProlog()` e `AsmEpilog()` emitem código o código que identifica
 /* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
-    printf("MAIN:\n");
-    EmitLn("MOV AX, PROG");
-    EmitLn("MOV DS, AX");
-    EmitLn("MOV ES, AX");
+    printf("section .text\n");
+    printf("_start:\n");
 }
 
 /* Emite código para o epílogo de um programa */
 void AsmEpilog()
 {
-    EmitLn("MOV AX,4C00h");
+    EmitLn("MOV AX, 4C00h");
     EmitLn("INT 21h");
-    printf("PROG ends\n");
-    EmitLn("end MAIN");
 }
 ~~~
 
@@ -249,7 +242,7 @@ A rotina `AllocVar()` simplesmente emite o comando assembly para alocar memória
 /* Emite código de alocação de memória para uma variável */
 void AllocVar(char name)
 {
-    printf("%c:\tdw 0\n", name);
+    printf("%c\tdw 0\n", name);
 }
 ~~~
 
@@ -257,7 +250,7 @@ Faça o teste agora. Tente uma entrada que declara algumas variáveis, como:
 
     pvxvyvzbe.
 
-Viu como o armazenamento é alocado? Simples, não? Note também que o ponto de entrada "MAIN", se encaixa no lugar certo.
+Viu como o armazenamento é alocado? Simples, não? Note também que o ponto de entrada `_start`, se encaixa no lugar certo.
 
 Para constar, um compilador "real" também teria uma tabela de símbolos para armazenar as variáveis usadas. Normalmente, a tabela de símbolos é necessária para armazenar o tipo de cada variável. Mas como neste caso todas as variáveis tem o mesmo tipo, não precisamos de uma tabela de símbolos por este motivo. Mas como você vai ver, vamos constatar que um símbolo é necessário mesmo sem a diferença dos tipos, mas vamos por esta questão de lado até que seja necessário.
 
@@ -310,7 +303,7 @@ void AllocVar(char name)
         value = GetNum();
     }
 
-    printf("%c:\tdw %c\n", name, value);
+    printf("%c\tdw %c\n", name, value);
 }
 ~~~
 
@@ -360,7 +353,7 @@ void AllocVar(char name)
         value = signal * GetNum();
     }    
 
-    printf("%c:\tdw %d\n", name, value);
+    printf("%c\tdw %d\n", name, value);
 }
 ~~~
 
@@ -503,7 +496,7 @@ void AsmLoadVar(char name)
 {
     if (!InTable(name))
         Undefined(name);
-    EmitLn("MOV AX, WORD PTR %c", name);
+    EmitLn("MOV AX, [%c]", name);
 }
 
 /* Armazena registrador primário em variável */
@@ -511,7 +504,7 @@ void AsmStore(char name)
 {
     if (!InTable(name))
         Undefined(name);
-    EmitLn("MOV WORD PTR %c, AX", name);
+    EmitLn("MOV [%c], AX", name);
 }
 
 /* Coloca registrador primário na pilha */
@@ -560,7 +553,7 @@ Repare que tanto `AsmLoadVar()` quanto `AsmStore()` verificam a tabela de símbo
 /* Avisa a respeito de um identificador desconhecido */
 void Undefined(char name)
 {
-    Abort("Error: Undefined identifier %c\n", name);
+    Abort("Undefined identifier %c\n", name);
 }
 ~~~
 
@@ -1411,7 +1404,7 @@ void AllocVar(char *name)
         value = signal * GetNum();
     }    
 
-    printf("%s:\tdw %d\n", name, value);
+    printf("%s\tdw %d\n", name, value);
 }
 ~~~
 
@@ -1543,12 +1536,9 @@ void AsmWrite()
 
 A idéia é que `READ` carrega o valor de entrada em AX, e `WRITE` exibe o valor dele.
 
-Estas duas rotinas representam nosso primeiro encontro com a necessidade de rotinas de biblioteca... os componentes de uma biblioteca de tempo de execução (*RTL - Run Time Library*). É claro, alguém (no caso, nós mesmos) deve escrever estas rotinas, mas elas não fazem parte do compilador em si. Repare que estas rotinas podem ser MUITO dependentes do sistema operacional. Eu vou colocar UMA versão destas rotinas para que você possa testar, se você estiver usando o DOS. É claro que não será a melhor das versões. É possível criar todo tipo de fantasia para estas coisas, por exemplo, exibir um prompt em READ para as entradas, e dar ao usuário uma nova chance se ele entrar com um valor inválido.
+Estas duas rotinas representam nosso primeiro encontro com a necessidade de rotinas de biblioteca... os componentes de uma biblioteca de tempo de execução (*RTL - Run Time Library*). É claro, alguém (no caso, nós mesmos) deve escrever estas rotinas, mas elas não fazem parte do compilador em si. Repare que estas rotinas podem ser MUITO dependentes do sistema operacional. Eu vou colocar UMA versão destas rotinas para que você possa testar. É claro que não será a melhor das versões. É possível criar todo tipo de fantasia para estas coisas, por exemplo, exibir um prompt em `READ` para as entradas, e dar ao usuário uma nova chance se ele entrar com um valor inválido.
 
-Mas isto é certamente separado do projeto do compilador. Por enquanto vamos fazer de conta que possuimos uma biblioteca chamada `TINYRTL.LIB` (eu vou explicar como criar a biblioteca e suas rotinas num texto separado).  Para fazer uso dela, faça o seguinte quando for gerar o executável do programa:
-
-    TASM prog.asm
-    TLINK prog.obj,,,tinyrtl.lib
+Mas isto é certamente separado do projeto do compilador. Por enquanto vamos fazer de conta que possuimos uma biblioteca chamada `TINYRTL`. Eu vou explicar como criar a biblioteca, suas rotinas e como importá-la para uso nos nossos programas nos apêndices.
 
 Isto deve ser o suficiente. Agora, também devemos reconhecer os comandos de leitura e escrita. Podemos fazer isto adicionando mais duas palavras-chave à nossa lista:
 
@@ -1635,19 +1625,22 @@ void Block()
 }
 ~~~
 
-Se você tentar montar o código gerado agora com as rotinas READ e WRITE vai obter uma mensagem de erro, dizendo que não encontrou tais rotinas no código. Como elas são rotinas externas (da biblioteca), precisamos avisar o montador a respeito disso, altere `AsmHeader()`:
+Se você tentar montar o código gerado agora com as rotinas `READ` e `WRITE` vai obter uma mensagem de erro, dizendo que não encontrou tais rotinas no código. Como elas são rotinas externas (da biblioteca), precisamos avisar o montador a respeito disso, altere `AsmEpilog()`:
 
 ~~~c
-/* Cabeçalho inicial para o montador */
-void AsmHeader()
+/* Emite código para o epílogo de um programa */
+void AsmEpilog()
 {
-    EmitLn(".model small");
-    EmitLn(".stack");
-    EmitLn(".code");
-    printf("extrn READ:near, WRITE:near\n");
-    printf("PROG segment byte public\n");
-    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    EmitLn("MOV AX, 4C00h");
+    EmitLn("INT 21h");
+    printf("\n%%include \"tinyrtl_dos.inc\"\n");
 }
+~~~
+
+Tudo que isto faz, é incluir a linha abaixo no código gerado para importar as rotinas necessárias (para ver a implementação das rotinas consulte os apêndices):
+
+~~~
+    %include "tinyrtl_dos.inc"
 ~~~
 
 Isto é tudo o que precisa ser feito. **AGORA temos uma linguagem!**

@@ -297,14 +297,14 @@ void AsmLoadVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            EmitLn("MOV AL, BYTE PTR %c", name);
+            EmitLn("MOV AL, [%c]", name);
             break;
         case 'w':
-            EmitLn("MOV AX, WORD PTR %c", name);
+            EmitLn("MOV AX, [%c]", name);
             break;
         case 'l':
-            EmitLn("MOV DX, WORD PTR [%c+2]", name);
-            EmitLn("MOV AX, WORD PTR [%c]", name);
+            EmitLn("MOV DX, [%c+2]", name);
+            EmitLn("MOV AX, [%c]", name);
     }
 }
 ~~~
@@ -374,14 +374,14 @@ void AsmStoreVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            EmitLn("MOV BYTE PTR %c, AL", name);
+            EmitLn("MOV [%c], AL", name);
             break;
         case 'w':
-            EmitLn("MOV WORD PTR %c, AX", name);
+            EmitLn("MOV [%c], AX", name);
             break;
         case 'l':
-            EmitLn("MOV WORD PTR [%c+2], DX", name);
-            EmitLn("MOV WORD PTR [%c], AX", name);
+            EmitLn("MOV [%c+2], DX", name);
+            EmitLn("MOV [%c], AX", name);
     }
 }
 
@@ -473,9 +473,9 @@ Só há um pequeno problea: O código gerado está ERRADO!
 Obserce o código para "a=c" acima. O código é:
 
 ~~~asm
-    MOV DX, WORD PTR [C+2]
-    MOV AX, WORD PTR [C]
-    MOV BYTE PTR A, AL
+    MOV DX, [C+2]
+    MOV AX, [C]
+    MOV [A], AL
 ~~~
 
 Este código está correto. Ele vai fazer com que os 8 bits menos significativos de C sejam armazenados em A, o que é um comportamento razoável. É basicamente o que se espera que aconteça.
@@ -483,9 +483,9 @@ Este código está correto. Ele vai fazer com que os 8 bits menos significativos
 Mas agora, observe o caso oposto. Para "c=a", o código gerado é:
 
 ~~~asm
-    MOV AL, BYTE PTR A
-    MOV WORD PTR [C+2], DX
-    MOV WORD PTR [C], AX
+    MOV AL, [A]
+    MOV [C+2], DX
+    MOV [C], AX
 ~~~
 
 Isto NÃO está correto. Ele vai fazer com que o byte armazenado em A, seja armazenado no registrador AL, que corresponde aos 8-bits inferiores de AX. De acordo com as regras para o processador 80x86, os 8-bits superiores (registrador AH) não são modificados, e muito menos o valor de DX, que seriam os 16-bits mais significativos do nosso valor de 32-bits. Isto significa que quando armazenamos o valor inteiro de 32-bits em "C", qualquer valor que tenha ficado anteriormente em AH e DX será armazenado também. Nada bom.
@@ -509,15 +509,15 @@ void AsmLoadVar(char name, char type)
         case 'b':
             EmitLn("XOR DX, DX");
             EmitLn("XOR AX, AX");
-            EmitLn("MOV AL, BYTE PTR %c", name);
+            EmitLn("MOV AL, [%c]", name);
             break;
         case 'w':
             EmitLn("XOR DX, DX");
-            EmitLn("MOV AX, WORD PTR %c", name);
+            EmitLn("MOV AX, [%c]", name);
             break;
         case 'l':
-            EmitLn("MOV DX, WORD PTR [%c+2]", name);
-            EmitLn("MOV AX, WORD PTR [%c]", name);
+            EmitLn("MOV DX, [%c+2]", name);
+            EmitLn("MOV AX, [%c]", name);
     }
 }
 ~~~
@@ -528,8 +528,8 @@ Se você fizer alguns testes com a nova versão, vai descobrir que tudo funciona
 
 ~~~asm
     XOR DX, DX
-    MOV AX, WORD PTR B
-    MOV BYTE PTR A, AL
+    MOV AX, [B]
+    MOV [A], AL
 ~~~
 
 Neste caso, ocorre que é desnecessário limpar o valor dos registradores, já que o resultado está sendo armazenado numa variável do tipo byte. Com um pouco de trabalho é possível fazer melhor. No entanto, isto não é tão ruim, e é o tipo de ineficiência típica que já vimos em compiladores simplificados.
@@ -542,17 +542,17 @@ void AsmLoadVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            EmitLn("MOV AL, BYTE PTR %c", name);
+            EmitLn("MOV AL, [%c]", name);
             EmitLn("CBW");
             EmitLn("CWD");
             break;
         case 'w':
-            EmitLn("MOV AX, WORD PTR %c", name);
+            EmitLn("MOV AX, [%c]", name);
             EmitLn("CWD");
             break;
         case 'l':
-            EmitLn("MOV DX, WORD PTR [%c+2]", name);
-            EmitLn("MOV AX, WORD PTR [%c]", name);
+            EmitLn("MOV DX, [%c+2]", name);
+            EmitLn("MOV AX, [%c]", name);
     }
 }
 ~~~
@@ -564,7 +564,7 @@ Por último, para tratar de um byte como sendo sem sinal (como em Pascal e C) e 
 ~~~c
         case 'b':
             EmitLn("XOR AX, AX");
-            EmitLn("MOV AL, BYTE PTR %c", name);
+            EmitLn("MOV AL, [%c]", name);
             EmitLn("CWD");
             break;
 ~~~
@@ -590,14 +590,14 @@ void AsmLoadVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            EmitLn("MOV AL, BYTE PTR %c", name);
+            EmitLn("MOV AL, [%c]", name);
             break;
         case 'w':
-            EmitLn("MOV AX, WORD PTR %c", name);
+            EmitLn("MOV AX, [%c]", name);
             break;
         case 'l':
-            EmitLn("MOV DX, WORD PTR [%c+2]", name);
-            EmitLn("MOV AX, WORD PTR [%c]", name);
+            EmitLn("MOV DX, [%c+2]", name);
+            EmitLn("MOV AX, [%c]", name);
     }
 }
 ~~~
@@ -1087,9 +1087,9 @@ Vamos tratar do caso da multiplicação primeiro. Esta operação é parecida co
 
 - O tipo do produto não é o mesmo dos operandos. Para o produto de dois "words", temos um resultado "long".
 
-- O 80x86 não suporta multiplicação de dois operandos de 32-bits (não para o nosso caso, em que estamos tratando de registradores de 16-bits), portanto uma chamada a uma rotina externa é necessária. Esta rotina se tornará parte de nossa biblioteca.
+- O 8086 não suporta multiplicação de dois operandos de 32-bits (não para o nosso caso, em que estamos tratando de registradores de 16-bits), portanto uma chamada a uma rotina externa é necessária. Esta rotina se tornará parte de nossa biblioteca.
 
-NOTA: É possível multiplicar números de 32-bits usando os registradores estendidos de 32-bits usando as próprias instruções de máquina. Mas prefiro me manter com os 16-bits, pois o importante é aprender a técnica, que pode ser aplicada em outros casos. (Multiplicação de 64-bits por exemplo.)
+> NOTA: Em processadores de 32 ou 64-bits, é possível multiplicar números de 32-bits usando os registradores estendidos e as próprias instruções da CPU. Para o tutorial, vamos nos limitar às instruções de 16-bits, pois o importante é aprender a técnica, que pode ser aplicada em outras situações.
 
 As ações a serem tomadas podem ser melhor traduzidas na tabela:
 

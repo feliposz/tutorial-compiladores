@@ -41,4 +41,5 @@ Contribuição com ajustes e correções são bem-vindas!
 ## Apêndices
 
 - [Ferramentas](ferramentas.md)
+- [Gerando arquivo executável](executavel.md)
 - [Recomendações](recomendacoes.md)

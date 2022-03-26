@@ -641,17 +641,17 @@ Teste isto agora, com alguns casos simples. Teste também o nosso exemplo do OU-
 Você deve obter o código (sem os comentários, é claro):
 
 ~~~asm
-    MOV AX, A   ; carrega A
+    MOV AX, [A] ; carrega A
     PUSH AX     ; coloca na pilha
-    MOV AX, B   ; carrega B
+    MOV AX, [B] ; carrega B
     NOT AX      ; !b
     POP BX      ; pega A da pilha
     AND AX, BX  ; !b & a
     PUSH AX     ; coloca resultado na pilha
-    MOV AX, A   ; carrega A
+    MOV AX, [A] ; carrega A
     NOT AX      ; !a
     PUSH AX     ; coloca na pilha
-    MOV AX, B   ; carrega B
+    MOV AX, [B] ; carrega B
     POP BX      ; pega !a da pilha
     AND AX, BX  ; b & !a
     POP BX      ; pega resultado anterior (!b & a)

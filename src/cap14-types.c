@@ -247,14 +247,14 @@ void AsmLoadVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            EmitLn("MOV AL, BYTE PTR %c", name);
+            EmitLn("MOV AL, [%c]", name);
             break;
         case 'w':
-            EmitLn("MOV AX, WORD PTR %c", name);
+            EmitLn("MOV AX, [%c]", name);
             break;
         case 'l':
-            EmitLn("MOV DX, WORD PTR [%c+2]", name);
-            EmitLn("MOV AX, WORD PTR [%c]", name);
+            EmitLn("MOV DX, [%c+2]", name);
+            EmitLn("MOV AX, [%c]", name);
     }
 }
 
@@ -263,14 +263,14 @@ void AsmStoreVar(char name, char type)
 {
     switch (type) {
         case 'b':
-            EmitLn("MOV BYTE PTR %c, AL", name);
+            EmitLn("MOV [%c], AL", name);
             break;
         case 'w':
-            EmitLn("MOV WORD PTR %c, AX", name);
+            EmitLn("MOV [%c], AX", name);
             break;
         case 'l':
-            EmitLn("MOV WORD PTR [%c+2], DX", name);
-            EmitLn("MOV WORD PTR [%c], AX", name);
+            EmitLn("MOV [%c+2], DX", name);
+            EmitLn("MOV [%c], AX", name);
     }
 }
 

@@ -740,30 +740,20 @@ L1:
 	; END
 
 TEST: echo pXbe.  | cap09-top-pascal
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:
-exit_prog:
-	MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
-	INT 21h       ; chamada de sistema DOS
-PROG ends
-	end X
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
 
 TEST: echo pXlcltcvtpvfvlbXYZe.  | cap09-top-pascal
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:
-exit_prog:
-	MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)
-	INT 21h       ; chamada de sistema DOS
-PROG ends
-	end X
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
 
 TEST: echo,  | cap09-top-c
 
@@ -783,137 +773,92 @@ Class: a, Sign: u, Type: i, Data: Y
 Class: x, Sign: s, Type: i, Data: Z
 
 TEST: echo pbe.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pvXvYvZbe.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pvX,Y,ZvM,NvObe.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-M:	dw 0
-N:	dw 0
-O:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pvX=1,Y=2,Z=3vM,NvO=9be.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 1
-Y:	dw 2
-Z:	dw 3
-M:	dw 0
-N:	dw 0
-O:	dw 9
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 3
+M	dw 0
+N	dw 0
+O	dw 9
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pvX=-1,Y=23,Z=456vM,NvO=-7890be.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw -1
-Y:	dw 23
-Z:	dw 456
-M:	dw 0
-N:	dw 0
-O:	dw -7890
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw -1
+Y	dw 23
+Z	dw 456
+M	dw 0
+N	dw 0
+O	dw -7890
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pbXYZe.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+section .text
+_start:
 Error: '=' expected!
 
 TEST: echo pvX=1,Y=2,ZbZ=X-Y+(-X*Y)/10e.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 1
-Y:	dw 2
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR X
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 0
+section .text
+_start:
+	MOV AX, [X]
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	SUB AX, BX
 	NEG AX
 	PUSH AX
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	NEG AX
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	IMUL BX
 	PUSH AX
@@ -924,28 +869,21 @@ MAIN:
 	IDIV BX
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR Z, AX
+	MOV [Z], AX
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pvX,Y,ZbX=Z^>Ye.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR Z
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [Z]
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	CMP BX, AX
 	JG L0
@@ -954,27 +892,20 @@ MAIN:
 L0:
 	MOV AX, -1
 L1:
-	MOV WORD PTR X, AX
+	MOV [X], AX
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pvXbX=0wX^<9X=X+1ee.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+section .text
+_start:
 	MOV AX, 0
-	MOV WORD PTR X, AX
+	MOV [X], AX
 L0:
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 9
 	POP BX
@@ -986,34 +917,27 @@ L2:
 	MOV AX, -1
 L3:
 	JZ L1
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR X, AX
+	MOV [X], AX
 	JMP L0
 L1:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo pvX,YbX=1iX=1Y=Y-1lY=Y+2ee.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
 	MOV AX, 1
-	MOV WORD PTR X, AX
-	MOV AX, WORD PTR X
+	MOV [X], AX
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1025,153 +949,115 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 L3:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo Program Begin End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x Var y Var z Begin End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x,Y,z Var M , N Var O Begin End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-M:	dw 0
-N:	dw 0
-O:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x = 1 , y = 2 , z = 3 Var M , N Var O = 9 Begin End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 1
-Y:	dw 2
-Z:	dw 3
-M:	dw 0
-N:	dw 0
-O:	dw 9
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 3
+M	dw 0
+N	dw 0
+O	dw 9
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x = - 1 , y = 23 , z = 456 Var M , N Var O = - 7890 Begin End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw -1
-Y:	dw 23
-Z:	dw 456
-M:	dw 0
-N:	dw 0
-O:	dw -7890
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw -1
+Y	dw 23
+Z	dw 456
+M	dw 0
+N	dw 0
+O	dw -7890
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x = 1 , y = 2 , z Begin z = x - y + ( - x * y ) / 10 End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 1
-Y:	dw 2
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR X
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 0
+section .text
+_start:
+	MOV AX, [X]
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	SUB AX, BX
 	NEG AX
 	PUSH AX
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	NEG AX
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	IMUL BX
 	PUSH AX
@@ -1182,29 +1068,23 @@ MAIN:
 	IDIV BX
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR Z, AX
+	MOV [Z], AX
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x , y , z Begin x = z ^>= y End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR Z
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [Z]
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	CMP BX, AX
 	JGE L0
@@ -1213,28 +1093,22 @@ MAIN:
 L0:
 	MOV AX, -1
 L1:
-	MOV WORD PTR X, AX
+	MOV [X], AX
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x Begin x = 0 While x ^<= 9 x = x + 1 EndWhile End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+section .text
+_start:
 	MOV AX, 0
-	MOV WORD PTR X, AX
+	MOV [X], AX
 L0:
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 9
 	POP BX
@@ -1246,35 +1120,29 @@ L2:
 	MOV AX, -1
 L3:
 	JZ L1
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR X, AX
+	MOV [X], AX
 	JMP L0
 L1:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x , y Begin x = 1 If x = 1 y = y - 1 Else y = y + 2 EndIf End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
 	MOV AX, 1
-	MOV WORD PTR X, AX
-	MOV AX, WORD PTR X
+	MOV [X], AX
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1286,43 +1154,37 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 L3:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var alfa, beta Begin alfa = 1 If alfa ^<^> 1 beta = beta - 1 Else beta = beta + 2 EndIf End .  | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-ALFA:	dw 0
-BETA:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
 	MOV AX, 1
-	MOV WORD PTR ALFA, AX
-	MOV AX, WORD PTR ALFA
+	MOV [ALFA], AX
+	MOV AX, [ALFA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1334,45 +1196,39 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 L3:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var alfa, beta Begin Read(alfa, beta) If alfa ^>^= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End .   | cap10-tiny10
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-ALFA:	dw 0
-BETA:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
 	CALL READ
-	MOV WORD PTR ALFA, AX
+	MOV [ALFA], AX
 	CALL READ
-	MOV WORD PTR BETA, AX
-	MOV AX, WORD PTR ALFA
+	MOV [BETA], AX
+	MOV AX, [ALFA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1384,30 +1240,30 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 L3:
-	MOV AX, WORD PTR ALFA
+	MOV AX, [ALFA]
 	CALL WRITE
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	CALL WRITE
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo a bc def 1 23 456 + - * / = ^>= ^<= .  | cap11-lex
 Token: x Value: A
@@ -1428,132 +1284,96 @@ Token: = Value: =
 Token: . Value: .
 
 TEST: echo Program Begin End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x Var y Var z Begin End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x,Y,z Var M , N Var O Begin End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-M:	dw 0
-N:	dw 0
-O:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x , y , z Var M , N Var O Begin End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-M:	dw 0
-N:	dw 0
-O:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x , y , z Var M , N Var O Begin End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-M:	dw 0
-N:	dw 0
-O:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x , y , z Begin z = x - y + ( - x * y ) / 10 End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR X
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [X]
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	SUB AX, BX
 	NEG AX
 	PUSH AX
 	XOR AX, AX
 	PUSH AX
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	IMUL BX
 	POP BX
@@ -1567,29 +1387,23 @@ MAIN:
 	IDIV BX
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR Z, AX
+	MOV [Z], AX
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x , y , z Begin x = z ^>= y End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-Z:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR Z
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [Z]
 	PUSH AX
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	POP BX
 	CMP BX, AX
 	JGE L0
@@ -1598,28 +1412,22 @@ MAIN:
 L0:
 	MOV AX, -1
 L1:
-	MOV WORD PTR X, AX
+	MOV [X], AX
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x Begin x = 0 While x ^<= 9 x = x + 1 EndWhile End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+section .text
+_start:
 	MOV AX, 0
-	MOV WORD PTR X, AX
+	MOV [X], AX
 L0:
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 9
 	POP BX
@@ -1631,35 +1439,29 @@ L2:
 	MOV AX, -1
 L3:
 	JZ L1
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR X, AX
+	MOV [X], AX
 	JMP L0
 L1:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var x , y Begin x = 1 If x = 1 y = y - 1 Else y = y + 2 EndIf End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
 	MOV AX, 1
-	MOV WORD PTR X, AX
-	MOV AX, WORD PTR X
+	MOV [X], AX
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1671,43 +1473,37 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR Y
+	MOV AX, [Y]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 L3:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var alfa, beta Begin alfa = 1 If alfa ^<^> 1 beta = beta - 1 Else beta = beta + 2 EndIf End .  | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-ALFA:	dw 0
-BETA:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
 	MOV AX, 1
-	MOV WORD PTR ALFA, AX
-	MOV AX, WORD PTR ALFA
+	MOV [ALFA], AX
+	MOV AX, [ALFA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1719,45 +1515,39 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 L3:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program Var alfa, beta Begin Read(alfa, beta) If alfa ^>^= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End .   | cap11-tiny11
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-ALFA:	dw 0
-BETA:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
 	CALL READ
-	MOV WORD PTR ALFA, AX
+	MOV [ALFA], AX
 	CALL READ
-	MOV WORD PTR BETA, AX
-	MOV AX, WORD PTR ALFA
+	MOV [BETA], AX
+	MOV AX, [ALFA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1769,50 +1559,44 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 L3:
-	MOV AX, WORD PTR ALFA
+	MOV AX, [ALFA]
 	CALL WRITE
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	CALL WRITE
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo Program; Var x, y; Begin x = 0; y = 10; While !(x = 10) x = x + 1; y = y - 1; EndWhile; End .  | cap12-tiny12
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-X:	dw 0
-Y:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
 	MOV AX, 0
-	MOV WORD PTR X, AX
+	MOV [X], AX
 	MOV AX, 10
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 L0:
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 10
 	POP BX
@@ -1825,44 +1609,38 @@ L2:
 L3:
 	NOT AX
 	JZ L1
-	MOV AX, WORD PTR X
+	MOV AX, [X]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR X, AX
-	MOV AX, WORD PTR Y
+	MOV [X], AX
+	MOV AX, [Y]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR Y, AX
+	MOV [Y], AX
 	JMP L0
 L1:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo {x}Program{x};{x}{}Var{x} alfa, beta; Begin{x}   Read(alfa,{x} beta);   If alfa {x}^>= 1{x}     beta {x}= beta - 1  {x{y}z} Else     beta{x} = beta + 2;{ }  EndIf{x};   Write(alfa{x}, beta){ }End{x}  | cap12-tiny13
-	.model small
-	.stack
-	.code
-extrn READ:near, WRITE:near
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-ALFA:	dw 0
-BETA:	dw 0
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
 	CALL READ
-	MOV WORD PTR ALFA, AX
+	MOV [ALFA], AX
 	CALL READ
-	MOV WORD PTR BETA, AX
-	MOV AX, WORD PTR ALFA
+	MOV [BETA], AX
+	MOV AX, [ALFA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
@@ -1874,279 +1652,279 @@ L0:
 	MOV AX, -1
 L1:
 	JZ L2
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 1
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 	JMP L3
 L2:
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	PUSH AX
 	MOV AX, 2
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR BETA, AX
+	MOV [BETA], AX
 L3:
-	MOV AX, WORD PTR ALFA
+	MOV AX, [ALFA]
 	CALL WRITE
-	MOV AX, WORD PTR BETA
+	MOV AX, [BETA]
 	CALL WRITE
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
+
+%include "tinyrtl_dos.inc"
 
 TEST: echo va vb vc b a=b c=b e.  | cap13-base
 A	dw 0
 B	dw 0
 C	dw 0
-	MOV AX, WORD PTR B
-	MOV WORD PTR A, AX
-	MOV AX, WORD PTR B
-	MOV WORD PTR C, AX
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, [B]
+	MOV [C], AX
 
 TEST: echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-byval
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+org 100h
+section .text
+    JMP _start
+section .data
 A	dw 0
+section .text
 X:
 	PUSH BP
 	MOV BP, SP
-	MOV AX, WORD PTR [BP+4]
-	MOV WORD PTR A, AX
+	MOV AX, [BP+4]
+	MOV [A], AX
 	POP BP
 	RET
+section .data
 B	dw 0
+section .text
 Y:
 	PUSH BP
 	MOV BP, SP
-	MOV AX, WORD PTR [BP+6]
-	MOV WORD PTR B, AX
-	MOV AX, WORD PTR A
-	MOV WORD PTR [BP+4], AX
-	MOV AX, WORD PTR B
+	MOV AX, [BP+6]
+	MOV [B], AX
+	MOV AX, [A]
+	MOV [BP+4], AX
+	MOV AX, [B]
 	PUSH AX
 	CALL X
 	ADD SP, 2
 	POP BP
 	RET
+section .data
 C	dw 0
+section .text
 Z:
 	PUSH BP
 	MOV BP, SP
-	MOV AX, WORD PTR B
-	MOV WORD PTR [BP+6], AX
-	MOV AX, WORD PTR [BP+8]
-	MOV WORD PTR C, AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
+	MOV [BP+6], AX
+	MOV AX, [BP+8]
+	MOV [C], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR [BP+6]
+	MOV AX, [BP+6]
 	PUSH AX
 	CALL Y
 	ADD SP, 4
 	POP BP
 	RET
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR A
+section .text
+_start:
+	MOV AX, [A]
 	PUSH AX
 	CALL X
 	ADD SP, 2
-	MOV AX, WORD PTR B
-	MOV WORD PTR A, AX
-	MOV AX, WORD PTR A
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
 	CALL Y
 	ADD SP, 4
-	MOV AX, WORD PTR B
-	MOV WORD PTR C, AX
-	MOV AX, WORD PTR A
+	MOV AX, [B]
+	MOV [C], AX
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR C
+	MOV AX, [C]
 	PUSH AX
 	CALL Z
 	ADD SP, 6
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-byref
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+org 100h
+section .text
+    JMP _start
+section .data
 A	dw 0
+section .text
 X:
 	PUSH BP
 	MOV BP, SP
-	MOV BX, WORD PTR [BP+4]
-	MOV AX, WORD PTR [BX]
-	MOV WORD PTR A, AX
+	MOV BX, [BP+4]
+	MOV AX, [BX]
+	MOV [A], AX
 	POP BP
 	RET
+section .data
 B	dw 0
+section .text
 Y:
 	PUSH BP
 	MOV BP, SP
-	MOV BX, WORD PTR [BP+6]
-	MOV AX, WORD PTR [BX]
-	MOV WORD PTR B, AX
-	MOV AX, WORD PTR A
-	MOV BX, WORD PTR [BP+4]
-	MOV WORD PTR [BX], AX
-	MOV AX, OFFSET B
+	MOV BX, [BP+6]
+	MOV AX, [BX]
+	MOV [B], AX
+	MOV AX, [A]
+	MOV BX, [BP+4]
+	MOV [BX], AX
+	MOV AX, B
 	PUSH AX
 	CALL X
 	ADD SP, 2
 	POP BP
 	RET
+section .data
 C	dw 0
+section .text
 Z:
 	PUSH BP
 	MOV BP, SP
-	MOV AX, WORD PTR B
-	MOV BX, WORD PTR [BP+6]
-	MOV WORD PTR [BX], AX
-	MOV BX, WORD PTR [BP+8]
-	MOV AX, WORD PTR [BX]
-	MOV WORD PTR C, AX
-	MOV AX, OFFSET B
+	MOV AX, [B]
+	MOV BX, [BP+6]
+	MOV [BX], AX
+	MOV BX, [BP+8]
+	MOV AX, [BX]
+	MOV [C], AX
+	MOV AX, B
 	PUSH AX
-	MOV AX, WORD PTR [BP+6]
+	MOV AX, [BP+6]
 	PUSH AX
 	CALL Y
 	ADD SP, 4
 	POP BP
 	RET
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, OFFSET A
+section .text
+_start:
+	MOV AX, A
 	PUSH AX
 	CALL X
 	ADD SP, 2
-	MOV AX, WORD PTR B
-	MOV WORD PTR A, AX
-	MOV AX, OFFSET A
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, A
 	PUSH AX
-	MOV AX, OFFSET B
+	MOV AX, B
 	PUSH AX
 	CALL Y
 	ADD SP, 4
-	MOV AX, WORD PTR B
-	MOV WORD PTR C, AX
-	MOV AX, OFFSET A
+	MOV AX, [B]
+	MOV [C], AX
+	MOV AX, A
 	PUSH AX
-	MOV AX, OFFSET B
+	MOV AX, B
 	PUSH AX
-	MOV AX, OFFSET C
+	MOV AX, C
 	PUSH AX
 	CALL Z
 	ADD SP, 6
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: echo va px(m) b a=m e vb py(m,n) vi b b=m n=a i=b x(i) e vc pz(m,n,o) vi vj b n=b c=m y(b,n) i=j e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-locals
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+org 100h
+section .text
+    JMP _start
+section .data
 A	dw 0
+section .text
 X:
 	PUSH BP
 	MOV BP, SP
 	SUB SP, 0
-	MOV AX, WORD PTR [BP+4]
-	MOV WORD PTR A, AX
+	MOV AX, [BP+4]
+	MOV [A], AX
 	MOV SP, BP
 	POP BP
 	RET
+section .data
 B	dw 0
+section .text
 Y:
 	PUSH BP
 	MOV BP, SP
 	SUB SP, 2
-	MOV AX, WORD PTR [BP+6]
-	MOV WORD PTR B, AX
-	MOV AX, WORD PTR A
-	MOV WORD PTR [BP+4], AX
-	MOV AX, WORD PTR B
-	MOV WORD PTR [BP-2], AX
-	MOV AX, WORD PTR [BP-2]
+	MOV AX, [BP+6]
+	MOV [B], AX
+	MOV AX, [A]
+	MOV [BP+4], AX
+	MOV AX, [B]
+	MOV [BP-2], AX
+	MOV AX, [BP-2]
 	PUSH AX
 	CALL X
 	ADD SP, 2
 	MOV SP, BP
 	POP BP
 	RET
+section .data
 C	dw 0
+section .text
 Z:
 	PUSH BP
 	MOV BP, SP
 	SUB SP, 4
-	MOV AX, WORD PTR B
-	MOV WORD PTR [BP+6], AX
-	MOV AX, WORD PTR [BP+8]
-	MOV WORD PTR C, AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
+	MOV [BP+6], AX
+	MOV AX, [BP+8]
+	MOV [C], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR [BP+6]
+	MOV AX, [BP+6]
 	PUSH AX
 	CALL Y
 	ADD SP, 4
-	MOV AX, WORD PTR [BP-4]
-	MOV WORD PTR [BP-2], AX
+	MOV AX, [BP-4]
+	MOV [BP-2], AX
 	MOV SP, BP
 	POP BP
 	RET
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
-	MOV AX, WORD PTR A
+section .text
+_start:
+	MOV AX, [A]
 	PUSH AX
 	CALL X
 	ADD SP, 2
-	MOV AX, WORD PTR B
-	MOV WORD PTR A, AX
-	MOV AX, WORD PTR A
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
 	CALL Y
 	ADD SP, 4
-	MOV AX, WORD PTR B
-	MOV WORD PTR C, AX
-	MOV AX, WORD PTR A
+	MOV AX, [B]
+	MOV [C], AX
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR C
+	MOV AX, [C]
 	PUSH AX
 	CALL Z
 	ADD SP, 6
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 
 TEST: cap14-base  0<nul 
 Symbol table dump:
@@ -2190,34 +1968,34 @@ TEST: echo ba wb lc B a=a a=b a=c b=a b=b b=c c=a c=b c=c .   | cap14-types
 A db 0
 B dw 0
 C dd 0
-	MOV AL, BYTE PTR A
-	MOV BYTE PTR A, AL
-	MOV AX, WORD PTR B
-	MOV BYTE PTR A, AL
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
-	MOV BYTE PTR A, AL
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
+	MOV [A], AL
+	MOV AX, [B]
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
+	MOV [A], AL
+	MOV AL, [A]
 	CBW
-	MOV WORD PTR B, AX
-	MOV AX, WORD PTR B
-	MOV WORD PTR B, AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
-	MOV WORD PTR B, AX
-	MOV AL, BYTE PTR A
+	MOV [B], AX
+	MOV AX, [B]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	MOV [B], AX
+	MOV AL, [A]
 	CBW
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV AX, WORD PTR B
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2228,23 +2006,23 @@ A db 0
 B dw 0
 C dd 0
 	MOV AL, 42
-	MOV BYTE PTR A, AL
+	MOV [A], AL
 	MOV AX, 1999
-	MOV WORD PTR B, AX
+	MOV [B], AX
 	MOV DX, 15
 	MOV AX, 16959
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 	MOV DX, 13
 	MOV AX, 36920
-	MOV BYTE PTR A, AL
+	MOV [A], AL
 	MOV AL, 77
 	CBW
-	MOV WORD PTR B, AX
+	MOV [B], AX
 	MOV AX, 666
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2254,60 +2032,60 @@ TEST: echo ba wb lc B a=a+a a=a-a b=b+b b=b-b c=c+c c=c-c .   | cap14-types
 A db 0
 B dw 0
 C dd 0
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	ADD AL, BL
-	MOV BYTE PTR A, AL
-	MOV AL, BYTE PTR A
+	MOV [A], AL
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	XCHG AL, BL
 	SUB AL, BL
-	MOV BYTE PTR A, AL
-	MOV AX, WORD PTR B
+	MOV [A], AL
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	ADD AX, BX
-	MOV WORD PTR B, AX
-	MOV AX, WORD PTR B
+	MOV [B], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	XCHG AX, BX
 	SUB AX, BX
-	MOV WORD PTR B, AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	POP CX
 	ADD AX, BX
 	ADC DX, CX
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	POP CX
 	XCHG AX, BX
 	XCHG DX, CX
 	SUB AX, BX
 	SBB DX, CX
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2317,33 +2095,33 @@ TEST: echo ba wb lc B a=b+c a=c+b b=a+c b=c+b c=a+b c=b+a .   | cap14-types
 A db 0
 B dw 0
 C dd 0
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
 	CWD
 	ADD AX, BX
 	ADC DX, CX
-	MOV BYTE PTR A, AL
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
 	ADD AX, BX
 	ADC DX, CX
-	MOV BYTE PTR A, AL
-	MOV AL, BYTE PTR A
+	MOV [A], AL
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
@@ -2351,38 +2129,38 @@ C dd 0
 	CWD
 	ADD AX, BX
 	ADC DX, CX
-	MOV WORD PTR B, AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
 	ADD AX, BX
 	ADC DX, CX
-	MOV WORD PTR B, AX
-	MOV AL, BYTE PTR A
+	MOV [B], AX
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	XCHG AX, BX
 	CBW
 	ADD AX, BX
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV AX, WORD PTR B
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	CBW
 	ADD AX, BX
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2392,22 +2170,22 @@ TEST: echo ba wb lc B a=b-c a=c-b b=a-c b=c-b c=a-b c=b-a .   | cap14-types
 A db 0
 B dw 0
 C dd 0
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
 	CWD
 	SUB AX, BX
 	SBB DX, CX
-	MOV BYTE PTR A, AL
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
@@ -2415,12 +2193,12 @@ C dd 0
 	XCHG DX, CX
 	SUB AX, BX
 	SBB DX, CX
-	MOV BYTE PTR A, AL
-	MOV AL, BYTE PTR A
+	MOV [A], AL
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
@@ -2428,12 +2206,12 @@ C dd 0
 	CWD
 	SUB AX, BX
 	SBB DX, CX
-	MOV WORD PTR B, AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
@@ -2441,28 +2219,28 @@ C dd 0
 	XCHG DX, CX
 	SUB AX, BX
 	SBB DX, CX
-	MOV WORD PTR B, AX
-	MOV AL, BYTE PTR A
+	MOV [B], AX
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	XCHG AX, BX
 	CBW
 	SUB AX, BX
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV AX, WORD PTR B
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	CBW
 	XCHG AX, BX
 	SUB AX, BX
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2472,60 +2250,60 @@ TEST: echo ba wb lc B a=a*a a=a/a b=b*b b=b/b c=c*c c=c/c .   | cap14-types
 A db 0
 B dw 0
 C dd 0
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	IMUL BL
-	MOV BYTE PTR A, AL
-	MOV AL, BYTE PTR A
+	MOV [A], AL
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	XCHG AL, BL
 	CBW
 	IDIV BL
-	MOV BYTE PTR A, AL
-	MOV AX, WORD PTR B
+	MOV [A], AL
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	IMUL BX
-	MOV WORD PTR B, AX
-	MOV AX, WORD PTR B
+	MOV [B], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	XCHG AX, BX
 	CWD
 	IDIV BX
-	MOV WORD PTR B, AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	POP CX
 	CALL MUL32
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	POP CX
 	XCHG AX, BX
 	XCHG DX, CX
 	CALL DIV32
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2535,66 +2313,66 @@ TEST: echo ba wb lc B a=b*c a=c*b b=a*c b=c*b c=a*b c=b*a .   | cap14-types
 A db 0
 B dw 0
 C dd 0
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
 	CWD
 	CALL MUL32
-	MOV BYTE PTR A, AL
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
 	CALL MUL32
-	MOV BYTE PTR A, AL
-	MOV AL, BYTE PTR A
+	MOV [A], AL
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
 	CBW
 	CWD
 	CALL MUL32
-	MOV WORD PTR B, AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
 	CALL MUL32
-	MOV WORD PTR B, AX
-	MOV AL, BYTE PTR A
+	MOV [B], AX
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	XCHG AX, BX
 	CBW
 	IMUL BX
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV AX, WORD PTR B
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	CBW
 	IMUL BX
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2604,33 +2382,33 @@ TEST: echo ba wb lc B a=b/c a=c/b b=a/c b=c/b c=a/b c=b/a .   | cap14-types
 A db 0
 B dw 0
 C dd 0
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
 	CWD
 	CALL DIV32
-	MOV BYTE PTR A, AL
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
 	XCHG AX, BX
 	XCHG DX, CX
 	CALL DIV32
-	MOV BYTE PTR A, AL
-	MOV AL, BYTE PTR A
+	MOV [A], AL
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
@@ -2638,23 +2416,23 @@ C dd 0
 	CWD
 	CALL DIV32
 	CBW
-	MOV WORD PTR B, AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
 	PUSH DX
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	POP CX
 	CWD
 	XCHG AX, BX
 	XCHG DX, CX
 	CALL DIV32
-	MOV WORD PTR B, AX
-	MOV AL, BYTE PTR A
+	MOV [B], AX
+	MOV AL, [A]
 	CBW
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	XCHG AX, BX
 	CBW
@@ -2662,17 +2440,17 @@ C dd 0
 	IDIV BX
 	CBW
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
-	MOV AX, WORD PTR B
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	XCHG AX, BX
 	IDIV BL
 	CWD
-	MOV WORD PTR [C+2], DX
-	MOV WORD PTR [C], AX
+	MOV [C+2], DX
+	MOV [C], AX
 Symbol table dump:
 A = b
 B = w
@@ -2683,9 +2461,9 @@ A db 0
 B dw 0
 C dd 0
 D dd 0
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, WORD PTR B
+	MOV AX, [B]
 	POP BX
 	IMUL BX
 	PUSH DX
@@ -2693,12 +2471,12 @@ D dd 0
 	MOV AL, 4
 	CBW
 	PUSH AX
-	MOV AL, BYTE PTR A
+	MOV AL, [A]
 	POP BX
 	IMUL BL
 	PUSH AX
-	MOV DX, WORD PTR [C+2]
-	MOV AX, WORD PTR [C]
+	MOV DX, [C+2]
+	MOV AX, [C]
 	POP BX
 	XCHG AX, BX
 	XCHG DX, CX
@@ -2710,8 +2488,8 @@ D dd 0
 	XCHG DX, CX
 	SUB AX, BX
 	SBB DX, CX
-	MOV WORD PTR [D+2], DX
-	MOV WORD PTR [D], AX
+	MOV [D+2], DX
+	MOV [D], AX
 Symbol table dump:
 A = b
 B = w
@@ -2963,58 +2741,37 @@ TEST: echo .  | cap10-tiny01
 Error: 'p' expected!
 
 TEST: echo p  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+org 100h
+section .data
 Error: Unrecognized keyword.
 Error: BEGIN expected!
 
 TEST: echo pb  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+section .text
+_start:
 Error: Name expected!
 
 TEST: echo pbe  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-MAIN:
-	MOV AX, PROG
-	MOV DS, AX
-	MOV ES, AX
+org 100h
+section .data
+section .text
+_start:
 	MOV AX, 4C00h
 	INT 21h
-PROG ends
-	end MAIN
 Error: '.' expected!
 
 TEST: echo pe.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
+org 100h
+section .data
 Error: Unrecognized keyword.
 Error: BEGIN expected!
 
 TEST: echo pvavavabe.  | cap10-tiny01
-	.model small
-	.stack
-	.code
-PROG segment byte public
-	assume cs:PROG,ds:PROG,es:PROG,ss:PROG
-A:	dw 0
+org 100h
+section .data
+A	dw 0
 Error: Duplicate variable name: A
 
 TEST: echo ?   | cap15-single

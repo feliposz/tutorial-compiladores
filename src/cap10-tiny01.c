@@ -152,7 +152,7 @@ int IsRelOp(char c)
 /* Avisa a respeito de um identificador desconhecido */
 void Undefined(char name)
 {
-    Abort("Error: Undefined identifier %c\n", name);
+    Abort("Undefined identifier %c\n", name);
 }
 
 /* Verifica se símbolo está na tabela */
@@ -176,20 +176,15 @@ void PostLabel(int lbl)
 /* Cabeçalho inicial para o montador */
 void AsmHeader()
 {
-    EmitLn(".model small");
-    EmitLn(".stack");
-    EmitLn(".code");
-    printf("PROG segment byte public\n");
-    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    printf("org 100h\n");
+    printf("section .data\n");
 }
 
 /* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
-    printf("MAIN:\n");
-    EmitLn("MOV AX, PROG");
-    EmitLn("MOV DS, AX");
-    EmitLn("MOV ES, AX");
+    printf("section .text\n");
+    printf("_start:\n");
 }
 
 /* Emite código para o epílogo de um programa */
@@ -197,8 +192,6 @@ void AsmEpilog()
 {
     EmitLn("MOV AX, 4C00h");
     EmitLn("INT 21h");
-    printf("PROG ends\n");
-    EmitLn("end MAIN");
 }
 
 /* Zera o registrador primário */
@@ -224,7 +217,7 @@ void AsmLoadVar(char name)
 {
     if (!InTable(name))
         Undefined(name);
-    EmitLn("MOV AX, WORD PTR %c", name);
+    EmitLn("MOV AX, [%c]", name);
 }
 
 /* Armazena registrador primário em variável */
@@ -232,7 +225,7 @@ void AsmStore(char name)
 {
     if (!InTable(name))
         Undefined(name);
-    EmitLn("MOV WORD PTR %c, AX", name);
+    EmitLn("MOV [%c], AX", name);
 }
 
 /* Coloca registrador primário na pilha */
@@ -361,7 +354,7 @@ void AllocVar(char name)
         value = signal * GetNum();
     }    
 
-    printf("%c:\tdw %d\n", name, value);
+    printf("%c\tdw %d\n", name, value);
 }
 
 /* Analisa uma lista de declaração de variáveis */

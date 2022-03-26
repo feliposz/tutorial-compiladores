@@ -110,13 +110,13 @@ void Expected(char *fmt, ...)
 /* Avisa a respeito de um identificador desconhecido */
 void Undefined(char *name)
 {
-    Abort("Error: Undefined identifier %s\n", name);
+    Abort("Undefined identifier %s\n", name);
 }
 
 /* Avisa a respeito de um identificador duplicado */
 void Duplicate(char *name)
 {
-    Abort("Error: Duplicated identifier %s\n", name);
+    Abort("Duplicated identifier %s\n", name);
 }
 
 /* Reporta um erro se Token NÃO for um identificador */
@@ -314,21 +314,15 @@ void PostLabel(int lbl)
 /* Cabeçalho inicial para o montador */
 void AsmHeader()
 {
-    EmitLn(".model small");
-    EmitLn(".stack");
-    EmitLn(".code");
-    printf("extrn READ:near, WRITE:near\n");
-    printf("PROG segment byte public\n");
-    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    printf("org 100h\n");
+    printf("section .data\n");
 }
 
 /* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
-    printf("MAIN:\n");
-    EmitLn("MOV AX, PROG");
-    EmitLn("MOV DS, AX");
-    EmitLn("MOV ES, AX");
+    printf("section .text\n");
+    printf("_start:\n");
 }
 
 /* Emite código para o epílogo de um programa */
@@ -336,8 +330,7 @@ void AsmEpilog()
 {
     EmitLn("MOV AX, 4C00h");
     EmitLn("INT 21h");
-    printf("PROG ends\n");
-    EmitLn("end MAIN");
+    printf("\n%%include \"tinyrtl_dos.inc\"\n");
 }
 
 /* Zera o registrador primário */
@@ -361,13 +354,13 @@ void AsmLoadConst(char *num)
 /* Carrega uma variável no registrador primário */
 void AsmLoadVar(char *name)
 {
-    EmitLn("MOV AX, WORD PTR %s", name);
+    EmitLn("MOV AX, [%s]", name);
 }
 
 /* Armazena registrador primário em variável */
 void AsmStore(char *name)
 {
-    EmitLn("MOV WORD PTR %s, AX", name);
+    EmitLn("MOV [%s], AX", name);
 }
 
 /* Coloca registrador primário na pilha */
@@ -494,7 +487,7 @@ void AsmWrite()
 /* Alocação de memória para uma variável global */
 void AllocVar(char *name, int value)
 {
-    printf("%s:\tdw %d\n", name, value);
+    printf("%s\tdw %d\n", name, value);
 }
 
 /* Analisa uma lista de declaração de variáveis */

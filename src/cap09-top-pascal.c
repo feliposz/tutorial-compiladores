@@ -143,12 +143,12 @@ void Variables()
     Match('v');
 }
 
-void Procedure()
+void Procedures()
 {
     Match('p');
 }
 
-void Function()
+void Functions()
 {
     Match('f');
 }
@@ -165,8 +165,8 @@ void Declarations()
             case 'c': Constants(); break;
             case 't': Types(); break;
             case 'v': Variables(); break;
-            case 'p': Procedure(); break;
-            case 'f': Function(); break;
+            case 'p': Procedures(); break;
+            case 'f': Functions(); break;
             default: valid = 0; break;
         }
     } while (valid);
@@ -182,31 +182,26 @@ void Statements()
 }
 
 /* Analisa e traduz um bloco Pascal */
-void Block(char name)
+void Block()
 {
     Declarations();
-    printf("%c:\n", name);
     Statements();
 }
 
 /* Emite código para o prólogo de um programa */
 void AsmProlog()
 {
-    EmitLn(".model small");
-    EmitLn(".stack");
-    EmitLn(".code");
-    printf("PROG segment byte public\n");
-    EmitLn("assume cs:PROG,ds:PROG,es:PROG,ss:PROG");
+    printf("org 100h\n");
+    printf("section .data\n");
+    printf("section .text\n");
+    printf("_start:\n");
 }
 
 /* Emite código para o epílogo de um programa */
-void AsmEpilog(char name)
+void AsmEpilog()
 {
-    printf("exit_prog:\n");
-    EmitLn("MOV AX, 4C00h  ; AH=4C (termina execucao do programa) AL=00 (saida ok)");
-    EmitLn("INT 21h       ; chamada de sistema DOS");
-    printf("PROG ends\n");
-    EmitLn("end %c", name);
+    EmitLn("MOV AX, 4C00h");
+    EmitLn("INT 21h");
 }
 
 /* Analisa e traduz um programa Pascal */
@@ -217,9 +212,9 @@ void Program()
     Match('p'); /* Trata do cabeçalho do programa */
     name = GetName();
     AsmProlog();
-    Block(name);
+    Block();
     Match('.');
-    AsmEpilog(name);
+    AsmEpilog();
 }
 
 /* Programa principal */
