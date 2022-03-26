@@ -174,42 +174,44 @@ Em outros programas como este, incluindo o compilador TINY em si, já tratamos d
 
 Novamente, podemos emprestar a maior parte do código dos programas anteriores. O que segue é uma versão simplificada das versões anteriores destas rotinas. Elas estão muito simplificadas já que eu eliminei coisas como listas de variáveis e inicializadores. Na rotina "allocvar", repare que a chamada a "addSymbol" também vai cuidar de verificar declarações duplicadas:
 
+~~~c
 /* Avisa a respeito de uma palavra-chave desconhecida */
 void Unrecognized(char name)
 {
-        fprintf(stderr, "Error: Unrecognized keyword %c\n", name);
-        exit(1);
+    fprintf(stderr, "Error: Unrecognized keyword %c\n", name);
+    exit(1);
 }
 
 /* Aloca espaço de armazenamento para variável */
 void AsmAllocVar(char name)
 {
-        AddEntry(name, 'v');
-        printf("%c: dw 0\n", name);
+    AddEntry(name, 'v');
+    printf("%c: dw 0\n", name);
 }
 
 /* Analiza e traduz uma declaração de variável */
 void Declaration()
 {
-        Match('v');
-        AsmAllocVar(GetName());
+    Match('v');
+    AsmAllocVar(GetName());
 }
 
 /* Analiza e traduz as declarações globais */
 void TopDeclarations()
 {
-        while (Look != '.') {
-                switch (Look) {
-                  case 'v':
-                        Declaration();
-                        break;
-                  default:
-                        Unrecognized(Look);
-                        break;
-                }
-                NewLine();
-        }
+    while (Look != '.') {
+            switch (Look) {
+                case 'v':
+                    Declaration();
+                    break;
+                default:
+                    Unrecognized(Look);
+                    break;
+            }
+            NewLine();
+    }
 }
+~~~
 
 Agora, no programa principal, adicione uma chamada a "topDeclarations" e execute o programa. Tente alocar algumas variáveis, e repare o código sendo gerado. Isto é algo velho e conhecido pra você, portanto o resultado deve ser familiar. Repare no código de "topDeclarations". O programa é terminado por um ponto (".").
 

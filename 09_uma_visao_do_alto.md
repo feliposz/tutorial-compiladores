@@ -58,9 +58,9 @@ void Program()
 
     Match('p'); /* Trata do cabeçalho do programa */
     name = GetName();
-    AsmProlog(name);
+    AsmProlog();
     Match('.');
-    AsmEpilog(name);
+    AsmEpilog();
 }
 ~~~
 

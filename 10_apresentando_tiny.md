@@ -68,7 +68,7 @@ void AsmHeader()
 }
 ~~~
 
-As rotinas `AsmProlog()` e `AsmEpilog()` emitem código o código que identifica o programa principal. O epilogo contém algum código de inicialização e o prólogo código para retornar ao sistema operacional:
+As rotinas `AsmProlog()` e `AsmEpilog()` emitem o código que identifica o programa principal. O epilogo pode conter alguma inicialização e o prólogo o necessário para retornar ao sistema operacional:
 
 ~~~c
 /* Emite código para o prólogo de um programa */
