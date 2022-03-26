@@ -10,5 +10,5 @@ void AsmLoadConst(char c)
 /* Carrega uma variável no registrador primário */
 void AsmLoadVar(char c)
 {
-    EmitLn("MOV AX, %c", c);
+    EmitLn("MOV AX, [%c]", c);
 }

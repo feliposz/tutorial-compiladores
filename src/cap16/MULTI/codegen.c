@@ -10,13 +10,13 @@ void AsmLoadConst(char *s)
 /* Carrega uma variável no registrador primário */
 void AsmLoadVar(char *s)
 {
-    EmitLn("MOV AX, %s", s);
+    EmitLn("MOV AX, [%s]", s);
 }
 
-/* Armazena valor do registrador primário em variável */
+/* Armazena registrador primário em variável */
 void AsmStoreVar(char *s)
 {
-    EmitLn("MOV %s, AX", s);
+    EmitLn("MOV [%s], AX", s);
 }
 
 /* Inverte sinal de registrador primário */

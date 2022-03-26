@@ -354,10 +354,10 @@ void Assignment()
 A atribuição precisa de mais uma rotina de geração de código:
 
 ~~~c
-/* Armazena valor do registrador primário em variável */
+/* Armazena registrador primário em variável */
 void AsmStoreVar(char *name)
 {
-    EmitLn("MOV %s, AX", name);
+    EmitLn("MOV [%s], AX", name);
 }
 ~~~
 

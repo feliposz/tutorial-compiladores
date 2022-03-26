@@ -1689,7 +1689,7 @@ C	dw 0
 TEST: echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-byval
 org 100h
 section .text
-    JMP _start
+	JMP _start
 section .data
 A	dw 0
 section .text
@@ -1764,7 +1764,7 @@ _start:
 TEST: echo va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-byref
 org 100h
 section .text
-    JMP _start
+	JMP _start
 section .data
 A	dw 0
 section .text
@@ -1844,7 +1844,7 @@ _start:
 TEST: echo va px(m) b a=m e vb py(m,n) vi b b=m n=a i=b x(i) e vc pz(m,n,o) vi vj b n=b c=m y(b,n) i=j e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e.  | cap13-locals
 org 100h
 section .text
-    JMP _start
+	JMP _start
 section .data
 A	dw 0
 section .text
@@ -2500,38 +2500,38 @@ TEST: echo 1   | cap15-single
 	MOV AX, 1
 
 TEST: echo x   | cap15-single
-	MOV AX, X
+	MOV AX, [X]
 
 TEST: echo 12345   | cap15-multi
 	MOV AX, 12345
 
 TEST: echo alfa   | cap15-multi
-	MOV AX, ALFA
+	MOV AX, [ALFA]
 
 TEST: echo a=-1   | cap16-single
 	MOV AX, 1
 	NEG AX
-	MOV A, AX
+	MOV [A], AX
 
 TEST: echo a=-x   | cap16-single
-	MOV AX, X
+	MOV AX, [X]
 	NEG AX
-	MOV A, AX
+	MOV [A], AX
 
 TEST: echo d=b*b-4*a*c/2   | cap16-single
-	MOV AX, B
+	MOV AX, [B]
 	PUSH AX
-	MOV AX, B
+	MOV AX, [B]
 	POP BX
 	IMUL BX
 	PUSH AX
 	MOV AX, 4
 	PUSH AX
-	MOV AX, A
+	MOV AX, [A]
 	POP BX
 	IMUL BX
 	PUSH AX
-	MOV AX, C
+	MOV AX, [C]
 	POP BX
 	IMUL BX
 	PUSH AX
@@ -2543,78 +2543,78 @@ TEST: echo d=b*b-4*a*c/2   | cap16-single
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV D, AX
+	MOV [D], AX
 
 TEST: echo s=o^|n~s   | cap16-single
-	MOV AX, O
+	MOV AX, [O]
 	PUSH AX
-	MOV AX, N
+	MOV AX, [N]
 	POP BX
 	OR AX, BX
 	PUSH AX
-	MOV AX, S
+	MOV AX, [S]
 	POP BX
 	XOR AX, BX
-	MOV S, AX
+	MOV [S], AX
 
 TEST: echo b=(a^|b)^&(c~d)   | cap16-single
-	MOV AX, A
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, B
+	MOV AX, [B]
 	POP BX
 	OR AX, BX
 	PUSH AX
-	MOV AX, C
+	MOV AX, [C]
 	PUSH AX
-	MOV AX, D
+	MOV AX, [D]
 	POP BX
 	XOR AX, BX
 	POP BX
 	AND AX, BX
-	MOV B, AX
+	MOV [B], AX
 
 TEST: echo x=a^&!b^|!a^&b   | cap16-single
-	MOV AX, A
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, B
+	MOV AX, [B]
 	NOT AX
 	POP BX
 	AND AX, BX
 	PUSH AX
-	MOV AX, A
+	MOV AX, [A]
 	NOT AX
 	PUSH AX
-	MOV AX, B
+	MOV AX, [B]
 	POP BX
 	AND AX, BX
 	POP BX
 	OR AX, BX
-	MOV X, AX
+	MOV [X], AX
 
 TEST: echo a=-123   | cap16-multi
 	MOV AX, 123
 	NEG AX
-	MOV A, AX
+	MOV [A], AX
 
 TEST: echo a=-alfa   | cap16-multi
-	MOV AX, ALFA
+	MOV AX, [ALFA]
 	NEG AX
-	MOV A, AX
+	MOV [A], AX
 
 TEST: echo delta=beta*beta-412*alfa*cappa/2121   | cap16-multi
-	MOV AX, BETA
+	MOV AX, [BETA]
 	PUSH AX
-	MOV AX, BETA
+	MOV AX, [BETA]
 	POP BX
 	IMUL BX
 	PUSH AX
 	MOV AX, 412
 	PUSH AX
-	MOV AX, ALFA
+	MOV AX, [ALFA]
 	POP BX
 	IMUL BX
 	PUSH AX
-	MOV AX, CAPPA
+	MOV AX, [CAPPA]
 	POP BX
 	IMUL BX
 	PUSH AX
@@ -2626,53 +2626,53 @@ TEST: echo delta=beta*beta-412*alfa*cappa/2121   | cap16-multi
 	POP BX
 	SUB AX, BX
 	NEG AX
-	MOV DELTA, AX
+	MOV [DELTA], AX
 
 TEST: echo ser=ou^|nao~ser   | cap16-multi
-	MOV AX, OU
+	MOV AX, [OU]
 	PUSH AX
-	MOV AX, NAO
+	MOV AX, [NAO]
 	POP BX
 	OR AX, BX
 	PUSH AX
-	MOV AX, SER
+	MOV AX, [SER]
 	POP BX
 	XOR AX, BX
-	MOV SER, AX
+	MOV [SER], AX
 
 TEST: echo bool=(a^|b)^&(c~d)   | cap16-multi
-	MOV AX, A
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, B
+	MOV AX, [B]
 	POP BX
 	OR AX, BX
 	PUSH AX
-	MOV AX, C
+	MOV AX, [C]
 	PUSH AX
-	MOV AX, D
+	MOV AX, [D]
 	POP BX
 	XOR AX, BX
 	POP BX
 	AND AX, BX
-	MOV BOOL, AX
+	MOV [BOOL], AX
 
 TEST: echo myxor=a^&!b^|!a^&b   | cap16-multi
-	MOV AX, A
+	MOV AX, [A]
 	PUSH AX
-	MOV AX, B
+	MOV AX, [B]
 	NOT AX
 	POP BX
 	AND AX, BX
 	PUSH AX
-	MOV AX, A
+	MOV AX, [A]
 	NOT AX
 	PUSH AX
-	MOV AX, B
+	MOV AX, [B]
 	POP BX
 	AND AX, BX
 	POP BX
 	OR AX, BX
-	MOV MYXOR, AX
+	MOV [MYXOR], AX
 
 =================
 Testes de Falha
