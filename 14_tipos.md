@@ -1078,7 +1078,7 @@ char Term()
 }
 ~~~
 
-Estas rotinas combinam quase que exatamente com as aditivas. Como antes, a complexidade é encapsulada dentro de "asmPopMul" e "asmPopDiv". Se você quiser testar o programa antes de chegarmos lá, você pode criar versões "fantasma" para elas, similar ao que foi feito com `AsmPopAdd()` e `AsmPopSub()`. Novamente, o código não vai estar correto neste ponto, mas o analisador deve ser capaz de tratar de expressões de complexidade arbitrária.
+Estas rotinas combinam quase que exatamente com as aditivas. Como antes, a complexidade é encapsulada dentro de `AsmPopMul()` e `AsmPopDiv()`. Se você quiser testar o programa antes de chegarmos lá, você pode criar versões "fantasma" para elas, similar ao que foi feito com `AsmPopAdd()` e `AsmPopSub()`. Novamente, o código não vai estar correto neste ponto, mas o analisador deve ser capaz de tratar de expressões de complexidade arbitrária.
 
 Multiplicação
 -------------
@@ -1170,7 +1170,7 @@ L             | Converter T1→L<br>CALL DIV32<br>Resultado = B | Converter T1�
 
 (Você pode se perguntar porque é necessário fazer uma divisão de 32-bits, quando o dividendo é, digamos um simples valor "byte". Já que o número de bits no resultado só pode no máximo o número de bits do dividendo, por que se importar? A razão é que, se o divisor for um "long", e houver algum bit diferente de zero na parte mais significativa, o resultado da divisão deve ser zero. Podemos não conseguir isto se apenas a parte mais baixa do divisor for usada.)
 
-O código a seguir provê o funcionamento correto para "asmPopDiv":
+O código a seguir provê o funcionamento correto para `AsmPopDiv()`:
 
 ~~~c++
 /* Divide valor na pilha por valor do registrador primário */
