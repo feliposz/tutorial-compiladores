@@ -1,5 +1,5 @@
 /*
-Tiny 0.1 - Tokens de um caracter
+Tiny 0.1 - Tokens de um caractere
 
 O código abaixo foi escrito por Felipo Soranz e é uma adaptação
 do código original em Pascal escrito por Jack W. Crenshaw em sua
@@ -16,10 +16,10 @@ Este código é de livre distribuição e uso.
 #define VARTABLE_SIZE 26
 char VarTable[VARTABLE_SIZE]; /* Tabela de símbolos */
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();

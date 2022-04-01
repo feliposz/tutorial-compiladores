@@ -38,18 +38,18 @@ gcc -o executavel modulo1.o modulo2.o
 Começando outra vez?
 --------------------
 
-Quatro anos atrás, no [capítulo 14](14_tipos.md), eu prometi que nossos dias de reinventar a roda, e recodificar as mesmas rotinas para cada lição haviam acabado, e que daí em diante iríamos permanecer com programas mais completos aos quais iríamos apenas adicionar características. Eu ainda pretendo manter esta promessa; e este é um dos principais motivos de usarmos módulos separados. Porém, graças ao longo tempo desde o capítulo 14, é natural querer ao menos alguma revisão, e de qualquer forma teríamos que fazer mudanças no código para fazer a transição para unidades. Além disso, francamente, após todo este tempo eu não consigo me lembrar das grandes idéias que eu tinha há quatro anos. A melhor forma de me lembrar delas é refazer alguns dos passos que demos até o capítulo 14. Então eu espero que você compreenda e continue comigo conforme voltamos às raízes, de certa forma, e reconstruímos o núcleo do software, distribuindo as rotinas nas várias unidades, e retornando ao ponto em que estivemos quando paramos da última vez. Da mesma forma de sempre, você vai acompanhar todos os enganos e mudanças de direção em "tempo real". Por favor, continue comigo... vamos começar a ver as novidades antes que você perceba.
+Quatro anos atrás, no [capítulo 14](14_tipos.md), eu prometi que nossos dias de reinventar a roda, e recodificar as mesmas rotinas para cada lição haviam acabado, e que daí em diante iríamos permanecer com programas mais completos aos quais iríamos apenas adicionar características. Eu ainda pretendo manter esta promessa; e este é um dos principais motivos de usarmos módulos separados. Porém, graças ao longo tempo desde o capítulo 14, é natural querer ao menos alguma revisão, e de qualquer forma teríamos que fazer mudanças no código para fazer a transição para unidades. Além disso, francamente, após todo este tempo eu não consigo me lembrar das grandes ideias que eu tinha há quatro anos. A melhor forma de me lembrar delas é refazer alguns dos passos que demos até o capítulo 14. Então eu espero que você compreenda e continue comigo conforme voltamos às raízes, de certa forma, e reconstruímos o núcleo do software, distribuindo as rotinas nas várias unidades, e retornando ao ponto em que estivemos quando paramos da última vez. Da mesma forma de sempre, você vai acompanhar todos os enganos e mudanças de direção em "tempo real". Por favor, continue comigo... vamos começar a ver as novidades antes que você perceba.
 
-Já que vamos usar múltiplos módulos em nossa nova abordagem, temos que tratar da questão de organização dos arquivos. Se você acompanhou todas as outras seções deste tutorial, você vai saber que, conforme nossos programas evoluem, vamos ter que trocar nossas unidades antigas e simplísticas por outras mais capacitadas. Isto nos leva a um problema de controle de versão. Certamente haverá tempos em que vamos trocar as unidades mais simples, porém mais tarde vamos desejar tê-las de volta outra vez. Um caso a ser notado é a nossa predileção por usar nomes de variáveis e palavras-chave de um só caracter, para testar conceitos sem nos enroscarmos com os detalhes do analisador léxico. Graças ao uso de módulos, vamos ter que fazer isto cada vez menos no futuro. Eu não só suspeito, mas estou certo de que vamos precisar guardar versões antigas dos arquivos, para ocasiões especiais, mesmo que eles tenham sido trocados por versões mais poderosas.
+Já que vamos usar múltiplos módulos em nossa nova abordagem, temos que tratar da questão de organização dos arquivos. Se você acompanhou todas as outras seções deste tutorial, você vai saber que, conforme nossos programas evoluem, vamos ter que trocar nossas unidades antigas e simplísticas por outras mais capacitadas. Isto nos leva a um problema de controle de versão. Certamente haverá tempos em que vamos trocar as unidades mais simples, porém mais tarde vamos desejar tê-las de volta outra vez. Um caso a ser notado é a nossa predileção por usar nomes de variáveis e palavras-chave de um só caractere, para testar conceitos sem nos enroscarmos com os detalhes do analisador léxico. Graças ao uso de módulos, vamos ter que fazer isto cada vez menos no futuro. Eu não só suspeito, mas estou certo de que vamos precisar guardar versões antigas dos arquivos, para ocasiões especiais, mesmo que eles tenham sido trocados por versões mais poderosas.
 
-Para tratar deste problema, eu sugiro que você crie diretórios diferentes, com versões diferentes das unidades conforme necessário. Se fizermos isto corretamente, o código em cada diretório vai continuar consistente. Provisoriamente, eu criei quatro diretórios: SINGLE (para experimentos com um só caracter por token), MULTI (obviamente, para as versões multi-caracter), TINY e KISS.
+Para tratar deste problema, eu sugiro que você crie diretórios diferentes, com versões diferentes das unidades conforme necessário. Se fizermos isto corretamente, o código em cada diretório vai continuar consistente. Provisoriamente, eu criei quatro diretórios: SINGLE (para experimentos com um só caractere por token), MULTI (obviamente, para as versões multi-caractere), TINY e KISS.
 
 Já tendo falado bastante sobre a filosofia e os detalhes. Vamos continuar reavivando o software.
 
 O Módulo de Entrada
 -------------------
 
-Um conceito chave que temos usado desde o primeiro dia é a idéia de entrada com um caracter "lookahead". Todas as rotinas examinam este caracter, sem alterá-lo, para decidir o que devem fazer em seguida. (Compare esta abordagem com a abordagem padrão em C/Unix que seria usar simplesmente `getchar` e `ungetc`, e eu acho que você vai concordar que esta abordagem é mais simples). Nós vamos começar nossa viagem traduzindo este conceito em nossa nova organização por módulos. A primeira unidade, apropriadamente chamada `input`, é mostrada abaixo. Repare que ela está dividida entre o cabeçalho (que é a interface) e o arquivo de implementação que define as funções. Usarei esta abordagem para todos os outros módulos.
+Um conceito chave que temos usado desde o primeiro dia é a ideia de entrada com um caractere "lookahead". Todas as rotinas examinam este caractere, sem alterá-lo, para decidir o que devem fazer em seguida. (Compare esta abordagem com a abordagem padrão em C/Unix que seria usar simplesmente `getchar` e `ungetc`, e eu acho que você vai concordar que esta abordagem é mais simples). Nós vamos começar nossa viagem traduzindo este conceito em nossa nova organização por módulos. A primeira unidade, apropriadamente chamada `input`, é mostrada abaixo. Repare que ela está dividida entre o cabeçalho (que é a interface) e o arquivo de implementação que define as funções. Usarei esta abordagem para todos os outros módulos.
 
 Crie o arquivo [input.h](src/cap15/SINGLE/input.h):
 
@@ -128,7 +128,7 @@ int main()
 }
 ~~~
 
-Você viu alguma coisa surpreendente? Talvez você tenha ficado surpreso pelo fato de ter que digitar alguma coisa, mesmo que o programa principal não esteja requisitanto nenhuma entrada. É por causa da inicialização do módulo de entrada. Bem, este é um problema que só vai ocorrer em casos simples de teste como este, portanto não precisamos fazer nada com relação a isto.
+Você viu alguma coisa surpreendente? Talvez você tenha ficado surpreso pelo fato de ter que digitar alguma coisa, mesmo que o programa principal não esteja requisitando nenhuma entrada. É por causa da inicialização do módulo de entrada. Bem, este é um problema que só vai ocorrer em casos simples de teste como este, portanto não precisamos fazer nada com relação a isto.
 
 Repare também, que a instrução foi deslocada corretamente pela nossa tabulação.
 
@@ -174,13 +174,13 @@ Você reparou que a lista de "includes" no nosso programa principal só vem cres
 Análise Léxica e Sintática
 --------------------------
 
-A arquitetura clássica dos compiladores consiste em módulos separados para o analisador léxico, que provê os tokens na linguagem, e o analisador sintático, que tenta fazer dos tokens elementos da sintaxe. Se você ainda se lembrar do que fizemos em capítulos anteriores, você vai perceber que não fizemos nada desta forma. Por estarmos usando um analisador preditivo, podemos quase sempre dizer qual elemento da linguagem vem em seguida, simplesmente analisado o caracter "lookahead". Portanto, não encontramos nenhuma necessidade de pré-carregar tokens, como faria um *scanner* (ou *lexer*, ambos termo em inglês para "analisador léxico").
+A arquitetura clássica dos compiladores consiste em módulos separados para o analisador léxico, que provê os tokens na linguagem, e o analisador sintático, que tenta fazer dos tokens elementos da sintaxe. Se você ainda se lembrar do que fizemos em capítulos anteriores, você vai perceber que não fizemos nada desta forma. Por estarmos usando um analisador preditivo, podemos quase sempre dizer qual elemento da linguagem vem em seguida, simplesmente analisado o caractere "lookahead". Portanto, não encontramos nenhuma necessidade de pré-carregar tokens, como faria um *scanner* (ou *lexer*, ambos termo em inglês para "analisador léxico").
 
-Porém, mesmo não havendo um procedimento chamado "scanner", faz sentido separar as funções do analisador léxico das funções do analisador sintático. Portanto eu criei mais duas unidades chamadas, sem nenhuma novidade, "scanner" e "parser". A unidade "scanner" contém todas as rotinas conhecidas como reconhecedores. Algumas delas como `IsAddOp()` são simples rotinas booleanas que operam no caracter "lookahead". As outras rotinas são aquelas que coletam tokens, como identificadores e constantes numéricas. A unidade "parser" deve conter todas as rotinas que fazem parte do analisador descendente-recursivo. A regra geral deveria ser que a unidade "parser" contenha toda a informação que é específica para a linguagem; em outras palavras, toda a sintaxe da linguagem deve estar contida em "parser". Em um mundo ideal, esta regra deveria ser verdadeira a ponto de podermos alterar o compilador para compilar uma linguagem diferente, simplesmente trocando o módulo de análise sintática.
+Porém, mesmo não havendo um procedimento chamado "scanner", faz sentido separar as funções do analisador léxico das funções do analisador sintático. Portanto eu criei mais duas unidades chamadas, sem nenhuma novidade, "scanner" e "parser". A unidade "scanner" contém todas as rotinas conhecidas como reconhecedores. Algumas delas como `IsAddOp()` são simples rotinas booleanas que operam no caractere "lookahead". As outras rotinas são aquelas que coletam tokens, como identificadores e constantes numéricas. A unidade "parser" deve conter todas as rotinas que fazem parte do analisador descendente-recursivo. A regra geral deveria ser que a unidade "parser" contenha toda a informação que é específica para a linguagem; em outras palavras, toda a sintaxe da linguagem deve estar contida em "parser". Em um mundo ideal, esta regra deveria ser verdadeira a ponto de podermos alterar o compilador para compilar uma linguagem diferente, simplesmente trocando o módulo de análise sintática.
 
 Na prática, as coisas quase nunca são tão puras assim. Sempre há uma pequena parcela de regras sintáticas no analisador léxico também. Por exemplo, as regras que definem um identificador ou uma constante válida podem mudar de linguagem para linguagem. Em algumas linguagens, as regras a respeito de comentários permitem que eles sejam filtrados pelo analisador léxico, enquanto em outras não. Portanto, na prática, ambas unidades acabam tento componentes específicos da linguagem, mas as alterações necessárias ao analisador léxico devem ser relativamente triviais.
 
-Lembre-se que fizemos uso de duas versões de rotinas de análise léxica: uma que tratava de tokens de um só caracter, que usamos para diversos testes, e outra que possuía suporte a tokens multi-caracter. Agora que temos nosso software separado em unidades, eu acho que não custa muito prover ambos. Eu criei duas versões da unidade de análise léxica. A primeira contém a versão de um só caracter:
+Lembre-se que fizemos uso de duas versões de rotinas de análise léxica: uma que tratava de tokens de um só caractere, que usamos para diversos testes, e outra que possuía suporte a tokens multi-caractere. Agora que temos nosso software separado em unidades, eu acho que não custa muito prover ambos. Eu criei duas versões da unidade de análise léxica. A primeira contém a versão de um só caractere:
 
 Crie o arquivo [scanner.h](src/cap15/SINGLE/scanner.h):
 
@@ -215,7 +215,7 @@ int main()
 }
 ~~~
     
-Este código vai reconhecer todas as senteças da forma:
+Este código vai reconhecer todas as sentenças da forma:
 
 ~~~
 x=0+y
@@ -226,9 +226,9 @@ onde x e y podem ser quaisquer nomes de variáveis, e 0 qualquer dígito. O cód
 O Módulo de Análise Léxica
 --------------------------
 
-A próxima, é de longe, a mais importante versão do nosso analisador léxico: é a que trata dos tokens multi-caracter, os quais toda linguagem real deve ter. Apenas duas funções, `GetName()` e `GetNum()`, foram alteradas entre as duas unidades.
+A próxima, é de longe, a mais importante versão do nosso analisador léxico: é a que trata dos tokens multi-caractere, os quais toda linguagem real deve ter. Apenas duas funções, `GetName()` e `GetNum()`, foram alteradas entre as duas unidades.
 
-Já que esta já faz parte da nossa versão multi-caracter, convém copiar todos os arquivos para um diretório diferente (eu escolhi os nomes [SINGLE](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/SINGLE) e [MULTI](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/MULTI).
+Já que esta já faz parte da nossa versão multi-caractere, convém copiar todos os arquivos para um diretório diferente (eu escolhi os nomes [SINGLE](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/SINGLE) e [MULTI](https://github.com/feliposz/tutorial-compiladores/tree/master/src/cap15/MULTI).
 
 Copie o código da unidade anterior OBSERVANDO a mudança dos nomes das unidade e adicione as rotinas abaixo:
 
@@ -268,7 +268,7 @@ void GetNum(char *num)
 
 > Não esqueça de alterar a definição no arquivo de cabeçalho `scanner.h` e de adicionar um valor para as constante MAXNAME e MAXNUM.
 
-> Versões multi-caracter de [`scanner.h`](src/cap15/MULTI/scanner.h) e [`scanner.c`](src/cap15/MULTI/scanner.c)
+> Versões multi-caractere de [`scanner.h`](src/cap15/MULTI/scanner.h) e [`scanner.c`](src/cap15/MULTI/scanner.c)
 
 O mesmo programa de teste, com pequenas modificações pode testar esta versão também. Substitua a inclusão do cabeçalho de `scanner1.h` por `scanner.h`. 
 
@@ -303,7 +303,7 @@ int main()
 }
 ~~~
 
-Agora você poder usar nomes e números multi-caracter:
+Agora você poder usar nomes e números multi-caractere:
 
 ~~~
 alfa=123+beta
@@ -312,9 +312,9 @@ alfa=123+beta
 Decisões, decisões
 ------------------
 
-Apesar da relativa simplicidade dos dois analisadores, foi preciso pensar muito para chegar neles, e muitas decisões foram tomadas. Eu gostaria de compartilhar algumas destas idéias com você para que você possa tomar suas próprias decisões, apropriadas para a sua aplicação. Primeiro, note que as duas versões de `GetName()` convertem os caracteres de entrada para letras maiúsculas. Obviamente, houve uma decisão feita aqui, e é um dos casos em que a sintaxe da linguagem acaba envolvendo o analisador léxico também. A linguagem C é sensível a diferenças de letras maísculas e minúsculas. Para uma linguagem como esta, obviamente não podemos converter todos os caracteres para maiúscula. O projeto que estou usando assume uma linguagem como Pascal, onde maísculas e minúsculas não tem diferença. Para tais linguagens, é mais fácil fazer esta conversão no analisador léxico, para que não tenhamos que nos preocupar mais tarde com comparação de strings.
+Apesar da relativa simplicidade dos dois analisadores, foi preciso pensar muito para chegar neles, e muitas decisões foram tomadas. Eu gostaria de compartilhar algumas destas ideias com você para que você possa tomar suas próprias decisões, apropriadas para a sua aplicação. Primeiro, note que as duas versões de `GetName()` convertem os caracteres de entrada para letras maiúsculas. Obviamente, houve uma decisão feita aqui, e é um dos casos em que a sintaxe da linguagem acaba envolvendo o analisador léxico também. A linguagem C é sensível a diferenças de letras maiúsculas e minúsculas. Para uma linguagem como esta, obviamente não podemos converter todos os caracteres para maiúscula. O projeto que estou usando assume uma linguagem como Pascal, onde maiúsculas e minúsculas não tem diferença. Para tais linguagens, é mais fácil fazer esta conversão no analisador léxico, para que não tenhamos que nos preocupar mais tarde com comparação de strings.
 
-Poderíamos ter dado um passo além, e mapear os caracteres para maíscula no momento em que são lidos, em `NextChar()`. Esta abordagem funciona também, e eu já a usei uma vez, mas ela é muito restritiva. Especificamente, ela acaba convertendo também caracteres que podem fazer parte de uma string entre aspas, o que não é uma boa idéia. Portanto, se você pretende converter para maiúsculas mesmo, `GetName()` é o lugar apropriado para fazer isto.
+Poderíamos ter dado um passo além, e mapear os caracteres para maiúscula no momento em que são lidos, em `NextChar()`. Esta abordagem funciona também, e eu já a usei uma vez, mas ela é muito restritiva. Especificamente, ela acaba convertendo também caracteres que podem fazer parte de uma string entre aspas, o que não é uma boa ideia. Portanto, se você pretende converter para maiúsculas mesmo, `GetName()` é o lugar apropriado para fazer isto.
 
 Repare que a função `GetNum()` neste analisador retorna o resultado em uma string, da mesma forma que `GetName()`. Esta é outra das coisas em que tivemos bastante oscilação. A alternativa seria, como já fizemos em vários outras capítulos", retornar o resultado como um valor inteiro.
 

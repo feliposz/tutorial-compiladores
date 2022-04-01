@@ -38,7 +38,7 @@ int main()
 }
 ~~~
 
-Agora execute o programa. Tente um dígito único qualquer como entrada. Você deve obter uma linha única de saída em linguagem assembly. Agora tente qualquer outro caracter como entrada. Você vai notar que o analisador indica um erro.
+Agora execute o programa. Tente um dígito único qualquer como entrada. Você deve obter uma linha única de saída em linguagem assembly. Agora tente qualquer outro caractere como entrada. Você vai notar que o analisador indica um erro.
 
 **PARABÉNS! Você acaba de criar um tradutor que funciona!**
 
@@ -50,7 +50,7 @@ Observe também que a expressão (MOV) tem que deixar o resultado em algum lugar
 
 ## Expressões binárias
 
-Agora que já contamos com isso, vamos continuar. Assumidamente, uma "expressão" consistindo de apenas um único caracter não vai nos ajudar a alcançar nossas necessidades por muito tempo, portanto, vejamos o que podemos fazer para estender nosso compilador. Supondo que queremos lidar com expressões da seguinte forma:
+Agora que já contamos com isso, vamos continuar. Assumidamente, uma "expressão" consistindo de apenas um único caractere não vai nos ajudar a alcançar nossas necessidades por muito tempo, portanto, vejamos o que podemos fazer para estender nosso compilador. Supondo que queremos lidar com expressões da seguinte forma:
 
                     1  +  2
     ou              4  -  3
@@ -449,7 +449,7 @@ Há duas abordagens básicas que podemos tomar:
 
 1. Tentar arrumar o código depois de ele ter sido gerado:
 
-    Este é o conceito da otimização "peephole" (olho mágico). A idéia geral é que nós sabemos as combinações de instruções que o compilador vai gerar, e também sabemos quais delas são ruins (como a do -1, acima). Portanto, tudo o que fazemos é vasculhar o código produzido, procurando por estas combinações e as trocamos por versões melhores. É uma espécie de "expansão de macro", só que ao contrário, e é um excelente exercício de procura de padrões (pattern-matching). A única complicação, realmente, é que pode haver UM MONTE destes tipos de combinações que podem ser procuradas. É chamada de otimização "peephole" porque ela procura por apenas pequenos grupos de instruções de cada vez. Ela pode ter um efeito dramático na qualidade do código, com pequenas mudanças na estrutura do compilador em si. Há um preço a pagar, porém, em termos de tamanho, velocidade e complexidade do compilador. Procurar por todas estas combinações requer montes de testes condicionais, onde cada um deles pode ser uma fonte de erros, e é claro, leva tempo.
+    Este é o conceito da otimização "peephole" (olho mágico). A ideia geral é que nós sabemos as combinações de instruções que o compilador vai gerar, e também sabemos quais delas são ruins (como a do -1, acima). Portanto, tudo o que fazemos é vasculhar o código produzido, procurando por estas combinações e as trocamos por versões melhores. É uma espécie de "expansão de macro", só que ao contrário, e é um excelente exercício de procura de padrões (pattern-matching). A única complicação, realmente, é que pode haver UM MONTE destes tipos de combinações que podem ser procuradas. É chamada de otimização "peephole" porque ela procura por apenas pequenos grupos de instruções de cada vez. Ela pode ter um efeito dramático na qualidade do código, com pequenas mudanças na estrutura do compilador em si. Há um preço a pagar, porém, em termos de tamanho, velocidade e complexidade do compilador. Procurar por todas estas combinações requer montes de testes condicionais, onde cada um deles pode ser uma fonte de erros, e é claro, leva tempo.
 
     Na implementação clássica de um otimizador "peephole", é feita uma segunda passagem pelo compilador. O código de saída é escrito em disco, e o otimizador lê e processa o arquivo em disco novamente. Como você pode observar, o otimizador pode até mesmo ser um PROGRAMA separado do compilador propriamente dito. Uma vez que o otimizador "olha" para o código através de uma "pequena janela" de instruções (portanto o nome), uma implementação melhor seria criar um "buffer" onde se pode guardar apenas algumas linhas de código e então vasculhar este buffer a cada vez que for gerada a saída de código.
 
@@ -461,7 +461,7 @@ Há duas abordagens básicas que podemos tomar:
 
     A técnica consiste em evitar um uso exagerado da pilha, fazendo um uso melhor dos registradores da CPU. Lembre-se quando estávamos fazendo apenas adição e subtração, que usávamos os registradores AX e BX, além da pilha? Funcionava, porque com aquelas operações apenas, a pilha nunca precisava de mais de duas entradas.
 
->**Nota de tradução:** A idéia original do autor era aplicar esta técnica num processador Motorola 68000, que possui um esquema de registradores e operações diferentes da usada em computadores 80x86. Se você deseja usar esta técnica, use-a cuidadosamente, pois instruções como DIV e LOOP, entre outras, podem fazer uso de outros registradores, comprometendo os valores armazenados previamente. De qualquer forma, uma descrição traduzida e adaptada da técnica segue abaixo, mas sem prestar atenção a estes cuidados.
+>**Nota de tradução:** A ideia original do autor era aplicar esta técnica num processador Motorola 68000, que possui um esquema de registradores e operações diferentes da usada em computadores 80x86. Se você deseja usar esta técnica, use-a cuidadosamente, pois instruções como DIV e LOOP, entre outras, podem fazer uso de outros registradores, comprometendo os valores armazenados previamente. De qualquer forma, uma descrição traduzida e adaptada da técnica segue abaixo, mas sem prestar atenção a estes cuidados.
 
 Bem, o 8086 e 8088 possuem 4 registradores gerais (AX, BX, CX, DX) e mais alguns outros registradores que podem ser usados com cuidado (SI, DI, BP). CPUs mais avançadas como o 80386 possuem mais registradores ainda e algumas máquinas diferentes do padrão 80x86 possuem dezenas de registradores adicionais. Por que não usá-los como uma espécie de pilha particular? A chave é reconhecer que, a qualquer ponto no processamento, o analisador SABE quantos itens estão na pilha, de forma que ele é capaz de organizá-la de forma apropriada. Nós podemos definir um "ponteiro de pilha" privado que mantém o controle sobre o nível da pilha em que estamos, e associar o registrador correspondente. A rotina `Factor()`, por exemplo, não iria fazer com que os dados fossem lidos no registrador AX, mas sim, no registrador que é no momento o "topo da pilha".
 

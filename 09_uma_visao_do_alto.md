@@ -10,9 +10,9 @@ Nestas seções anteriores, o desenvolvimento dos nossos programas tive decidida
 
 A maioria das pessoas ao contrário, acha que o projeto usando uma abordagem "top-down" é bem melhor que o "bottom-up". Eu também acho, mas a maneira como fizemos certamente pareceu natural o bastante para os tipos de coisas que estávamos analisando e traduzindo.
 
-Mas talvez você não tenha captado a idéia, de que o processo incremental que usamos durante todo o tutorial é em si "bottom-up". Neste capítulo eu gostaria de mostrar que a abordagem pode funcionar da mesma forma quando aplicada da forma inversa... talvez até melhor. Vamos considerar linguagens como C e Pascal, e ver como compiladores completos podem ser construídos começando do "topo".
+Mas talvez você não tenha captado a ideia, de que o processo incremental que usamos durante todo o tutorial é em si "bottom-up". Neste capítulo eu gostaria de mostrar que a abordagem pode funcionar da mesma forma quando aplicada da forma inversa... talvez até melhor. Vamos considerar linguagens como C e Pascal, e ver como compiladores completos podem ser construídos começando do "topo".
 
-Nos próximos capítulos, vamos usar a mesma técnica para construir um tradutor completo para um subconjunto da minha linguagem KISS, que camos chamar de TINY. Mas um dos meus objetivos para esta série é que você não só veja como um compilador para TINY ou KISS funciona, mas que você possa também projetar e construir compiladores para suas próprias linguagens. Os exemplos de C e Pascal vão ajudar. Uma coisa que eu gostaria que você visse é que a estrutura natual do compilador depende muito da linguagem sendo traduzida, então muito da simplicidade e facilidade da construção do compilador depende muito deixar a linguagem definir a estrutura do programa.
+Nos próximos capítulos, vamos usar a mesma técnica para construir um tradutor completo para um subconjunto da minha linguagem KISS, que vamos chamar de TINY. Mas um dos meus objetivos para esta série é que você não só veja como um compilador para TINY ou KISS funciona, mas que você possa também projetar e construir compiladores para suas próprias linguagens. Os exemplos de C e Pascal vão ajudar. Uma coisa que eu gostaria que você visse é que a estrutura natural do compilador depende muito da linguagem sendo traduzida, então muito da simplicidade e facilidade da construção do compilador depende muito deixar a linguagem definir a estrutura do programa.
 
 É um pouco demais produzir um compilador C ou Pascal completo aqui, e nós não vamos nem tentar. Mas podemos ver os níveis mais superficiais da linguagem o suficiente para que você entenda como funciona.
 
@@ -44,7 +44,7 @@ Alguns dos textos sobre Pascal incluem uma definição da linguagem em sintaxe B
     <block> ::= <declarations> <statements>
 ~~~
 
-Podemos construir reconhecedores para tratar de cada um destes elementos, da mesma forma como fizemos antes. Para cada um, vamos usar nossos já familiares tokens de um só caracter para representar a entrada, e então melhor as coisas um pouco de cada vez. Vamos começar com o primeiro reconhecedor: o progama em si.
+Podemos construir reconhecedores para tratar de cada um destes elementos, da mesma forma como fizemos antes. Para cada um, vamos usar nossos já familiares tokens de um só caractere para representar a entrada, e então melhor as coisas um pouco de cada vez. Vamos começar com o primeiro reconhecedor: o programa em si.
 
 Para traduzir isto, vamos começar com uma nova cópia do ["berço"](src/cap01-craddle.c). Como voltamos ao esquema de caracteres únicos, vamos usar apenas "p" para simbolizar "PROGRAM".
 
@@ -171,7 +171,7 @@ A BNF para declarações em pascal é:
 
 (Note que eu estou usando uma definição mais liberal usada pelo Turbo Pascal. Na definição padrão de Pascal, cada parte deve ter uma ordem específica uma em relação à outra.)
 
-Como de costume, vamos permitir que um simples caracter represente cada um destes tipos de declaração. A nova forma de `Declarations()` é:
+Como de costume, vamos permitir que um simples caractere represente cada um destes tipos de declaração. A nova forma de `Declarations()` é:
 
 ~~~c
 /* Analisa e traduz declarações pascal */
@@ -194,7 +194,7 @@ void Declarations()
 }
 ~~~
 
-É claro que vamos precisar de rotinas pra cada um destes tipos de declaração. Desta vez, elas não podem ser apenas rotinas vazias, pois senão teríamos um laço infinito. No mínimo, cada reconhecedor deve eliminar o caracter que o invocou. Insira as seguintes rotinas:
+É claro que vamos precisar de rotinas pra cada um destes tipos de declaração. Desta vez, elas não podem ser apenas rotinas vazias, pois senão teríamos um laço infinito. No mínimo, cada reconhecedor deve eliminar o caractere que o invocou. Insira as seguintes rotinas:
 
 ~~~c
 /* Funções de declaração pascal */
@@ -230,7 +230,7 @@ void Functions()
 }
 ~~~
 
-Agora teste o compilador com algumas entradas representativas. É possível misturar declarações da forma que você preferir, desde que o último caracter seja um "." para indicar o fim do programa. Certamente, nenhuma das declarações declara alguma coisa de verdade, então você não precisa (e não pode) usar outros caracteres além daqueles que indicam uma palavra-chave.
+Agora teste o compilador com algumas entradas representativas. É possível misturar declarações da forma que você preferir, desde que o último caractere seja um "." para indicar o fim do programa. Certamente, nenhuma das declarações declara alguma coisa de verdade, então você não precisa (e não pode) usar outros caracteres além daqueles que indicam uma palavra-chave.
 
 Podemos inserir a parte dos comandos de forma similar. A BNF é assim:
 
@@ -252,7 +252,7 @@ void Statements()
 }
 ~~~
 
-Neste ponto o compilador vai aceitar qualquer número de declarações, seguidos por um bloco iniciado por BEGIN no programa principal. O bloco em si pode conter qualquer caracter (exceto o "e" de END), mas deve estar presente.
+Neste ponto o compilador vai aceitar qualquer número de declarações, seguidos por um bloco iniciado por BEGIN no programa principal. O bloco em si pode conter qualquer caractere (exceto o "e" de END), mas deve estar presente.
 
 A forma mais simples de entrada agora é:
 
@@ -286,9 +286,9 @@ Eu acho que você já conseguiu entender o procedimento. Começamos com uma desc
 
 A definição da linguagem Pascal é muito compatível com o uso da BNF, e descrições BNF da linguagem são abundantes. Armado com uma destas descrições, você vai achar que é de certa forma fácil continuar o processo que começamos.
 
-Você deveria tentar inserir algumas destas construções você mesmo, apenas para entender a idéia. Eu não espero que você seja capaz de fazer um compilador Pascal completo... há muitas coisas como subrotinas e tipos que ainda não tratamos... mas pode ajudar tentar algumas das coisas mais familiares. Vai ser bom ver programas executáveis saindo do outro lado.
+Você deveria tentar inserir algumas destas construções você mesmo, apenas para entender a ideia. Eu não espero que você seja capaz de fazer um compilador Pascal completo... há muitas coisas como sub-rotinas e tipos que ainda não tratamos... mas pode ajudar tentar algumas das coisas mais familiares. Vai ser bom ver programas executáveis saindo do outro lado.
 
-Eu tenho que cuidar das questões que ainda não cobrimos, mas prefiro fazê-lo no contexto da nossa linguagem KISS. Não estamos tentando construi um compilador Pascal completo ainda, portanto eu vou parar a expansão de Pascal aqui. Vamos dar uma olhada agora numa linguagem bem diferente.
+Eu tenho que cuidar das questões que ainda não cobrimos, mas prefiro fazê-lo no contexto da nossa linguagem KISS. Não estamos tentando construir um compilador Pascal completo ainda, portanto eu vou parar a expansão de Pascal aqui. Vamos dar uma olhada agora numa linguagem bem diferente.
 
 O código completo do nosso compilador "Pascal":
 
@@ -306,7 +306,7 @@ A linguagem C é um problema bem diferente, como você vai ver. Textos sobre C r
 
 Uma razão para eu lhe mostra estas estruturas agora é para que eu posso lhe demonstrar estes dois fatos:
 
-1. A definição de uma linguagem domina a estrutura do compilador. O que funciona para uma linguagem pode ser um desastre para outra. É uma idéia muito ruim tentar forçar uma determinada estrutura no compilador. Ao invés disso, você deve deixar a BNF dominar a estrutura, como já fizemos até aqui.
+1. A definição de uma linguagem domina a estrutura do compilador. O que funciona para uma linguagem pode ser um desastre para outra. É uma ideia muito ruim tentar forçar uma determinada estrutura no compilador. Ao invés disso, você deve deixar a BNF dominar a estrutura, como já fizemos até aqui.
 
 2. Uma linguagem que é difícil definir em BNF provavelmente também é complicada para compilar. C é uma linguagem popular, e tem toda esta reputação por deixar você fazer virtualmente qualquer coisa possível. Apesar do sucesso do compilador Small C, C NÃO é uma linguagem fácil de compilar.
 
@@ -412,7 +412,7 @@ void GetClass()
 }
 ~~~
 
-Aqui, eu usei 3 caracteres para representar os 3 tipos de classe de armazenamento `auto`, `extern` e `static`. Estes não são os únicos tipos possíveis... há também `register` e `typedef`, mas isto deve dar uma idéia. Note que o padrão é `auto`.
+Aqui, eu usei 3 caracteres para representar os 3 tipos de classe de armazenamento `auto`, `extern` e `static`. Estes não são os únicos tipos possíveis... há também `register` e `typedef`, mas isto deve dar uma ideia. Note que o padrão é `auto`.
 
 Podemos fazer algo semelhante para tipos. Entre com a seguinte rotina:
 
@@ -444,7 +444,7 @@ char CurrentSigned; /* Indica se tipo atual é com ou sem sinal */
 
 Com estas duas rotinas, o compilador vai processar a classe de armazenamento a definição de tipo e armazenar o que encontrou. Podemos agora processar o resto da declaração.
 
-Não estamos de forma alguma livres da complicação ainda, pois há ainda muitas complexidades apenas na definição do tipo, mesmo antes de chegarmos à definição do nome dos dados ou da função. Vamos fingir que neste ponto passamos por tudo isto, e que a próxima entrada é o nome. Se o nome for seguido de um parêntese esquerdo, temos uma declaração de função. Caso contrário, temos ao menos um item de dados, e possívelmente uma lista, e cada elemento pode ter um inicializador.
+Não estamos de forma alguma livres da complicação ainda, pois há ainda muitas complexidades apenas na definição do tipo, mesmo antes de chegarmos à definição do nome dos dados ou da função. Vamos fingir que neste ponto passamos por tudo isto, e que a próxima entrada é o nome. Se o nome for seguido de um parêntese esquerdo, temos uma declaração de função. Caso contrário, temos ao menos um item de dados, e possivelmente uma lista, e cada elemento pode ter um inicializador.
 
 Insira agora `TopDeclaration()`:
 
@@ -515,7 +515,7 @@ O código completo do nosso compilador "C":
 
 > Download do [compilador "C"](src/cap09-top-c.c).
 
-Neste ponto, eu acho que você consegue ver como a estrutura do compilador evolui a partir da definição da linguagem. As estruturas que vimos para os dois exemplos, Pascal e C, são tão diferentes como o dia e a noite. Pascal foi projetada ao menos parcialmente para ser fácil de analisar, e isto é refletido no compilador. Em geral, em Pascal há mais estrutura e temos uma idéia melhor de que tipo de construções esperar em cada ponto. Em C, por outro lado, o programa é essencialmente uma lista de declarações, terminados apenas pelo fim do arquivo.
+Neste ponto, eu acho que você consegue ver como a estrutura do compilador evolui a partir da definição da linguagem. As estruturas que vimos para os dois exemplos, Pascal e C, são tão diferentes como o dia e a noite. Pascal foi projetada ao menos parcialmente para ser fácil de analisar, e isto é refletido no compilador. Em geral, em Pascal há mais estrutura e temos uma ideia melhor de que tipo de construções esperar em cada ponto. Em C, por outro lado, o programa é essencialmente uma lista de declarações, terminados apenas pelo fim do arquivo.
 
 Poderíamos continuar seguindo ambas estruturas bem mais longe, mas lembre-se que o objetivo aqui não é construir um compilador Pascal ou C, mas ao invés disso, estudar compiladores em geral. Para aqueles que querem realmente tratar de Pascal ou C, eu espero ter dado uma iniciação suficiente para que você possa continuar daqui (embora você vá precisar em breve de algumas das coisas que ainda não tratamos aqui, como tipos e chamadas de rotinas). Para o resto de vocês, sigam comigo pelo [próximo capítulo](10_apresentando_tiny.md). Lá, eu vou lhe apresentar o desenvolvimento de um compilador completo para TINY, um subconjunto de KISS.
 

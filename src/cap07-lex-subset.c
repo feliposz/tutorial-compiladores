@@ -33,7 +33,7 @@ const char *KeywordCode = "ilee";
 char Token;
 char TokenText[MAXTOKEN + 1];
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
                 /* Protótipos */
@@ -94,7 +94,7 @@ void Init()
     SkipWhite();
 }
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();
@@ -146,7 +146,7 @@ void Expected(char *fmt, ...)
     exit(1);
 }
 
-/* Verifica se o caracter combina com o esperado */
+/* Verifica se o caractere combina com o esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -198,7 +198,7 @@ void GetNum()
     SkipWhite();
 }
 
-/* Testa se caracter é um operador */
+/* Testa se caractere é um operador */
 int IsOp(char c)
 {
     return (strchr("+-*/<>:=", c) != NULL);

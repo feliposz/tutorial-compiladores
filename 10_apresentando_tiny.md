@@ -4,9 +4,9 @@ Parte 10: Apresentando "Tiny"
 > **Autor:** Jack W. Crenshaw, Ph.D. (21/05/1989)<br>
 > **Tradução e adaptação:** Felipo Soranz (23/05/2002)
 
-Na [última seção](09_uma_visao_do_alto.md), eu lhes mostrei a idéia geral para o desenvolvimento top-down de um compilador. Eu lhe mostrei os primeiros passos no processo para compiladores do estilo "Pascal" e do estilo "C", mas eu parei muito antes de chegarmos a completá-los. A razão é simples: se vamos produzir um compilador real, funcional para alguma linguagem, eu prefiro que seja para KISS, a linguagem que eu venho definindo nesta série de tutoriais.
+Na [última seção](09_uma_visao_do_alto.md), eu lhes mostrei a ideia geral para o desenvolvimento top-down de um compilador. Eu lhe mostrei os primeiros passos no processo para compiladores do estilo "Pascal" e do estilo "C", mas eu parei muito antes de chegarmos a completá-los. A razão é simples: se vamos produzir um compilador real, funcional para alguma linguagem, eu prefiro que seja para KISS, a linguagem que eu venho definindo nesta série de tutoriais.
 
-Nesta seção, nós vamos fazer exatemente isto, para um subconjunto de KISS que eu decidi chamar de TINY.
+Nesta seção, nós vamos fazer exatamente isto, para um subconjunto de KISS que eu decidi chamar de TINY.
 
 O processo vai ser essencialmente aquele mostrado no [capítulo 9](09_uma_visao_do_alto.md), exceto por uma diferença notável. Naquele capítulo eu sugeri que você começasse com uma descrição BNF completa da linguagem. Isto é bom para algo como Pascal ou C, para as quais a definição da linguagem é sólida. No caso de TINY, porém, nós ainda não temos uma descrição completa... pois até agora estivemos definindo a linguagem conforme seguimos. Mas não há nada de errado com isso. Na verdade, é preferível, já que podemos adaptar ligeiramente a linguagem conforme avançamos, para manter a análise sintática fácil.
 
@@ -19,9 +19,9 @@ Muitos de vocês podem perguntar neste ponto: Por que começar tudo de novo? Nó
 Começando
 ---------
 
-Há muitos anos houveram linguagens chamadas Tiny BASIC, Tiny Pascal e Tiny C. Cada uma das quais era um subconjunto de sua língua-mãe completa. Tiny BASIC, por exemplo, possuia apenas variáveis globais cujo nome era definido por uma única letra. Só suportava um único tipo de dados. Soa familiar? Neste ponto nós já temos quase todas as ferramentas necessárias pra construir uma linguagem como esta.
+Há muitos anos houveram linguagens chamadas Tiny BASIC, Tiny Pascal e Tiny C. Cada uma das quais era um subconjunto de sua língua-mãe completa. Tiny BASIC, por exemplo, possuía apenas variáveis globais cujo nome era definido por uma única letra. Só suportava um único tipo de dados. Soa familiar? Neste ponto nós já temos quase todas as ferramentas necessárias pra construir uma linguagem como esta.
 
-Porém, qualquer linguagem Tiny-alguma-coisa ainda carrega alguma bagagem herdada de sua língua-mãe. Eu sempre fiquei imaginando se isso é uma boa idéia. Certamente, uma linguagem baseada em alguma outra terá a vantagem de ter certa familiaridade, mas pode haver também algum tipo de sintaxe peculiar trazida da linguagem de origem que pode adicionar complexidade desnecessária ao compilador. (Em nenhum lugar isto é mais verdadeiro que em Small C.)
+Porém, qualquer linguagem Tiny-alguma-coisa ainda carrega alguma bagagem herdada de sua língua-mãe. Eu sempre fiquei imaginando se isso é uma boa ideia. Certamente, uma linguagem baseada em alguma outra terá a vantagem de ter certa familiaridade, mas pode haver também algum tipo de sintaxe peculiar trazida da linguagem de origem que pode adicionar complexidade desnecessária ao compilador. (Em nenhum lugar isto é mais verdadeiro que em Small C.)
 
 Eu sempre imaginei quão pequeno e simples um compilador poderia ser e ainda assim ser útil, se for projetado para ser ao mesmo tempo fácil de usar e simples de processar. Vamos verificar. Esta linguagem será chamada simplesmente "TINY". É um subconjunto de KISS, a qual eu mesmo não defini completamente, que pelo menos vai nos permitir consistência (!). Eu acho que você pode chamá-la de TINY KISS se quiser, mas eu vou chamá-la simplesmente de TINY. 
 
@@ -39,9 +39,9 @@ A definição de mais alto nível é similar à de Pascal:
     <program> ::= PROGRAM <top-level-decl> <main> '.'
 ~~~
 
-Nós já chegamos num ponto de decisão. Minha primeira idéia era fazer do bloco principal opcional. Não faz sentido criar um "programa" sem uma rotina principal, mas faz sentido se permitirmos múltiplos módulos, que podem ser combinados depois. De fato, eu pretendo permitir insto em KISS. Mas então estaríamos começando com algo que eu prefiro deixar para depois. O termo PROGRAM não é realmente um nome muito bom. MODULE de Modula-2 ou Unit do Turbo Pascal seria mais apropriado. Em segundo lugar, o que dizer a respeito de regras de escopo? Nós precisaríamos de uma convenção para lidar com a visibilidade dos nomes através dos módulos. Por enquanto, é melhor manter as coisas simples e ignorar esta idéia.
+Nós já chegamos num ponto de decisão. Minha primeira ideia era fazer do bloco principal opcional. Não faz sentido criar um "programa" sem uma rotina principal, mas faz sentido se permitirmos múltiplos módulos, que podem ser combinados depois. De fato, eu pretendo permitir insto em KISS. Mas então estaríamos começando com algo que eu prefiro deixar para depois. O termo PROGRAM não é realmente um nome muito bom. MODULE de Modula-2 ou Unit do Turbo Pascal seria mais apropriado. Em segundo lugar, o que dizer a respeito de regras de escopo? Nós precisaríamos de uma convenção para lidar com a visibilidade dos nomes através dos módulos. Por enquanto, é melhor manter as coisas simples e ignorar esta ideia.
 
-Há também uma decisão com relação a permitir que o programa principal fique somente no fim. Eu trabalhei com a idéia de permitir que sua posição fosse opcional, como em C. A natureza dos montadores como o NASM (que é o que eu estou usando) permitem que isto seja realmente fácil de fazer. Mas isto não faz muito sentido do ponto de vista da regra que estamos usando. Como em Pascal todos os dados e rotinas devem ser declarados antes de referenciados. Como o programa principal só pode chamar subrotinas que já foram declaradas, a única posição que faz sentido é no final, como em Pascal.
+Há também uma decisão com relação a permitir que o programa principal fique somente no fim. Eu trabalhei com a ideia de permitir que sua posição fosse opcional, como em C. A natureza dos montadores como o NASM (que é o que eu estou usando) permitem que isto seja realmente fácil de fazer. Mas isto não faz muito sentido do ponto de vista da regra que estamos usando. Como em Pascal todos os dados e rotinas devem ser declarados antes de referenciados. Como o programa principal só pode chamar sub-rotinas que já foram declaradas, a única posição que faz sentido é no final, como em Pascal.
 
 Dada a BNF acima, vamos criar o analisador que reconhece apenas os limitadores.
 
@@ -110,7 +110,7 @@ Note, porém, que o compilador gera código correto para este programa. Ele pode
 
 Apenas por curiosidade, um dos meus testes de eficiência de compiladores favoritos é compilar, ligar (*link edit*), e executar um programa vazio na linguagem envolvida. É possível aprender muito a respeito da implementação medindo o *overhead* de tempo necessário para compilar o que deveria ser um caso trivial. Também é interessante analisar a quantidade de código produzido. Em muitos compiladores, o código pode ser bem grande, porque é incluída sempre a biblioteca de tempo de execução (*run-time library*) sendo ela necessária ou não. As primeiras versões do Turbo Pascal produziam arquivos objeto de cerca de 12K. VAX C gerava 50K, e há casos em que o espaço é ainda maior!
 
-Um dos menores programas vazíos que eu já vi eram produzidos por compiladores de Modula-2, e eles possuiam algo entre 200-800 bytes.
+Um dos menores programas vazios que eu já vi eram produzidos por compiladores de Modula-2, e eles possuíam algo entre 200-800 bytes.
 
 No caso de TINY, não temos uma biblioteca run-time ainda, então o código objeto é de fato minúsculo: não muito mais do que 1K dependendo do montador e do linker que você estiver usando. (Se mudarmos um pouco o código Assembly para produzir programas .COM do DOS, é possível chegar a apenas alguns bytes, o resto é por causa do "overhead" necessário para programas do tipo .EXE). Isto é quase um recorde, e provavelmente será mantido pois é o código mínimo requerido pelo sistema operacional.
 
@@ -120,7 +120,7 @@ O próximo passo é processar o código para o programa principal. Eu vou usar o
     <main> ::= BEGIN <block> END
 ~~~
 
-Aqui, novamente, tivemos que fazer uma decisão. Poderíamos ter escolhido algum tipo de declaração como "PROCEDURE MAIN", assim como em C. Eu devo admitir que esta não é uma idéia ruim... eu particularmente não gosto da abordagem Pascal pois eu geralmente tenho problemas para encontrar o programa principal em uma listagem Pascal. Mas a alternativa é um pouco esquisita também, já que teríamos que lidar com a ocasião em que o usuário omite o a rotina "main" ou escreve seu nome errado. Eu vou escolher a saída mais fácil neste caso.
+Aqui, novamente, tivemos que fazer uma decisão. Poderíamos ter escolhido algum tipo de declaração como "PROCEDURE MAIN", assim como em C. Eu devo admitir que esta não é uma ideia ruim... eu particularmente não gosto da abordagem Pascal pois eu geralmente tenho problemas para encontrar o programa principal em uma listagem Pascal. Mas a alternativa é um pouco esquisita também, já que teríamos que lidar com a ocasião em que o usuário omite o a rotina "main" ou escreve seu nome errado. Eu vou escolher a saída mais fácil neste caso.
 
 Outra solução para o problema de "onde está a rotina principal" pode ser obrigar que o programa tenha um nome, e envolver o programa principal assim:
 
@@ -313,7 +313,7 @@ Ok, tente esta versão de TINY e verifique que é possível, de fato, dar às va
 
 Isto está começando a parecer real! É claro que ainda não faz nada, mas parece bom, não parece?
 
-Antes de deixar esta seção, eu devo lembrá-lo que já usamos duas versões de `GetNum()`. Uma, a primeira, retorna um valor em caracter, um dígito único. A outra aceita valores inteiros multi-dígitos e retorna um valor inteiro. Qualquer uma funcionaria aqui, bastaria alterar "%c" para "%d" em `printf()`. Mas não há razão para nos limitarmos ao dígito único aqui, então vamos corrigir esta versão e retornar inteiros. Aqui está:
+Antes de deixar esta seção, eu devo lembrá-lo que já usamos duas versões de `GetNum()`. Uma, a primeira, retorna um valor em caractere, um dígito único. A outra aceita valores inteiros multi-dígitos e retorna um valor inteiro. Qualquer uma funcionaria aqui, bastaria alterar "%c" para "%d" em `printf()`. Mas não há razão para nos limitarmos ao dígito único aqui, então vamos corrigir esta versão e retornar inteiros. Aqui está:
 
 ~~~c
 /* Recebe um número inteiro */
@@ -421,7 +421,7 @@ Neste ponto, somos capazes de gerar um programa vazio que tem algumas variáveis
 
 Acredite ou não, nós quase temos uma linguagem usável! O que está faltando é o código executável que vai no programa principal. Mas este código consiste em comandos de atribuição e de controle... coisas que já fizemos antes. Portanto, não deve levar muito tempo para adicioná-las também.
 
-A definição BNF dada anteriormente para o programa principal incluia o bloco de comandos, que temos ignorado até então:
+A definição BNF dada anteriormente para o programa principal incluía o bloco de comandos, que temos ignorado até então:
 
 ~~~ebnf
     <main> ::= BEGIN <block> END
@@ -1039,9 +1039,9 @@ void Block()
 }
 ~~~
 
-Certo, adicione as rotinas dadas, compile e teste. Agora já é possível compilar versões de um caracter de qualquer uma das construções de controle. Está ficando muito bom!
+Certo, adicione as rotinas dadas, compile e teste. Agora já é possível compilar versões de um caractere de qualquer uma das construções de controle. Está ficando muito bom!
 
-De fato, exceto pela limitação de um único caracter, temos uma versão completa de TINY. Eu a chamo, com muito orgulho de: **TINY Versão 0.1**!
+De fato, exceto pela limitação de um único caractere, temos uma versão completa de TINY. Eu a chamo, com muito orgulho de: **TINY Versão 0.1**!
 
 Para referência, a listagem completa de TINY Versão 0.1 é mostrada abaixo:
 
@@ -1054,13 +1054,13 @@ Para referência, a listagem completa de TINY Versão 0.1 é mostrada abaixo:
 Análise Léxica
 --------------
 
-É claro que você sabe o que vem depois: Temos que converter o programa para que ele trate de palavras-chave multi-caracter, quebras de linha, e espaços em branco. Nós já passamos por tudo isto na [parte 7](07_analise_lexica.md). Vamos usar a técnica de análise distribuída que eu mostrei naquele capítulo. A implementação atual é um pouco diferente por causa da forma que eu vou tratar das quebras de linha.
+É claro que você sabe o que vem depois: Temos que converter o programa para que ele trate de palavras-chave multi-caractere, quebras de linha, e espaços em branco. Nós já passamos por tudo isto na [parte 7](07_analise_lexica.md). Vamos usar a técnica de análise distribuída que eu mostrei naquele capítulo. A implementação atual é um pouco diferente por causa da forma que eu vou tratar das quebras de linha.
 
 Para começar, vamos simplesmente permitir espaços em branco. Isto envolve apenas adicionar chamadas a `SkipWhite()` no fim das três rotinas, `GetName()`, `GetNum()` e `Match()`. Um chamada a `SkipWhite()` em `Init()` remove os espaços em branco iniciais. Podemos então entrar com um programa que é mais compreensível, como: 
 
     p vx b x=1 e.
 
-Depois, temos que tratar de quebras de linha. Isto é na verdade um processo de dois passos, já que o tratamento das quebras de linha é diferente nas versões de token de um só caracter e multi-caracter. Podemos eliminar algum trabalho fazendo os dois passos de uma só vez, mas eu acho que é mais garantido fazer uma coisa de cada vez.
+Depois, temos que tratar de quebras de linha. Isto é na verdade um processo de dois passos, já que o tratamento das quebras de linha é diferente nas versões de token de um só caractere e multi-caractere. Podemos eliminar algum trabalho fazendo os dois passos de uma só vez, mas eu acho que é mais garantido fazer uma coisa de cada vez.
 
 Insira a rotina:
 
@@ -1081,9 +1081,9 @@ O próximo passo é inserir a chamada a `NewLine()` onde quer que seja permitido
 
 Para rotinas que possuem laços while, como `TopDeclarations()`, precisamos de uma chamada a `NewLine()` no início da rotina e no fim de cada repetição. Desta forma podemos garantir que `NewLine()` foi chamada no início de cada passagem do laço. Também é necessário adicionar `NewLine()` antes dos testes diretos de `Look`, como em `Factor()` e `AllocVar()`.
 
-Se você já fez tudo isto, teste o programa e verifique que ele realmente trata de espaços em branco e quebras de linha. Tente todas as possibilidades que vierem à sua mente. Se alguma delas não funcionar é possível que você tenha esquecido de algum `NewLine()`. Basta verificar em que construção ocorrereu o problema e procurar a mesma no código.
+Se você já fez tudo isto, teste o programa e verifique que ele realmente trata de espaços em branco e quebras de linha. Tente todas as possibilidades que vierem à sua mente. Se alguma delas não funcionar é possível que você tenha esquecido de algum `NewLine()`. Basta verificar em que construção ocorreu o problema e procurar a mesma no código.
 
-Se tudo estiver correto, estamos prontos para tratar dos tokens multi-caracter e palavras-chave. Para começar, adicione as declarações adicionais (cópias quase idênticas da [parte 7](07_analise_lexica.md)):
+Se tudo estiver correto, estamos prontos para tratar dos tokens multi-caractere e palavras-chave. Para começar, adicione as declarações adicionais (cópias quase idênticas da [parte 7](07_analise_lexica.md)):
 
 ~~~c
 #define MAXTOKEN 16
@@ -1205,9 +1205,9 @@ void Declaration()
 }
 ~~~
 
-(Repare que ainda estamos nos limitando a variáveis com nomes de uma só letra, então vamos usar apenas o primeiro caracter da string como uma saída fácil por enquanto.)
+(Repare que ainda estamos nos limitando a variáveis com nomes de uma só letra, então vamos usar apenas o primeiro caractere da string como uma saída fácil por enquanto.)
 
-Finalmente, temos que fazer as alterações para usar "token" ao invés de `Look` como caracter de teste e chamar `Scan()` nos lugares apropriados. Na maioria, isto envolve remover chamadas a `Match()`, ocasionalmente trocando chamadas de `Match()` por chamadas a `MatchString()`, e trocando chamadas a `NewLine()` por chamadas a `Scan()`. Aqui estão as rotinas afetadas:
+Finalmente, temos que fazer as alterações para usar "token" ao invés de `Look` como caractere de teste e chamar `Scan()` nos lugares apropriados. Na maioria, isto envolve remover chamadas a `Match()`, ocasionalmente trocando chamadas de `Match()` por chamadas a `MatchString()`, e trocando chamadas a `NewLine()` por chamadas a `Scan()`. Aqui estão as rotinas afetadas:
 
 ~~~c
 /* Analisa e traduz um comando IF */
@@ -1326,14 +1326,14 @@ Isto deve bastar. Se todas as alterações forem feitas corretamente, você deve
 
 Deu certo? Se deu, então já estamos em casa. De fato, com algumas pequenas exceções já temos um compilador usável. Ainda há algumas áreas que podem ser melhoradas.
 
-Nomes de Variáveis Multi-caracter
+Nomes de Variáveis Multi-caractere
 ---------------------------------
 
-Uma das coisas a melhorar é com relação à restrição de nomes de variáveis de apenas um caracter. Agora que podemos tratar de palavras-chave multi-caracter, isto começa a parecer uma restrição arbitrário e desnecessária. E na verdade é. Basicamente, a sua única virtude é que ela permite uma implementação trivial da tabela de símbolos. Mas isto é uma conveniência para o desenvolvedor do compilador, e deve ser eliminada.
+Uma das coisas a melhorar é com relação à restrição de nomes de variáveis de apenas um caractere. Agora que podemos tratar de palavras-chave multi-caractere, isto começa a parecer uma restrição arbitrário e desnecessária. E na verdade é. Basicamente, a sua única virtude é que ela permite uma implementação trivial da tabela de símbolos. Mas isto é uma conveniência para o desenvolvedor do compilador, e deve ser eliminada.
 
 Já fizemos isto antes. Desta vez, como de costume, eu vou fazê-lo de uma forma um pouco diferente. Eu acho que a abordagem aqui mantém as coisas tão simples quanto possível.
 
-A forma natural de implementar uma tabela de símbolos é declarar uma estrutura (struct), e fazer da tabela de símbolos um vetor destas estruturas. Porém, aqui não precisamos realmente de um campo de tipo (afinal, só existe um tipo de entrada até aqui), portanto só precisamos de um vetor de símbolos. A vantagem é que podemos usar a rotina existente `Lookup()` para procurar na tabela de símbolos e também na lista de palavras-chave. No entando, mesmo quando precisarmos de mais campos poderíamos usar a mesma abordagem, simplesmente armazenando os outros campos em vetores separados.
+A forma natural de implementar uma tabela de símbolos é declarar uma estrutura (struct), e fazer da tabela de símbolos um vetor destas estruturas. Porém, aqui não precisamos realmente de um campo de tipo (afinal, só existe um tipo de entrada até aqui), portanto só precisamos de um vetor de símbolos. A vantagem é que podemos usar a rotina existente `Lookup()` para procurar na tabela de símbolos e também na lista de palavras-chave. No entanto, mesmo quando precisarmos de mais campos poderíamos usar a mesma abordagem, simplesmente armazenando os outros campos em vetores separados.
 
 Certo, aqui estão as mudanças necessárias.  Primeiro adicione:
 
@@ -1408,7 +1408,7 @@ void AllocVar(char *name)
 }
 ~~~
 
-Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caracter único. Elas incluem `AsmLoadVar()`, `AsmStore()`, `Undefined()` (apenas alteramos o tipo de `char` para `char *` e `%c` para `%s` nos `printf`'s), `Factor()`, `Declaration()` (alteramos `TokenText[0]` para `TokenText`). Em `Assignment()` a mudança é um pouco diferente, mas nada complicada:
+Finalmente, temos que alterar todas as rotinas que tratam o nome da variável como um caractere único. Elas incluem `AsmLoadVar()`, `AsmStore()`, `Undefined()` (apenas alteramos o tipo de `char` para `char *` e `%c` para `%s` nos `printf`'s), `Factor()`, `Declaration()` (alteramos `TokenText[0]` para `TokenText`). Em `Assignment()` a mudança é um pouco diferente, mas nada complicada:
 
 ~~~c
 /* Analisa e traduz um comando de atribuição */
@@ -1436,14 +1436,14 @@ void Init()
 }
 ~~~
 
-Isto deve bastar. Teste o compilador agora e verifique que é possível adicionar nomes de variáveis multi-caracter.
+Isto deve bastar. Teste o compilador agora e verifique que é possível adicionar nomes de variáveis multi-caractere.
 
 Mais Operadores Relacionais
 ---------------------------
 
-Ainda temos mais uma restrição de "caracter simples" para eliminar: a dos operadores relacionais. Alguns operadores relacionais são realmente caracteres únicos, mas outros requerem dois. Eles são "<=" e ">=". Eu também prefiro "<>" para diferente, ao invés de "#".
+Ainda temos mais uma restrição de "caractere simples" para eliminar: a dos operadores relacionais. Alguns operadores relacionais são realmente caracteres únicos, mas outros requerem dois. Eles são "<=" e ">=". Eu também prefiro "<>" para diferente, ao invés de "#".
 
-Se você se lembrar, na [parte 7](07_analise_lexica.md) eu disse que a maneira convencional de lidar de operadores relacionais é incluí-los na lista de palavras-chave, e permitir que o analisador léxico os encontre. Mas novamente, para fazer isto teriamos que analisar léxicamente a expressão toda no processo, sendo que até aqui fomos capazes de limitar a análise léxica apenas no começo do comando.
+Se você se lembrar, na [parte 7](07_analise_lexica.md) eu disse que a maneira convencional de lidar de operadores relacionais é incluí-los na lista de palavras-chave, e permitir que o analisador léxico os encontre. Mas novamente, para fazer isto teríamos que analisar lexicalmente a expressão toda no processo, sendo que até aqui fomos capazes de limitar a análise léxica apenas no começo do comando.
 
 Eu mencionei então que ainda podemos nos livrar disto, já que os operadores relacionais são tão poucos e tão limitados em seu uso. É fácil tratar deles apenas como casos especiais e lidar com eles de uma forma **ad hoc**.
 
@@ -1514,7 +1514,7 @@ Entrada/Saída
 
 Agora nós temos uma linguagem completa e funcional, exceto por uma pequena omissão: não há como obter dados ou mostrá-los. Precisamos de entrada/saída.
 
-A convenção nos dias de hoje, estabelecida em C e continuada em Ada e Modula-2, é deixar os comandos de E/S fora da linguagem em si, e incluí-los na biblioteca de rotinas. Isto seria bom, exceto pelo fato de que até aqui, não temos como tratar de subrotinas. De qualquer forma, com esta abordagem você acaba encontrando o problema de listas de parâmetros de tamanho variável. Em Pascal, os comandos de E/S estão embutidos na linguagem porque eles são os únicos em que a lista de parâmetros pode ter um número variado de entradas. Em C, as funções `scanf()` e `printf()` exigem que uma string com o formato da entrada seja passada e a partir desta string é determinada a quantidade de parâmetros. Em Ada e Modula-2 precisamos usar a estranha (e LENTA!) abordagem de uma chamada separada para cada parâmetro.
+A convenção nos dias de hoje, estabelecida em C e continuada em Ada e Modula-2, é deixar os comandos de E/S fora da linguagem em si, e incluí-los na biblioteca de rotinas. Isto seria bom, exceto pelo fato de que até aqui, não temos como tratar de sub-rotinas. De qualquer forma, com esta abordagem você acaba encontrando o problema de listas de parâmetros de tamanho variável. Em Pascal, os comandos de E/S estão embutidos na linguagem porque eles são os únicos em que a lista de parâmetros pode ter um número variado de entradas. Em C, as funções `scanf()` e `printf()` exigem que uma string com o formato da entrada seja passada e a partir desta string é determinada a quantidade de parâmetros. Em Ada e Modula-2 precisamos usar a estranha (e LENTA!) abordagem de uma chamada separada para cada parâmetro.
 
 Eu prefiro a abordagem Pascal de colocar a E/S na própria linguagem, mesmo que não tenhamos que fazer isto.
 
@@ -1534,11 +1534,11 @@ void AsmWrite()
 }
 ~~~
 
-A idéia é que `READ` carrega o valor de entrada em AX, e `WRITE` exibe o valor dele.
+A ideia é que `READ` carrega o valor de entrada em AX, e `WRITE` exibe o valor dele.
 
 Estas duas rotinas representam nosso primeiro encontro com a necessidade de rotinas de biblioteca... os componentes de uma biblioteca de tempo de execução (*RTL - Run Time Library*). É claro, alguém (no caso, nós mesmos) deve escrever estas rotinas, mas elas não fazem parte do compilador em si. Repare que estas rotinas podem ser MUITO dependentes do sistema operacional. Eu vou colocar UMA versão destas rotinas para que você possa testar. É claro que não será a melhor das versões. É possível criar todo tipo de fantasia para estas coisas, por exemplo, exibir um prompt em `READ` para as entradas, e dar ao usuário uma nova chance se ele entrar com um valor inválido.
 
-Mas isto é certamente separado do projeto do compilador. Por enquanto vamos fazer de conta que possuimos uma biblioteca chamada `TINYRTL`. Eu vou explicar como criar a biblioteca, suas rotinas e como importá-la para uso nos nossos programas nos apêndices.
+Mas isto é certamente separado do projeto do compilador. Por enquanto vamos fazer de conta que possuímos uma biblioteca chamada `TINYRTL`. Eu vou explicar como criar a biblioteca, suas rotinas e como importá-la para uso nos nossos programas nos apêndices.
 
 Isto deve ser o suficiente. Agora, também devemos reconhecer os comandos de leitura e escrita. Podemos fazer isto adicionando mais duas palavras-chave à nossa lista:
 
@@ -1648,11 +1648,11 @@ Isto é tudo o que precisa ser feito. **AGORA temos uma linguagem!**
 Conclusão
 ---------
 
-Neste ponto, temos TINY completamente definida. Não é muita coisa... na verdade um compilador "de brinquedo". TINY só possui um tipo de dados e nenhuma subrotina... mas é uma linguagem completa e usável. Embora você não seja capaz de escrever um compilador usando TINY, ou fazer qualquer outra coisa seriamente, é possível escrever programas para ler algumas entradas, processar cálculos, e emitir algum resultado. Nada mal para um brinquedo.
+Neste ponto, temos TINY completamente definida. Não é muita coisa... na verdade um compilador "de brinquedo". TINY só possui um tipo de dados e nenhuma sub-rotina... mas é uma linguagem completa e usável. Embora você não seja capaz de escrever um compilador usando TINY, ou fazer qualquer outra coisa seriamente, é possível escrever programas para ler algumas entradas, processar cálculos, e emitir algum resultado. Nada mal para um brinquedo.
 
 Mais importante, temos uma base firme na qual podemos construir outras extensões. Eu acho que você vai ficar feliz em saber isto: esta é a última vez que eu vou começar a construir um analisador do zero... de agora em diante eu pretendo apenas adicionar características a TINY até que ele se torne KISS. Bem, no futuro vamos precisar testar outras coisas com novas cópias do ["berço"](src/cap01-craddle.c), mas uma vez que tenhamos descoberto como fazer estas coisas, elas serão incorporadas em TINY.
 
-Quais características serão estas? Bem, pra começar precisaremos de procedimentos e funções. Então precisaremos tratar de tipos diferentes, incluindo matrizes, strings, e outras estruturas. Então temos que lidar com a idéia de ponteiros. Tudo isto será visto em capítulos posteriores.
+Quais características serão estas? Bem, pra começar precisaremos de procedimentos e funções. Então precisaremos tratar de tipos diferentes, incluindo matrizes, strings, e outras estruturas. Então temos que lidar com a ideia de ponteiros. Tudo isto será visto em capítulos posteriores.
 
 Até lá!
 

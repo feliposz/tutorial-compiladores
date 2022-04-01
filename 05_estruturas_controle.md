@@ -11,9 +11,9 @@ Eu particularmente gosto muito deste assunto, pois para mim ele representa uma g
 O Plano
 -------
 
-Em sequência, iremos começar mais uma vez com um "berço" novo, e vamos fazer da mesma forma que já fizemos duas vezes: vamos construir as coisas uma de cada vez. Vamos ainda manter o conceito de um caracter único que nos ajudou tanto até agora. Isto significa que o código vai parecer um pouco engraçado, apenas com um "i" no lugar de IF, "w" no lugar de WHILE, etc. Mas ajuda a manter os conceitos sem perder muito tempo com análise léxica. Não tema... eventualmente vamos nos deparar com algo que parece com código "real".
+Em sequência, iremos começar mais uma vez com um "berço" novo, e vamos fazer da mesma forma que já fizemos duas vezes: vamos construir as coisas uma de cada vez. Vamos ainda manter o conceito de um caractere único que nos ajudou tanto até agora. Isto significa que o código vai parecer um pouco engraçado, apenas com um "i" no lugar de IF, "w" no lugar de WHILE, etc. Mas ajuda a manter os conceitos sem perder muito tempo com análise léxica. Não tema... eventualmente vamos nos deparar com algo que parece com código "real".
 
-Eu também não quero ficar me prendendo a lidar com comandos que não sejam condições, como comandos de atribuição nos quais estivemos trabalhando. Já foi demonstrado que podemos tratar deles, então não há por que ficar carregando isto como bagagem em excesso pelo resto do exercício. Então, o que eu farei ao invés disso é usar um comando anônimo, "outro", para ficar no lugar dos comandos que não são de controle e servir como um suporte para eles. Temos que gerar algum tipo de código para eles (lembre-se, estamos novamente compilando, não interpretando), então eu vou simplesmente mostrar o caracter da entrada.
+Eu também não quero ficar me prendendo a lidar com comandos que não sejam condições, como comandos de atribuição nos quais estivemos trabalhando. Já foi demonstrado que podemos tratar deles, então não há por que ficar carregando isto como bagagem em excesso pelo resto do exercício. Então, o que eu farei ao invés disso é usar um comando anônimo, "outro", para ficar no lugar dos comandos que não são de controle e servir como um suporte para eles. Temos que gerar algum tipo de código para eles (lembre-se, estamos novamente compilando, não interpretando), então eu vou simplesmente mostrar o caractere da entrada.
 
 Começando com [uma nova cópia do "berço"](src/cap01-craddle.c), vamos definir a rotina:
 
@@ -25,7 +25,7 @@ void Other()
 }
 ~~~
 
-> O caracter ";" indica um comentário de linha em assembly.
+> O caractere ";" indica um comentário de linha em assembly.
 
 Agora inclua uma chamada no programa principal:
 
@@ -40,7 +40,7 @@ int main()
 }
 ~~~
 
-Execute o programa e veja o que você obtem. Não muito excitante, não é mesmo? Mas vamos com calma, é só um começo e as coisas vão melhorar.
+Execute o programa e veja o que você obtém. Não muito excitante, não é mesmo? Mas vamos com calma, é só um começo e as coisas vão melhorar.
 
 A primeira coisa necessária é a habilidade para tratar de mais de uma linha de comando, uma vez que uma condição de uma só linha é meio limitada. Nós fizemos isto na última parte sobre interpretadores, mas desta vez vamos ser mais formais. Considere a seguinte BNF:
 
@@ -53,7 +53,7 @@ Isto quer dizer que, para os nossos objetivos, um programa é definido como um b
 
 O que indica o fim do bloco? Simplesmente, qualquer construção que não seja um comando "other". Por enquanto, isto significa apenas o comando END.
 
-Com estas idéias em mente, podemos continuar construindo nosso analisador. O código para o programa é:
+Com estas ideias em mente, podemos continuar construindo nosso analisador. O código para o programa é:
 
 ~~~c
 /* Analisa e traduz um programa completo */
@@ -191,7 +191,7 @@ No 80x86 os flags condicionais são alterados sempre que qualquer dado é movido
 O comando IF
 ------------
 
-Com esta pequena explicação, finalmente estamos prontos para começar a codificar o comando IF no nosso analisador. Na verdade, nós quase já o fizemos! Como de costume, vamos usar nossa abordagem de um caracter só, "i" para IF, e "e" para ENDIF (como também para END... mas esta duplicidade não vai causar confusão). Eu também vou, por enquanto, pular completamente o caracter para a condição, que ainda temos que definir.
+Com esta pequena explicação, finalmente estamos prontos para começar a codificar o comando IF no nosso analisador. Na verdade, nós quase já o fizemos! Como de costume, vamos usar nossa abordagem de um caractere só, "i" para IF, e "e" para ENDIF (como também para END... mas esta duplicidade não vai causar confusão). Eu também vou, por enquanto, pular completamente o caractere para a condição, que ainda temos que definir.
 
 O código para `DoIf()` (repare que "if" é uma palavra reservada, logo, precisamos usar um identificador diferente) é:
 
@@ -270,7 +270,7 @@ Como você pode ver, o analisador reconhece a construção corretamente e insere
 
 Esta começando a parecer real, não?
 
-Agora que já temos uma idéia geral (e as ferramentas de notação, e também as rotinas `NewLabel()` e `PostLabel()`), é uma moleza estender o analisador para incluir outras construções. A primeira (e também uma das mais complicadas) é adicionar a cláusula ELSE ao IF. A BNF é:
+Agora que já temos uma ideia geral (e as ferramentas de notação, e também as rotinas `NewLabel()` e `PostLabel()`), é uma moleza estender o analisador para incluir outras construções. A primeira (e também uma das mais complicadas) é adicionar a cláusula ELSE ao IF. A BNF é:
 
 ~~~
     IF <condition> <block> [ ELSE <block> ] ENDIF
@@ -358,7 +358,7 @@ O próximo tipo de comando que deve ser fácil, já que temos o processo assimil
     WHILE <condition> <block> ENDWHILE
 ~~~
 
-Eu sei, eu sei, nós não precisamos REALMENTE de tipos diferentes de terminadores para cada construção... você pode perceber isto pelo fato de que em nossa versão de um caracter, "e" é usado para todos eles. Mas eu também lembro de muitas horas de depuração em Pascal, tentando identificar um END que o compilador imaginou que eu deveria ter colocado em outro lugar. É uma questão de experiência que me leva a crer que palavras-chave únicas e específicas, apesar de aumentar o vocabulário da linguagem, adicionam um pouco de checagem de erro mas é um trabalho que vale a pena para o programador do compilador.
+Eu sei, eu sei, nós não precisamos REALMENTE de tipos diferentes de terminadores para cada construção... você pode perceber isto pelo fato de que em nossa versão de um caractere, "e" é usado para todos eles. Mas eu também lembro de muitas horas de depuração em Pascal, tentando identificar um END que o compilador imaginou que eu deveria ter colocado em outro lugar. É uma questão de experiência que me leva a crer que palavras-chave únicas e específicas, apesar de aumentar o vocabulário da linguagem, adicionam um pouco de checagem de erro mas é um trabalho que vale a pena para o programador do compilador.
 
 Agora, considere que o WHILE deve ser traduzido como:
 
@@ -371,7 +371,7 @@ Agora, considere que o WHILE deve ser traduzido como:
     L2:
 ~~~
 
-Como antes, comparar as duas representações nos dá uma idéia de que ações são necessárias em cada ponto.
+Como antes, comparar as duas representações nos dá uma ideia de que ações são necessárias em cada ponto.
 
 ~~~
     WHILE         { L1 = newLabel
@@ -432,7 +432,7 @@ Nenhuma outra mudança é necessária por enquanto.
 
 Agora tente usar a nova construção. Note que desta vez, a condição está "dentro" do rótulo de cima, que é justamente onde queríamos que estivesse. Teste alguns laços aninhados. Teste alguns laços com IFs, e alguns IFs dentro de laços. Se você ficar meio confuso com o que deve ser feito, não fique desencorajado, você escreve bugs em outras linguagens também, não escreve? Não se preocupe, vai fazer mais sentido quando usarmos palavras chaves inteiras.
 
-Eu espero que agora você esteja começando a captar a idéia de que isto é realmente fácil. Tudo o que temos a fazer pra acomodar a nova construção é trabalhar na tradução dirigida pela sintaxe dela. O código praticamente sai diretamente de lá, e quase não afeta outras rotinas. Uma vez que você tenha pego o jeito da coisa, logo vai perceber que é possível adicionar novas construções tão rápido quanto você consegue sonhar com elas.
+Eu espero que agora você esteja começando a captar a ideia de que isto é realmente fácil. Tudo o que temos a fazer pra acomodar a nova construção é trabalhar na tradução dirigida pela sintaxe dela. O código praticamente sai diretamente de lá, e quase não afeta outras rotinas. Uma vez que você tenha pego o jeito da coisa, logo vai perceber que é possível adicionar novas construções tão rápido quanto você consegue sonhar com elas.
 
 O comando LOOP
 --------------
@@ -860,7 +860,7 @@ Conclusão
 
 Neste ponto criamos uma série de construções de controle... um conjunto muito mais rico, realmente, que o proporcionado por muitas outras linguagens de programação. E, com a exceção do laço FOR, foi algo bem fácil de fazer. Mesmo este foi complicado só por causa da parte em assembly.
 
-Vou concluir esta seção por aqui. Pra melhorar as coisas de vez, nós realmente deveríamos ter palavras-chave reais ao invés desta coisa de caracteres únicos. Você já viu que a extensão para palavras de mais de um caracter não é difícil, mas neste caso vai fazer uma grande diferença na aparência do código. Vou deixar isto para o próximo capítulo. Nele também vamos tratar de expressões booleanas, para nos livrarmos da versão vazia de `Condition()` que usamos agora. Até lá.
+Vou concluir esta seção por aqui. Pra melhorar as coisas de vez, nós realmente deveríamos ter palavras-chave reais ao invés desta coisa de caracteres únicos. Você já viu que a extensão para palavras de mais de um caractere não é difícil, mas neste caso vai fazer uma grande diferença na aparência do código. Vou deixar isto para o próximo capítulo. Nele também vamos tratar de expressões booleanas, para nos livrarmos da versão vazia de `Condition()` que usamos agora. Até lá.
 
 Para referência, aqui está o analisador completo para esta parte do tutorial:
 

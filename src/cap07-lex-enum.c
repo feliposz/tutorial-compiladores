@@ -35,7 +35,7 @@ enum {
 
 int Token;
 char TokenText[MAXTOKEN+1];
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 
 /* Protótipos */
 void Init();
@@ -93,7 +93,7 @@ void Init()
     NextChar();
 }
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();
@@ -177,7 +177,7 @@ void Match(char c)
     NextChar();
 }
 
-/* Testa se caracter é um operador */
+/* Testa se caractere é um operador */
 int IsOp(char c)
 {
     return (strchr("+-*/<>:=", c) != NULL);

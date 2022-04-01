@@ -8,14 +8,14 @@ Este capítulo é sobre outra daquelas incursões laterais que não parecem se e
 
 Agora que já passamos por isto, podemos trabalhar naquilo que eu havia mencionado. Isto não deve levar muito tempo, e logo podemos voltar ao nosso normal.
 
-Muitas pessoas me perguntaram a respeito de coisas que outras linguagens tem, mas que eu ainda não tratei nesta série. As duas maiores são ponto-e-vírgula e comentários. Talvez você tenha pensado a respeito deles, também, e imaginou como as coisas mudariam se tivéssemos que tratar deles. Apenas para prosseguirmos com o que está por vir, sem nos preocuparmos com o incômodo sentimento de que alguma está faltanto, vamos tratar destas questões aqui.
+Muitas pessoas me perguntaram a respeito de coisas que outras linguagens tem, mas que eu ainda não tratei nesta série. As duas maiores são ponto-e-vírgula e comentários. Talvez você tenha pensado a respeito deles, também, e imaginou como as coisas mudariam se tivéssemos que tratar deles. Apenas para prosseguirmos com o que está por vir, sem nos preocuparmos com o incômodo sentimento de que alguma está faltando, vamos tratar destas questões aqui.
 
 Ponto-e-vírgula
 ---------------
 
 Desde a introdução de Algol, o ponto-e-vírgula tem sido parte de quase toda linguagem moderna. Todos nos acostumamos com o lugar onde eles supostamente deveriam estar. Aliás, eu suspeito que mais erros de compilação ocorreram por causa de ponto-e-vírgula mal-posicionado ou omitido que qualquer outra causa. E se ganhássemos um centavo para cada tecla extra pressionada que os programadores se acostumaram a digitar, poderíamos pagar a dívida externa.
 
-Tendo vindo da linguagem FORTRAN, levou tempo para que eu me acostumasse a usar ponto-e-vírgula, e pra dizer a verdade eu nunca soube muito bem por que eles eram necessários. Como eu programo em Pascal, e como o tratamento de ponto-e-vírgula de Pascal é particularmente complexo, este pequeno caracter ainda é uma das minhas maiores fontes de erro.
+Tendo vindo da linguagem FORTRAN, levou tempo para que eu me acostumasse a usar ponto-e-vírgula, e pra dizer a verdade eu nunca soube muito bem por que eles eram necessários. Como eu programo em Pascal, e como o tratamento de ponto-e-vírgula de Pascal é particularmente complexo, este pequeno caractere ainda é uma das minhas maiores fontes de erro.
 
 Quando eu comecei a desenvolver KISS, eu resolvi questionar CADA construção das outras linguagens, e tentar evitar a maioria dos problemas comuns que ocorrem nelas. Isto coloca o ponto-e-vírgula nas primeiras posições da minha lista.
 
@@ -35,7 +35,7 @@ Em casos como este, o ponto-e-vírgula é quase necessário. A mesma linha sem o
     
 Eu suspeito que esta é a maior... talvez a ÚNICA... razão para o ponto-e-vírgula: evitar que os programas pareçam "esquisitos".
 
-Mas a idéia de colocar diversos comandos em sequência juntos na mesma linha é bastante duvidosa na melhor das hipóteses. Não é um estilo de programação muito bom, e parece nos levar aos dias em que era considerado importante conservar cartões. Nestes dias de monitores coloridos e código indentado, a clareza dos programas é muito melhor alcançada mantendo os comandos separados. É claro que é bom ter a OPÇÃO de múltiplos comandos, mas parece ser uma vergonha manter os programadores escravizados com o ponto-e-vírgula, apenas para evitar que aquele caso raro pareça "esquisito".
+Mas a ideia de colocar diversos comandos em sequência juntos na mesma linha é bastante duvidosa na melhor das hipóteses. Não é um estilo de programação muito bom, e parece nos levar aos dias em que era considerado importante conservar cartões. Nestes dias de monitores coloridos e código indentado, a clareza dos programas é muito melhor alcançada mantendo os comandos separados. É claro que é bom ter a OPÇÃO de múltiplos comandos, mas parece ser uma vergonha manter os programadores escravizados com o ponto-e-vírgula, apenas para evitar que aquele caso raro pareça "esquisito".
 
 Quando comecei com KISS, eu procurei manter a mente aberta. Eu decidi que eu usaria o ponto-e-vírgula quando ele se tornasse necessário para o analisador, mas não antes disso. Eu achei que isto aconteceria assim que eu adicionasse a habilidade de espalhar comandos em múltiplas linhas. Mas como você pôde ver, nunca aconteceu realmente. O compilador TINY está completamente feliz em analisar os comandos mais complicados, espalhados em diversas linhas, sem ponto-e-vírgula.
 
@@ -217,7 +217,7 @@ void Statement()
 Usando a rotina, podemos agora reescrever `Block()` :
 
 ~~~c
-/* Analiza e traduz um bloco de comandos estilo "Pascal" */
+/* Analisa e traduz um bloco de comandos estilo "Pascal" */
 void Block()
 {
     Statement();
@@ -234,7 +234,7 @@ Isto certamente não machucou, certo? Agora podemos processar ponto-e-vírgula d
 Um Meio-Termo
 -------------
 
-Agora que sabemos como tratar de ponto-e-vírgula, isto significa que vamos colocá-los em KISS/TINY? Bem, sim e não. Eu gosto do açúcar sintático e da segurança extra que acompanha o fato de sabermos com certeza onde o fim dos comandos estão. Mas eu não mudei a minha idéia sobre erros de compilação associados ao ponto-e-vírgula.
+Agora que sabemos como tratar de ponto-e-vírgula, isto significa que vamos colocá-los em KISS/TINY? Bem, sim e não. Eu gosto do açúcar sintático e da segurança extra que acompanha o fato de sabermos com certeza onde o fim dos comandos estão. Mas eu não mudei a minha ideia sobre erros de compilação associados ao ponto-e-vírgula.
 
 Então eu tenho algo em mente que parece ser um bom meio-termo: fazê-los OPCIONAIS!
 
@@ -260,10 +260,10 @@ Até aqui eu estive cuidadosamente evitando a questão dos comentários. Você p
 
 Comentários podem ser tão fáceis ou tão difíceis quanto você quiser fazê-los. Em um extremo, podemos fazer as coisas de forma que os comentários são interceptados quase que no mesmo instante que eles entram no compilador. No outro extremo, podemos tratá-los como elementos léxicos. As coisas começam a ficar interessantes, quando você considera coisas como delimitadores contidos dentro de strings entre aspas.
 
-Delimitadores de Um Caracter
+Delimitadores de Um Caractere
 ----------------------------
 
-Aqui está um exemplo. Podemos usar o padrão Turbo Pascal e usar chaves para os comentários. Neste caso, temos delimitadores de um caracter, então o processamento é um pouco mais fácil.
+Aqui está um exemplo. Podemos usar o padrão Turbo Pascal e usar chaves para os comentários. Neste caso, temos delimitadores de um caractere, então o processamento é um pouco mais fácil.
 
 Uma abordagem é eliminar os comentários no instante em que os encontramos na entrada; isto é, na rotina `NextChar()`. Para fazer isto, primeiro altere o nome de `NextChar()` para algo como `NextCharX()`. (**Aviso:** isto será uma mudança temporária, portanto é melhor não fazer isto com sua única cópia de TINY. Eu presumo que você entenda que todas estas experiências devem ser feitas em uma **cópia do programa**, e não no próprio.)
 
@@ -280,12 +280,12 @@ void SkipComment()
 }
 ~~~
 
-Evidentemente, o que está rotina faz é simplesmente ler e descartar caracteres da entrada, até encontrar uma chave direita ("}"). Então ele lê um caracter a mais e o coloca em "Look" como esperado.
+Evidentemente, o que está rotina faz é simplesmente ler e descartar caracteres da entrada, até encontrar uma chave direita ("}"). Então ele lê um caractere a mais e o coloca em "Look" como esperado.
 
 Agora podemos escrever uma nova versão de `NextChar()` que usa "skipComment" para remover os comentários:
 
 ~~~c
-/* Lê próximo caracter da entrada e pula quaisquer comentários */
+/* Lê próximo caractere da entrada e pula quaisquer comentários */
 void NextChar()
 {
     NextCharX();
@@ -294,17 +294,17 @@ void NextChar()
 }
 ~~~
 
-Entre com este código e faça um teste. Você vai descobrir que é possível colocar comentários de fato em qualquer lugar que você quiser. Os comentários nem sequer chegam ao analisador sinático... toda chamada a `NextChar()` retorna apenas caracteres que NÃO são parte de um comentário.
+Entre com este código e faça um teste. Você vai descobrir que é possível colocar comentários de fato em qualquer lugar que você quiser. Os comentários nem sequer chegam ao analisador sintático... toda chamada a `NextChar()` retorna apenas caracteres que NÃO são parte de um comentário.
 
-Na verdade, embora esta abordagem faça o trabalho corretamente, e talvez seja perfeitamente satisfatória pra você, ela faz o trabalho bem DEMAIS. Primeiro, a maioria das linguagens de programação especificam que o comentário deve ser tratado como um espaço, de forma que comentários não são permitidos digamos, no meio dos nomes de variávies (exemplo: "VAR{comentário}IÁVEL"). Esta versão atual simplesmente não liga para ONDE você coloca os comentários.
+Na verdade, embora esta abordagem faça o trabalho corretamente, e talvez seja perfeitamente satisfatória pra você, ela faz o trabalho bem DEMAIS. Primeiro, a maioria das linguagens de programação especificam que o comentário deve ser tratado como um espaço, de forma que comentários não são permitidos digamos, no meio dos nomes de variáveis (exemplo: "VAR{comentário}IÁVEL"). Esta versão atual simplesmente não liga para ONDE você coloca os comentários.
 
-Segundo, já que o resto do analisador não recebe o caracter "{", você não vai poder colocá-lo futuramente em uma string entre aspas.
+Segundo, já que o resto do analisador não recebe o caractere "{", você não vai poder colocá-lo futuramente em uma string entre aspas.
 
 Antes que você torça o nariz para esta solução simplística, eu gostaria de falar que alguns compiladores de respeito não permitem o uso do delimitador de comentário dentro de uma string. E seria possível usar comentários no meio de um identificador. Eu não consigo imaginar porque alguém faria isso, então é um ponto meio duvidoso. Mas para 99% de todas as aplicações, o que eu lhe mostrei pode funcionar perfeitamente bem.
 
 Mas se você preferir o tratamento convencional, então temos que mover o ponto de detecção um pouco abaixo.
 
-Para fazer isto, volte à versão anterior de `NextChar()` da forma como ela era antes e altere a chamada em `SkipComment()`. Então, vamos adicionar a chave esquerda ("{") como um possível caracter de espaço, alterando a rotina `SkipWhite()`:
+Para fazer isto, volte à versão anterior de `NextChar()` da forma como ela era antes e altere a chamada em `SkipComment()`. Então, vamos adicionar a chave esquerda ("{") como um possível caractere de espaço, alterando a rotina `SkipWhite()`:
 
 ~~~c
 /* Pula caracteres em branco */
@@ -323,7 +323,7 @@ Repare que `skipWhite` foi escrito de forma que vamos pular qualquer combinaçã
 
 OK, teste este também. Você vai descobrir que é possível usar comentários para delimitar tokens também. Vale a pena mencionar que esta abordagem nos permite tratar de chaves dentro de strings, já que dentro das strings não há porque testar ou pular espaços em branco, e sim tratá-los literalmente.
 
-Há mais um item a ser tratado: comentários aninhados. Alguns programadores gostam da idéia de aninhar comentários, já que isto permite comentar código que possui comentários durante a depuração. O código que eu mostrei aqui não permite isto, nem mesmo Pascal ou linguagem C.
+Há mais um item a ser tratado: comentários aninhados. Alguns programadores gostam da ideia de aninhar comentários, já que isto permite comentar código que possui comentários durante a depuração. O código que eu mostrei aqui não permite isto, nem mesmo Pascal ou linguagem C.
 
 Mas para arrumar isto é incrivelmente simples. Tudo o que precisamos fazer é tornar s `SkipComment()` recursivo:
 
@@ -340,19 +340,19 @@ void SkipComment()
 }
 ~~~
 
-Aí está. Um tratamento de comentários com um nível de sofistificação suficiente pra toda vida.
+Aí está. Um tratamento de comentários com um nível de sofisticação suficiente pra toda vida.
 
-Delimitadores Multi-caracter
+Delimitadores Multi-caractere
 ----------------------------
 
 Tudo isto está muito bom para casos onde um comentário é delimitado por caracteres simples, mas e os casos como em C ou Pascal padrão, onde 2 caracteres são necessários? Bem, os princípios são os mesmos, mas temos que mudar nossa abordagem um pouco. Eu tenho certeza que você não ficaria surpreso de saber que as coisas são um pouco mais difíceis neste caso.
 
-Para a situação multi-caracter, a coisa mais fácil a fazer é interceptar o delimitador esquerdo de volta no estágio `NextChar()`. É possível "tokenizá-lo" lá mesmo, trocando-o por um simples caracter.
+Para a situação multi-caractere, a coisa mais fácil a fazer é interceptar o delimitador esquerdo de volta no estágio `NextChar()`. É possível "tokenizá-lo" lá mesmo, trocando-o por um simples caractere.
 
 Vamos assumir que estamos usando os delimitadores de C "/*" e "*/". Primeiro, temos que voltar a abordagem `NextCharX()`. Em outra cópia do compilador, renomeie `NextChar()` para `NextCharX()` e então entre com a nova versão de `NextChar()`:
 
 ~~~c
-/* Lê próximo caracter e intercepta início de comentário*/
+/* Lê próximo caractere e intercepta início de comentário*/
 void NextChar()
 {
     if (TempChar != ' ') {
@@ -371,9 +371,9 @@ void NextChar()
 }
 ~~~
 
-Como você pode perceber, o que este procedimento faz é interceptar toda ocorrência de "/". Então ele examina o PRÓXIMO caracter de entrada. Se o caracter é um "*", então encontramos o início de um comentário, e `NextChar()` vai retornar um substituto de um só caracter para ele. (Por simplicidade, estou usando o caracter "{" como eu fiz para os comentários da versão Pascal. Se você estiver escrevendo um compilador C, sem dúvida você iria preferir escolher algum outro caracter que não é usado em nenhum outro lugar em C. Escolhe qualquer um da sua preferência... mesmo que seja o caracter ASCII 255 por exemplo, qualquer coisa que seja única.)
+Como você pode perceber, o que este procedimento faz é interceptar toda ocorrência de "/". Então ele examina o PRÓXIMO caractere de entrada. Se o caractere é um "*", então encontramos o início de um comentário, e `NextChar()` vai retornar um substituto de um só caractere para ele. (Por simplicidade, estou usando o caractere "{" como eu fiz para os comentários da versão Pascal. Se você estiver escrevendo um compilador C, sem dúvida você iria preferir escolher algum outro caractere que não é usado em nenhum outro lugar em C. Escolhe qualquer um da sua preferência... mesmo que seja o caractere ASCII 255 por exemplo, qualquer coisa que seja única.)
 
-Se o caracter após o "/" não for um "*", então `NextChar()` o coloca em "TempChar" e retorna o "/".
+Se o caractere após o "/" não for um "*", então `NextChar()` o coloca em "TempChar" e retorna o "/".
 
 Repare que é preciso declarar esta nova variável global e inicializá-la com um espaço.
 
@@ -397,7 +397,7 @@ void SkipComment()
 }
 ~~~
 
-Algumas coisas a notar: primeiro, a rotina "skipWhite" não precisa ser alterada, já que `NextChar()` continua retornando o token "{". Se você alterar este caracter de token, é claro que você também deve alterar o caracter nesta rotina.
+Algumas coisas a notar: primeiro, a rotina "skipWhite" não precisa ser alterada, já que `NextChar()` continua retornando o token "{". Se você alterar este caractere de token, é claro que você também deve alterar o caractere nesta rotina.
 
 Segundo, repare que "skipComment" não chama `NextChar()` em seu laço, e sim `NextCharX()`. Isto significa que o "/" não é interceptado e é visto por `SkipComment()`. Terceiro, apesar de `NextChar()` ser a rotina que faz o trabalho, ainda podemos tratar dos caracteres de comentário dentro de uma string entre aspas, chamando `NextCharX()` ao invés de `NextChar()` enquanto estivermos dentro da string. Finalmente, repare que podemos novamente prover comentários aninhados simplesmente adicionando uma chamada recursiva em `SkipComment()`, da mesma forma que antes.
 
@@ -417,7 +417,7 @@ void SkipComment()
 }
 ~~~
 
-Se o caracter de início do comentário é único, como ";" de assembly, é praticamente isto. Basta alterar `SkipWhite()` para usá-lo. Repare que você não pode usar o ";" propriamente dito na nossa versão atual de TINY por razões óbvias. Como alternativa, podemos experimentar "#".
+Se o caractere de início do comentário é único, como ";" de assembly, é praticamente isto. Basta alterar `SkipWhite()` para usá-lo. Repare que você não pode usar o ";" propriamente dito na nossa versão atual de TINY por razões óbvias. Como alternativa, podemos experimentar "#".
 
 ~~~c
 /* Pula caracteres em branco */

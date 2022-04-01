@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 
 #define SYMBOLTABLE_SIZE 26
 char SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
@@ -63,7 +63,7 @@ void Init()
     SkipWhite();
 }
 
-/* Lê próximo caracter da entrada em lookahead */
+/* Lê próximo caractere da entrada em lookahead */
 void NextChar()
 {
     Look = getchar();
@@ -184,7 +184,7 @@ void NewLine()
         NextChar();
 }
 
-/* Verifica se Look combina com caracter esperado */
+/* Verifica se Look combina com caractere esperado */
 void Match(char c)
 {
     if (Look != c)

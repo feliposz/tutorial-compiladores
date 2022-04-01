@@ -15,7 +15,7 @@ int IsMulOp(char c)
     return (c == '*' || c == '/' || c == '&');
 }
 
-/* Verifica se caracter combina com o esperado */
+/* Verifica se caractere combina com o esperado */
 void Match(char c)
 {
     if (Look != c)

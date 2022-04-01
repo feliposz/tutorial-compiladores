@@ -4,11 +4,11 @@ Parte 7: Análise Léxica
 > **Autor:** Jack W. Crenshaw, Ph.D. (07/11/1988)<br>
 > **Tradução e adaptação:** Felipo Soranz (20/05/2002)
 
-No [último capítulo](06_expressoes_booleanas.md), criamos um compilador que QUASE funciona, exceto pelo fato de estarmos limitados a um caracter por token. O propósito deste seção é nos livrarmos desta restrição, de uma vez por todas. Isto significa que temos que lidar com o conceito de analisador léxico (*lexical scanner*).
+No [último capítulo](06_expressoes_booleanas.md), criamos um compilador que QUASE funciona, exceto pelo fato de estarmos limitados a um caractere por token. O propósito deste seção é nos livrarmos desta restrição, de uma vez por todas. Isto significa que temos que lidar com o conceito de analisador léxico (*lexical scanner*).
 
 Talvez eu deva mencionar porque precisamos de um analisador léxico, afinal conseguimos gerenciar as coisas sem precisar de um até agora. Mesmo quando fizemos uso de tokens de vários caracteres.
 
-A ÚNICA razão, realmente, tem a ver com as palavras-chave. É um fato na vida computacional que a sintaxe para uma palavra-chave tem a mesma forma que a de qualquer outro identificador. Não conseguimos saber até ter a palavra por completo se ela é ou não uma palavra-chave. Por exemplo, a variável IFILE e a palavra chave IF parecem ser exatamente as mesmas, até você chegar ao terceiro caracter. Nos exemplos até agora, fomos sempre capazes de fazer uma decisão, baseados no primeiro caracter do token, mas isto não será possível agora que temos palavras-chaves completas. Temos que saber se uma dada sequência é uma palavra chave antes de começar a processá-la. E é por isto que precisamos de um analisador léxico.
+A ÚNICA razão, realmente, tem a ver com as palavras-chave. É um fato na vida computacional que a sintaxe para uma palavra-chave tem a mesma forma que a de qualquer outro identificador. Não conseguimos saber até ter a palavra por completo se ela é ou não uma palavra-chave. Por exemplo, a variável IFILE e a palavra chave IF parecem ser exatamente as mesmas, até você chegar ao terceiro caractere. Nos exemplos até agora, fomos sempre capazes de fazer uma decisão, baseados no primeiro caractere do token, mas isto não será possível agora que temos palavras-chaves completas. Temos que saber se uma dada sequência é uma palavra chave antes de começar a processá-la. E é por isto que precisamos de um analisador léxico.
 
 Na última seção, eu também prometi que poderíamos prover tokens normais sem fazer grandes mudanças ao que fizemos até agora. Eu não menti... nós podemos, como você verá em breve. Mas toda vez que eu começo a instalar estes elementos novos no analisador que nós já fizemos, eu tenho maus pressentimentos. A coisa toda começa a parecer como um grande curativo. Eu finalmente descobri o que causava o problema: Eu estava instalando o analisador léxico sem antes explicar qual o significado da análise léxica em si, e quais são as alternativas. Até agora, eu tenho evitado ao máximo lhe passar um monte de teoria, e certamente alternativas também não. Em geral eu não me dou bem com livros que lhe dão 25 maneiras diferentes de fazer algo, mas nenhuma diga de qual jeito é o melhor pras suas necessidades. Eu procurei evitar isto mostrando-lhe apenas UM método, que FUNCIONA.
 
@@ -19,7 +19,7 @@ Vamos partir novamente da forma usual. Nesta seção vamos nos aprofundar muito 
 Análise Léxica
 --------------
 
-Análise léxica é o processo de analisar a entrada de caracteres separando-os em seqüências chamadas tokens. A maioria dos textos sobre compiladores começam aqui, e dedicam diversos capítulos discutindo diversas formas de construir analisadores léxicos. Esta abordagem tem seu lugar, mas como você já viu, há muita coisa que pode ser feita sem nunca se preocupar com isso, e no fim das contas o analisador que vamos construir não vai ser muito parecido com o que os livros descrevem. O motivo? A teoria dos compiladores e, consequentemente, os programas resultantes dela, devem lidar com os tipos mais gerais de regras de análise sintática. Nós não. No mundo real, é possível especificar a sintaxe de uma linguagem de forma que um analisador sintático bastante simples vai ser o suficiente. Em como sempre, nosso lema é KISS: Keep It Simple, Stupid!
+Análise léxica é o processo de analisar a entrada de caracteres separando-os em sequências chamadas tokens. A maioria dos textos sobre compiladores começam aqui, e dedicam diversos capítulos discutindo diversas formas de construir analisadores léxicos. Esta abordagem tem seu lugar, mas como você já viu, há muita coisa que pode ser feita sem nunca se preocupar com isso, e no fim das contas o analisador que vamos construir não vai ser muito parecido com o que os livros descrevem. O motivo? A teoria dos compiladores e, consequentemente, os programas resultantes dela, devem lidar com os tipos mais gerais de regras de análise sintática. Nós não. No mundo real, é possível especificar a sintaxe de uma linguagem de forma que um analisador sintático bastante simples vai ser o suficiente. Em como sempre, nosso lema é KISS: Keep It Simple, Stupid!
 
 Tipicamente, a análise léxica é feita em uma parte separada do compilador, então o analisador sintático só vê uma sequência de tokens. Agora, teoricamente não é necessário separar esta função do resto do analisador. Há apenas um conjunto de equações sintáticas que definem a linguagem como um todo, então em teoria podemos escrever o analisador completo em um só módulo.
 
@@ -44,22 +44,22 @@ Agora, acontece que em gramáticas práticas reais as partes que se classificam 
     <ident> ::= <letter> [ <letter> | <digit> ]*
 ~~~
 
-Como são necessários tipos diferentes de máquinas abstratas para analisar os dois tipos de gramática, faz sentido separar estas funções de "baixo nível" em um módulo separado, o analisador léxico, que é construído baseado na idéia de máquinas de estado. A idéia é usar a técnica mais simples de reconhecimento para fazer o trabalho.
+Como são necessários tipos diferentes de máquinas abstratas para analisar os dois tipos de gramática, faz sentido separar estas funções de "baixo nível" em um módulo separado, o analisador léxico, que é construído baseado na ideia de máquinas de estado. A ideia é usar a técnica mais simples de reconhecimento para fazer o trabalho.
 
 Há outra razão, mais prática para separar os dois tipos de analisador. Gostamos de pensar no arquivo-fonte de entrada como uma sequência de caracteres, que processados da esquerda pra direita sem precisar de retrocesso ("backtracking"). Na prática isto não é possível. Toda linguagem tem certas palavras-chave como IF, WHILE e END. Como eu já mencionei antes, não há como saber realmente saber se uma certa sequência de caracteres é uma palavra-chave até que encontremos o seu fim, definido por um espaço ou outro delimitador. Então, neste sentido, temos que armazenar a sequência até saber se temos ou não uma palavra-chave. Isto é uma forma limitada de retrocesso.
 
-Então a estrutura convencional de um compilador envolve separar as funções de baixo e alto nível do analisador. O analisador léxico trata das coisas do nível de caracter, coletando os caracteres em seqüências (strings), etc. e passando-as ao analisador léxico apropriadamente como tokens indivisíveis. É também considerado normal deixar que o analisador léxico identifique as palavras-chave.
+Então a estrutura convencional de um compilador envolve separar as funções de baixo e alto nível do analisador. O analisador léxico trata das coisas do nível de caractere, coletando os caracteres em sequências (strings), etc. e passando-as ao analisador léxico apropriadamente como tokens indivisíveis. É também considerado normal deixar que o analisador léxico identifique as palavras-chave.
 
 Máquinas de Estado e Alternativas
 ---------------------------------
 
-Eu mencionei anteriormente que expressões regulares podem ser analisadas usando uma máquina de estados. Na maioria dos livros sobre compiladores, e de fato na maioria dos compiladores, você vai encontrar isto literalmente. Há tipicamente uma implementação real de uma máquina de estados, com números inteiros usados para definir cada um dos estados, e uma tabela de ações a fazer para cada combinação de estado e caracter de entrada atuais. Se você escrever um "front end" de um compilador usando as populares ferramentas LEX e YACC (ou um de seus equivalentes), é isto que você vai obter. A saída de LEX é uma máquina de estados implementada em C, mais uma tabela de ações correspondentes à entrada da gramática dada a LEX. A saída de YACC é similar... um analisador sintático baseado em tabela, mais a tabela correspondente à sintaxe da linguagem.
+Eu mencionei anteriormente que expressões regulares podem ser analisadas usando uma máquina de estados. Na maioria dos livros sobre compiladores, e de fato na maioria dos compiladores, você vai encontrar isto literalmente. Há tipicamente uma implementação real de uma máquina de estados, com números inteiros usados para definir cada um dos estados, e uma tabela de ações a fazer para cada combinação de estado e caractere de entrada atuais. Se você escrever um "front end" de um compilador usando as populares ferramentas LEX e YACC (ou um de seus equivalentes), é isto que você vai obter. A saída de LEX é uma máquina de estados implementada em C, mais uma tabela de ações correspondentes à entrada da gramática dada a LEX. A saída de YACC é similar... um analisador sintático baseado em tabela, mais a tabela correspondente à sintaxe da linguagem.
 
 Esta não é a única opção, porém. Em nossos capítulos anteriores, você viu repetidamente que é possível implementar analisadores sem lidar especificamente com tabelas, pilhas, ou variáveis de estado. Na verdade, eu avisei vocês no [capítulo 5](05_estruturas_controle.md) que se você acabar precisando destas coisas talvez esteja fazendo algo errado e não esteja tirando proveito do poder da linguagem em que está programando. Há basicamente duas formas de definir o estado de uma máquina de estados: explicitamente, com um código ou número de estado, e implicitamente, simplesmente pelo fato de se estar em um certo lugar no código (se é terça-feira, então aqui deve ser a Bélgica!). Nós confiamos totalmente na abordagem implícita anteriormente, e eu creio que você viu que elas funcionaram muito bem, também.
 
-Na prática pode até ser desnecessário ter um analisador léxico bem definido. Esta não é nossa primeira experiência tratando de tokens de mais de um caracter. No [capítulo 3](03_mais_expressoes.md), nós estendemos nosso analisador para cuidar deles e nós nem sequer precisamos de um analisador léxico. Isto porque naquele contexto estreito, nós podíamos sempre saber, apenas olhando para o próximo caracter, se estávamos lidando com um número, uma variável ou um operador. Nós construímos, na verdade, um analisador léxico distribuído, com as rotinas `GetName()` e `GetNum()`.
+Na prática pode até ser desnecessário ter um analisador léxico bem definido. Esta não é nossa primeira experiência tratando de tokens de mais de um caractere. No [capítulo 3](03_mais_expressoes.md), nós estendemos nosso analisador para cuidar deles e nós nem sequer precisamos de um analisador léxico. Isto porque naquele contexto estreito, nós podíamos sempre saber, apenas olhando para o próximo caractere, se estávamos lidando com um número, uma variável ou um operador. Nós construímos, na verdade, um analisador léxico distribuído, com as rotinas `GetName()` e `GetNum()`.
 
-Com a presença das palavras-chave, não podemos mais saber com o que estamos lidando até o token inteiro ser lido. Isto nos leva a um analisador mais localizado; porém, como você vai ver, a idéia de um analisador léxico distribuído ainda tem seus méritos.
+Com a presença das palavras-chave, não podemos mais saber com o que estamos lidando até o token inteiro ser lido. Isto nos leva a um analisador mais localizado; porém, como você vai ver, a ideia de um analisador léxico distribuído ainda tem seus méritos.
 
 Algumas Experiências em Análise Léxica
 --------------------------------------
@@ -201,7 +201,7 @@ Agora, execute o programa. Note como a sequência de entrada é, de fato, separa
 Máquinas de Estados
 -------------------
 
-Apenas para constar, uma rotina de análise como `GetName()` já é em si uma implementação de máquina de estados. O estado está implícito na posição atual do código. Um truque bastante útil para visualizar o que está ocorrendo é o diagrama de sintaxe, ou diagrama de "ferrovia". A figura abaixo deve dar uma idéia:
+Apenas para constar, uma rotina de análise como `GetName()` já é em si uma implementação de máquina de estados. O estado está implícito na posição atual do código. Um truque bastante útil para visualizar o que está ocorrendo é o diagrama de sintaxe, ou diagrama de "ferrovia". A figura abaixo deve dar uma ideia:
 
 ~~~
            ┌──► outro ────────────────► erro
@@ -213,9 +213,9 @@ Apenas para constar, uma rotina de análise como `GetName()` já é em si uma im
            └─── dígito ◄──────────┘
 ~~~
 
-Como você pode ver, este diagrama mostra como a lógica segue conforme os caracteres são lidos. As coisas começam, é claro, em um estado inicial, e terminam quando um outro caracter que não é um caracter alfanumérico é encontrado. Se o primeiro caracter não é alfanumérico, um erro ocorre. Caso contrário a máquina vai continuar repetindo até que um delimitador final seja encontrado (no nosso caso, pode ser o tamanho também).
+Como você pode ver, este diagrama mostra como a lógica segue conforme os caracteres são lidos. As coisas começam, é claro, em um estado inicial, e terminam quando um outro caractere que não é um caractere alfanumérico é encontrado. Se o primeiro caractere não é alfanumérico, um erro ocorre. Caso contrário a máquina vai continuar repetindo até que um delimitador final seja encontrado (no nosso caso, pode ser o tamanho também).
 
-Em qualquer ponto no fluxo, nossa posição é inteiramente dependente das entradas anteriores. Naquele ponto, a ação a ser tomada depende apenas do estado atual, mais o caracter de entrada atual. É por isso que é uma máquina de estados.
+Em qualquer ponto no fluxo, nossa posição é inteiramente dependente das entradas anteriores. Naquele ponto, a ação a ser tomada depende apenas do estado atual, mais o caractere de entrada atual. É por isso que é uma máquina de estados.
 
 Por ser meio complicado ficar desenhando estes diagramas, vou continuar com as equações sintáticas de agora em diante. Mas eu recomendo fortemente os diagramas pra qualquer coisa que envolva análise sintática/léxica. Depois de um pouco de prática você poderá entender como escrever analisadores diretamente dos diagramas. Caminhos paralelos são codificados como condicionais (com IF ou estruturas CASE -- switch em C), caminhos em sequência são chamadas em sequência.
 
@@ -226,7 +226,7 @@ A coisa boa nisto tudo que eu quero que você repare é como é indolor esta abo
 Quebra de Linha
 ---------------
 
-Continuando, vamos alterar a maneira como o analisador trata mais de uma linha. Como eu já mencionei da última vez, a maneira mais simples é tratar os caracteres de nova linha como um caracter em branco. Esta é a forma usada pela rotina da biblioteca padrão de C, "isspace". Nós não testamos isto anteriormente. Eu gostaria de testar isto agora, para que você tenha uma idéia dos resultados.
+Continuando, vamos alterar a maneira como o analisador trata mais de uma linha. Como eu já mencionei da última vez, a maneira mais simples é tratar os caracteres de nova linha como um caractere em branco. Esta é a forma usada pela rotina da biblioteca padrão de C, "isspace". Nós não testamos isto anteriormente. Eu gostaria de testar isto agora, para que você tenha uma ideia dos resultados.
 
 Altere a rotina `SkipWhite()` para:
 
@@ -262,7 +262,7 @@ Se você ainda estiver no seu programa, vai descobrir que digitar um ponto em um
 
 O que está acontecendo aqui? A resposta é que estamos ficando travados em `SkipWhite()`. Uma olhada rápida na rotina vai mostrar que enquanto estivermos entrando com linhas nulas, vamos continuar no laço de repetição. Depois que `SkipWhite()` encontrar um "\n", ele tenta executar um `NextChar()`. Mas como o buffer de entrada está vazio, `NextChar()` insiste em ter uma outra linha. A rotina `Scan()` obtém o ponto, tudo bem, mas então ela chama `SkipWhite()` para finalizar, e `SkipWhite()` não vai retornar até que encontre uma linha que não esteja nula.
 
-Este tipo de comportamento não é tão ruim quanto parece. Em um compilador real, vamos ler a entrada de um arquivo de entrada ao invés do console, e desde que tenhamos alguma rotina para tratar de fim-de-arquivo, tudo vai acabar dando certo. Mas para ler dados do console, este comportamento é muito bizarro. O fato é que a convenção C/Unix não é compatível com a estrutura do nosso compilador, que sempre busca um caracter "lookahead". O código que os magos da Bell implementaram não usa esta convenção, e é por isso que eles usam o `ungetc`.
+Este tipo de comportamento não é tão ruim quanto parece. Em um compilador real, vamos ler a entrada de um arquivo de entrada ao invés do console, e desde que tenhamos alguma rotina para tratar de fim-de-arquivo, tudo vai acabar dando certo. Mas para ler dados do console, este comportamento é muito bizarro. O fato é que a convenção C/Unix não é compatível com a estrutura do nosso compilador, que sempre busca um caractere "lookahead". O código que os magos da Bell implementaram não usa esta convenção, e é por isso que eles usam o `ungetc`.
 
 Certo, vamos arrumar o problema. Para fazer isto, volte para a versão anterior de `SkipWhite()` e faça uso da rotina `NewLine()` que eu introduzi da última vez:
 
@@ -314,14 +314,14 @@ Para outras convenções, você deve usar outros arranjos. No meu exemplo da úl
 Operadores
 ----------
 
-Poderíamos para agora e ter um analisador bastante útil para nossos propósitos. Nos fragmentos da linguagem KISS que construímos até agora, os únicos tokens que tem múltiplos caracteres são os identificadores e números. Todos os operadores são de um único caracter. As únicas exceções que consigo pensar são os operadores relacionais, <=, >= e <>, mas eles podem ser tratados como casos especiais.
+Poderíamos para agora e ter um analisador bastante útil para nossos propósitos. Nos fragmentos da linguagem KISS que construímos até agora, os únicos tokens que tem múltiplos caracteres são os identificadores e números. Todos os operadores são de um único caractere. As únicas exceções que consigo pensar são os operadores relacionais, <=, >= e <>, mas eles podem ser tratados como casos especiais.
 
-Além disso, outras linguagens tem operadores multi-caracter. como o ":=" de Pascal ou o "++" e ">>" de C. Então, mesmo não precisando de operadores multi-caracter, é bom saber como tratá-los se necessário.
+Além disso, outras linguagens tem operadores multi-caractere. como o ":=" de Pascal ou o "++" e ">>" de C. Então, mesmo não precisando de operadores multi-caractere, é bom saber como tratá-los se necessário.
 
 Não é necessário dizer, podemos tratar de operadores de forma muito similar aos outros tokens. Vamos começar com um reconhecedor, entre com estas rotinas:
 
 ~~~c
-/* Testa se caracter é um operador */
+/* Testa se caractere é um operador */
 int IsOp(char c)
 {
     return (strchr("+-*/<>:=", c) != NULL);
@@ -343,7 +343,7 @@ void GetOp(char *op)
 }
 ~~~
 
-É importante notar que não precisamos incluir todo operador possível nesta lista. Por exemplo, os parênteses não estão incluídos, nem o ponto terminador. A versão atual de `Scan()` trata de operadores de um caracter muito bem. A lista acima inclui apenas os caracteres que podem aparecer em operadores multi-caracter. (Para linguagens específicas a lista pode ser mudada, é claro.)
+É importante notar que não precisamos incluir todo operador possível nesta lista. Por exemplo, os parênteses não estão incluídos, nem o ponto terminador. A versão atual de `Scan()` trata de operadores de um caractere muito bem. A lista acima inclui apenas os caracteres que podem aparecer em operadores multi-caractere. (Para linguagens específicas a lista pode ser mudada, é claro.)
 
 Agora vamos alterar `Scan()`:
 
@@ -372,7 +372,7 @@ Teste o programa agora. Você vai descobrir que qualquer fragmento que você tes
 Listas, Vírgulas e Linhas de Comando
 ------------------------------------
 
-Antes de voltar ao fluxo principal de nosso estudo, eu gostaria de falar um pouco de algumas idéias.
+Antes de voltar ao fluxo principal de nosso estudo, eu gostaria de falar um pouco de algumas ideias.
 
 Quantas vezes você teve que trabalhar com um programa ou sistema operacional que tinha regras muito rígidas a respeito de como separar itens em uma lista? Alguns programas exigem espaços como delimitadores, e outros vírgula. O pior de tudo, alguns requerem os dois, em locais diferentes. A maioria é bem intolerante a respeito de violações de suas regras.
 
@@ -396,7 +396,7 @@ TEMPORARIAMENTE, altere a chamada a `SkipWhite()` em `Scan()` para uma chamada a
 
 Apenas para constar, eu descobri que adicionar o equivalente a `SkipComma()` aos meus programas assembly Z80 consumiu apenas 6 bytes extras de código. Mesmo numa máquina de 64k de memória, não é um preço muito alto a pagar em troca de programas mais amigáveis ao usuário!
 
-Eu acho que você já adivinhou aonde eu quero chegar. Mesmo que você nunca escreva uma linha de código de compilador na vida, há lugares em todo programa onde é possível usar os conceitos de análise léxica e sintática. Qualquer programa que processa uma linha de comando precisa deles. De fato, se você pensar nisso um pouco, vai concluir que toda vez que estiver escrevendo um programa que processa entradas de usuários, estará definindo uma linguagem. Pessoas comunicam-se com linguagens, e a sintaxe implícita no seu programa define a linguagem. A verdadeira questão é: você vai definí-la deliberadamente e explicitamente, ou vai apenas deixá-la terminar como o que quer que o programa analíse?
+Eu acho que você já adivinhou aonde eu quero chegar. Mesmo que você nunca escreva uma linha de código de compilador na vida, há lugares em todo programa onde é possível usar os conceitos de análise léxica e sintática. Qualquer programa que processa uma linha de comando precisa deles. De fato, se você pensar nisso um pouco, vai concluir que toda vez que estiver escrevendo um programa que processa entradas de usuários, estará definindo uma linguagem. Pessoas comunicam-se com linguagens, e a sintaxe implícita no seu programa define a linguagem. A verdadeira questão é: você vai definí-la deliberadamente e explicitamente, ou vai apenas deixá-la terminar como o que quer que o programa analise?
 
 Eu digo que você vai ter um programa melhor e mais amigável se você levar um tempo para definir a sintaxe explicitamente. Escreva as equações sintáticas ou desenhe diagramas, e codifique o analisador usando as técnicas que eu mostrei aqui. Você vai acabar com um programa melhor, e mais fácil de escrever.
 
@@ -405,15 +405,15 @@ Começando a Fantasiar
 
 Certo, neste ponto temos um excelente analisador léxico que vai separar a entrada em tokens. Podemos usá-lo como ele está e ter um compilador usável. Mas há outros aspectos de análise léxica que precisamos cobrir.
 
-A principal consideração é eficiência. Lembre-se que quando estávamos tratando de um único caracter como token, todo teste era uma comparação de um único caracter, `Look`, com uma constante de caracter. Também usamos bastante o comando "switch".
+A principal consideração é eficiência. Lembre-se que quando estávamos tratando de um único caractere como token, todo teste era uma comparação de um único caractere, `Look`, com uma constante de caractere. Também usamos bastante o comando "switch".
 
-Com os tokens multi-caracter sendo retornados por `Scan()`, todos aqueles testes vão requerer comparações de strings. Muito mais lento. E não só lento, mas também esquisito, pois não há equivalente do comando "switch" para strings em C. Parece especialmente dispendioso testar o que antes eram meros caracteres... o "=", "+", e outros operadores... usando comparação de strings.
+Com os tokens multi-caractere sendo retornados por `Scan()`, todos aqueles testes vão requerer comparações de strings. Muito mais lento. E não só lento, mas também esquisito, pois não há equivalente do comando "switch" para strings em C. Parece especialmente dispendioso testar o que antes eram meros caracteres... o "=", "+", e outros operadores... usando comparação de strings.
 
 Usar comparação de strings não é impossível... Ron Cain usou esta abordagem escrevendo Small C. Como estamos mantendo o princípio KISS, estaríamos verdadeiramente justificados se mantivéssemos esta abordagem. Mas então eu teria falhado em mostrar uma das abordagens principais em compiladores "reais".
 
 Você deve lembra-se: o analisador léxico vai ser executado MUITAS vezes! Uma vez para cada token no programa-fonte todo. Experimentos indicaram que o compilador comum gasta algo em torno de 20% a 40% de seu tempo em rotinas léxicas. Se há um lugar em que eficiência requer atenção real é aqui.
 
-Por esta razão, a maioria dos programadores de compiladores depositam no analisador léxico um pouco mais de trabalho, "tokenizando " a entrada. A idéia é fazer com que cada token seja comparada com uma lista de palavras-chave e operadores aceitáveis, e retornar um código único para cada um reconhecido. No caso de nomes de variáveis comuns ou números, simplesmente retornamos um código que diz qual tipo de token ele é e colocamos a string real em algum outro lugar.
+Por esta razão, a maioria dos programadores de compiladores depositam no analisador léxico um pouco mais de trabalho, "tokenizando " a entrada. A ideia é fazer com que cada token seja comparada com uma lista de palavras-chave e operadores aceitáveis, e retornar um código único para cada um reconhecido. No caso de nomes de variáveis comuns ou números, simplesmente retornamos um código que diz qual tipo de token ele é e colocamos a string real em algum outro lugar.
 
 Uma das primeiras coisas que temos que fazer é arranjar um modo de identificar as palavras-chave. Podemos sempre fazer isto com testes IF, mas certamente isto seria bom se tivéssemos uma rotina de uso geral que compararia uma dada string com uma tabela de palavras-chave. (A propósito, também vamos precisar deste tipo de rotina mais tarde, para lidar com tabelas de símbolos.)
 
@@ -559,9 +559,9 @@ int main()
 
 O que fizemos foi substituir a string `Token` usada anteriormente com um variável inteira com valores enumerados. `Scan()` retorna o tipo na variável `Token`, e retorna a string em si na nova variável `TokenText`.
 
-Certo, compile e entre com algumas seqüências. Se tudo der certo, você vai perceber que agora estamos reconhecendo palavras-chave.
+Certo, compile e entre com algumas sequências. Se tudo der certo, você vai perceber que agora estamos reconhecendo palavras-chave.
 
-O que temos agora, está funcionando perfeitamente, e foi fácil de gerar a partir do que tinhamos anteriormente. De qualquer forma, ainda está um pouco esquisito pra mim. Podemos simplificar as coisas um pouco permitindo que `GetName()`, `GetNum()`, `GetOp()` e `Scan()` trabalharem com as variáveis globais `Token` e `TokenText`, eliminando portando as cópias locais. E parece também mais "limpo" mover o teste em `Lookup()` dentro de `GetName()`. A nova forma para as rotinas é:
+O que temos agora, está funcionando perfeitamente, e foi fácil de gerar a partir do que tínhamos anteriormente. De qualquer forma, ainda está um pouco esquisito pra mim. Podemos simplificar as coisas um pouco permitindo que `GetName()`, `GetNum()`, `GetOp()` e `Scan()` trabalharem com as variáveis globais `Token` e `TokenText`, eliminando portando as cópias locais. E parece também mais "limpo" mover o teste em `Lookup()` dentro de `GetName()`. A nova forma para as rotinas é:
 
 ~~~c
 /* Recebe o nome de um identificador */
@@ -638,20 +638,20 @@ void Scan()
 
 > Download do analisador léxico [usando constantes](src/cap07-lex-enum.c).
 
-Retornando um caracter
+Retornando um caractere
 ----------------------
 
 Essencialmente todo analisador léxico que eu já vi usou um mecanismo de constantes enumeradas que eu acabei de descrever. Certamente é um mecanismo funcional, mas não parece ser a abordagem mais simples pra mim.
 
 Por um motivo, a lista de possíveis símbolos pode ficar muito grande. Aqui, eu usei apenas um símbolo, "TK_OPERATOR", para se referir a todos os operadores, mas eu já vi outros projetos que usam códigos diferentes para cada um.
 
-Existe, é claro, outro tipo simples que pode ser retornado pelo código: o caracter. Ao invés de retornar uma constante "TK_OPERATOR", o que há de errado em retornar o próprio caracter? Um caracter é uma boa variável também para codificar os diferentes tipos de tokens, ele pode ser usado em comandos switch facilmente, e também é bem mais fácil de digitar. O que seria mais simples?
+Existe, é claro, outro tipo simples que pode ser retornado pelo código: o caractere. Ao invés de retornar uma constante "TK_OPERATOR", o que há de errado em retornar o próprio caractere? Um caractere é uma boa variável também para codificar os diferentes tipos de tokens, ele pode ser usado em comandos switch facilmente, e também é bem mais fácil de digitar. O que seria mais simples?
 
-Além disso, já temos experiência com a idéia de codificar palavras-chave como caracteres simples. Nossos programas anteriores já são escritos desta forma, então usar esta abordagem vai minimizar as mudanças que já fizemos.
+Além disso, já temos experiência com a ideia de codificar palavras-chave como caracteres simples. Nossos programas anteriores já são escritos desta forma, então usar esta abordagem vai minimizar as mudanças que já fizemos.
 
-Alguns de vocês podem ter o sentimento que essa idéia de retornar caracteres como código é muito "mickey mouse". Eu devo admitir que é um pouco esquisito para operadores multi-caracter como "<=". Se preferir ficar com as constantes enumeradas, tudo bem. Para o resto do pessoal, eu gostaria de mostrar como alterar o que já fizemos acima para suportar esta abordagem.
+Alguns de vocês podem ter o sentimento que essa ideia de retornar caracteres como código é muito "mickey mouse". Eu devo admitir que é um pouco esquisito para operadores multi-caractere como "<=". Se preferir ficar com as constantes enumeradas, tudo bem. Para o resto do pessoal, eu gostaria de mostrar como alterar o que já fizemos acima para suportar esta abordagem.
 
-Primeiro, você pode apagar a declaração das constantes agora... não vamos precisar delas. E pode também alterar o tipo de `Token` para caracter.
+Primeiro, você pode apagar a declaração das constantes agora... não vamos precisar delas. E pode também alterar o tipo de `Token` para caractere.
 
 No lugar das constantes enumeradas, adicione a seguinte constante string:
 
@@ -788,9 +788,9 @@ Em compiladores "de verdade", os projetistas frequentemente tratam de passar mai
 
 A alternativa é procurar uma forma de usar a informação contextual que consiste em saber onde estamos no analisador sintático. Isto nos leva de volta à noção do analisador léxico distribuído, em que várias porções do analisador são chamadas dependendo do contexto.
 
-Na linguagem KISS, como na maioria das linguagens, palavras-chave aparecem apenas no início de um comando. Em lugares como expressões, elas não são permitidas. Com apenas uma pequena exceção (os operadores relacionais multi-caracter) isto é facilmente tratável, todos os operadores são caracteres simples, o que significa que praticamente não precisamos de `GetOp()`.
+Na linguagem KISS, como na maioria das linguagens, palavras-chave aparecem apenas no início de um comando. Em lugares como expressões, elas não são permitidas. Com apenas uma pequena exceção (os operadores relacionais multi-caractere) isto é facilmente tratável, todos os operadores são caracteres simples, o que significa que praticamente não precisamos de `GetOp()`.
 
-Então concluímos que mesmo com tokens multi-caracter, podemos sempre saber a partir do caracter lookahead atual exatamente qual tipo de token vem depois, exceto no começo do comando.
+Então concluímos que mesmo com tokens multi-caractere, podemos sempre saber a partir do caractere lookahead atual exatamente qual tipo de token vem depois, exceto no começo do comando.
 
 Mesmo neste ponto, o ÚNICO tipo de token que podemos aceitar é um identificador. Só precisamos determinar se este identificador é uma palavra-chave ou o alvo de um comando de atribuição.
 
@@ -801,9 +801,9 @@ Pode parecer a princípio que isto é um passo para trás, e uma abordagem muito
 Juntando os Analisadores Léxico e Sintático
 -------------------------------------------
 
-Agora que já cobrimos toda a teoria e aspectos gerais de análise léxica que iríamos precisar, eu finalmente estou pronto para cumprir a promessa que eu fiz de acomodar tokens multi-caracter com mudanças mínimas ao nosso trabalho anterior. Para manter as coisas curtas e simples eu vou me restringir a um subconjunto do que nós já vimos; eu vou permitir apenas uma construção de controle (o IF) e nenhuma expressão booleana. Isto é o suficiente para demonstrar a análise de palavras-chaves e expressões. A extensão para o conjunto completo de construção deve ser bem próxima daquilo que já fizemos.
+Agora que já cobrimos toda a teoria e aspectos gerais de análise léxica que iríamos precisar, eu finalmente estou pronto para cumprir a promessa que eu fiz de acomodar tokens multi-caractere com mudanças mínimas ao nosso trabalho anterior. Para manter as coisas curtas e simples eu vou me restringir a um subconjunto do que nós já vimos; eu vou permitir apenas uma construção de controle (o IF) e nenhuma expressão booleana. Isto é o suficiente para demonstrar a análise de palavras-chaves e expressões. A extensão para o conjunto completo de construção deve ser bem próxima daquilo que já fizemos.
 
-Todos os elementos do programa para analisar este subconjunto, usando tokens de um caracter, já existem em nossos programas anteriores. Eu o construi copiando cuidadosamente destes programas, mas eu não vou forçar você a passar por todo este processo. Ao invés disso, para evitar confusão, o programa completo está aqui:
+Todos os elementos do programa para analisar este subconjunto, usando tokens de um caractere, já existem em nossos programas anteriores. Eu o construí copiando cuidadosamente destes programas, mas eu não vou forçar você a passar por todo este processo. Ao invés disso, para evitar confusão, o programa completo está aqui:
 
 ~~~c
 {% include_relative src/cap07-subset.c %}
@@ -819,16 +819,16 @@ Alguns comentários:
 
 Antes de adicionarmos o analisador léxico, copie o arquivo e verifique que ele analisa as coisas corretamente. Não esqueça dos códigos: "i" para IF, "l" para ELSE, "e" para END ou ENDIF.
 
-Se o programa funcionar, vamos continuar. Quando adicionarmos o módulo do analisador léxico ao programa, ajudaria se tivéssemos um plano sistemático. Em todos os analisadores sintáticos que criamos até agora, ficamos com a convenção de o caracter lookahead atual deveria sempre ser um caracter não-branco. Nós pré-carregamos o caracter em `Init()` e depois acertamos a entrada depois disso. Pra manter as coisas funcionando corretamente, tivemos que tratar as quebras de linha como um token válido.
+Se o programa funcionar, vamos continuar. Quando adicionarmos o módulo do analisador léxico ao programa, ajudaria se tivéssemos um plano sistemático. Em todos os analisadores sintáticos que criamos até agora, ficamos com a convenção de o caractere lookahead atual deveria sempre ser um caractere não-branco. Nós pré-carregamos o caractere em `Init()` e depois acertamos a entrada depois disso. Pra manter as coisas funcionando corretamente, tivemos que tratar as quebras de linha como um token válido.
 
-Na versão multi-caracter, a regra é similar: o caracter lookahead corrente deve sempre ser deixado no começo do próximo token, ou numa nova linha.
+Na versão multi-caractere, a regra é similar: o caractere lookahead corrente deve sempre ser deixado no começo do próximo token, ou numa nova linha.
 
-A versão multi-caracter é mostrada abaixo. Para chegar nela, tive que fazer as seguintes alterações:
+A versão multi-caractere é mostrada abaixo. Para chegar nela, tive que fazer as seguintes alterações:
 
 - Adicionar as variáveis `Token` e `TokenText`, e as definições usadas por `Lookup()`.
 - Adicionar as definições de `KeywordList` e `KeywordCode`.
 - Adicionar `Lookup()`.
-- Trocar `GetName()` e `GetNum()` por suas versões multi-caracter. (Repare que a chamada a `Lookup()` foi retirada de `GetName()`, para que ela não seja executada em chamadas dentro de `Expression()`.)
+- Trocar `GetName()` e `GetNum()` por suas versões multi-caractere. (Repare que a chamada a `Lookup()` foi retirada de `GetName()`, para que ela não seja executada em chamadas dentro de `Expression()`.)
 - Criar uma nova versão de `Scan()` que chama `GetName()` e testa palavras-chave.
 - Criar uma nova rotina, `MatchString()`, que testa uma palavra-chave específica. Repare que, ao contrário de `Match()`, `MatchString()` NÃO lê a próxima palavra-chave.
 - Modificar `Block()` para chamar `Scan()`.
@@ -843,7 +843,7 @@ Aqui está o programa completo:
 
 > Download do [programa completo](src/cap07-lex-subset.c).
 
-Compare este programa com sua versão de um só caracter. Mesmo com as alterações que fizemos, perceba que as diferenças na estrutura são mínimas.
+Compare este programa com sua versão de um só caractere. Mesmo com as alterações que fizemos, perceba que as diferenças na estrutura são mínimas.
 
 Conclusão
 ---------

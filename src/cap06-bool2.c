@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 /* Protótipos */
@@ -84,7 +84,7 @@ void Init()
     NextChar();
 }
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();
@@ -258,7 +258,7 @@ void BoolFactor()
         Relation();
 }
 
-/* Analisa e traduz um fator booleno com NOT opcional */
+/* Analisa e traduz um fator booleano com NOT opcional */
 void NotFactor()
 {
     if (Look == '!') {

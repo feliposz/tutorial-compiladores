@@ -8,12 +8,12 @@ Está vai ser uma seção de um tipo diferente das outras na nossa série de con
 
 Quando eu estava na faculdade, eu soube que eu sempre poderia acompanhar a exposição do professor muito melhor se eu soubesse aonde ele queria chegar. Eu aposto como acontece o mesmo com você.
 
-Então eu imagino que já é hora de eu dizer aonde vamos chegar com esta série: o que vai acontecer nos capítulos futuros, e em geral, qual o propósito disto tudo. Eu também pretendo compartilhar algumas idéias a respeito da utilidade do que estivemos fazendo.
+Então eu imagino que já é hora de eu dizer aonde vamos chegar com esta série: o que vai acontecer nos capítulos futuros, e em geral, qual o propósito disto tudo. Eu também pretendo compartilhar algumas ideias a respeito da utilidade do que estivemos fazendo.
 
 O Caminho para Casa
 -------------------
 
-Até aqui, cobrimos a [análise](02_analise_expressoes.md) e tradução de [expressões aritméticas](03_mais_expressoes.md) e [booleanas](06_expressoes_booleanas.md), e combinações conectadas por operadores relacionais. Também fizemos o mesmo para [construções de controle](05_estruturas_controle.md). No decorrer de tudo isso nos inclinamos muito no uso de análise descendente recursiva top-down, definições BNF da sintaxe, e geração direta de código em linguagem assembly. Também aprendemos o valor de truques como tokens de um único caracter para nos ajuda a ver a floresta através das árvores. No [último capítulo](07_analise_lexica.md) tratamos de um analisador léxico, e eu mostrei uma forma simples, mas poderosa, de remover a barreira de caracteres simples.
+Até aqui, cobrimos a [análise](02_analise_expressoes.md) e tradução de [expressões aritméticas](03_mais_expressoes.md) e [booleanas](06_expressoes_booleanas.md), e combinações conectadas por operadores relacionais. Também fizemos o mesmo para [construções de controle](05_estruturas_controle.md). No decorrer de tudo isso nos inclinamos muito no uso de análise descendente recursiva top-down, definições BNF da sintaxe, e geração direta de código em linguagem assembly. Também aprendemos o valor de truques como tokens de um único caractere para nos ajuda a ver a floresta através das árvores. No [último capítulo](07_analise_lexica.md) tratamos de um analisador léxico, e eu mostrei uma forma simples, mas poderosa, de remover a barreira de caracteres simples.
 
 Através de todo o estudo, eu enfatizei a filosofia KISS... Keep It Simple, Sidney (ou Stupid, depende da ênfase que você quer dar... :) e eu espero que você já tenha percebido quão simples a coisa pode ser de verdade. Enquanto pode haver áreas na teoria de compiladores que podem ser verdadeiramente intimidadoras, a mensagem mais importante desta série é que na prática você pode educadamente dar um passo de lado e sair da complicação de muitas destas áreas. Se a definição da linguagem cooperar ou, como nesta série, se você puder definir a linguagem conforme você avança, é possível escrever definições de linguagem em BNF de forma relativamente fácil. E, como já foi visto, é possível criar rotinas do analisador a partir da BNF tão rápido quanto você consegue digitar.
 
@@ -25,7 +25,7 @@ Para completar de vez a série, temos alguns poucos itens a cobrir. Estes inclue
 
 - Chamadas de rotina, com e sem parâmetros
 - Variáveis locais e globais
-- Tipos básicos, como tipos caracter e inteiro
+- Tipos básicos, como tipos caractere e inteiro
 - Matrizes
 - Strings
 - Tipos definidos pelo usuário e estruturas
@@ -42,7 +42,7 @@ Estas construções farão parte das linguagens que eu construir. Eu tenho três
 
 - KISS - A linguagem que estou construindo para meu próprio uso. KISS deve ser uma linguagem de programação de sistemas. Ela não vai ter tipos fortemente definidos ou estruturas de dados fantasiosas, mas vai suportar a maioria das coisas que eu quero fazer com uma linguagem de alto nível, exceto escrever compiladores talvez.
 
-Além disso, eu também estive brincando por anos com a idéia de um tipo de assembly de alto-nível, com construções de controle estruturadas e atribuições do tipo das linguagens de alto nível. Esta, de fato, foi o meu pontapé inicial por trás do meu interesse original em me aventurar na teoria dos compiladores. Pode até ser que eu nunca chegue a construí-la, simplesmente porque eu aprendi que é realmente mais simples implementar uma linguagem como KISS, que usa apenas um subconjunto das instruções da CPU. Como você sabe, a linguagem assembly pode ser bizarra e irregular ao extremo, e uma linguagem que mapeia as instruções uma-pra-uma pode ser realmente um desafio. De toda forma, eu sempre achei que a sintaxe dos montadores convencionais é boba... Diga-me por que
+Além disso, eu também estive brincando por anos com a ideia de um tipo de assembly de alto-nível, com construções de controle estruturadas e atribuições do tipo das linguagens de alto nível. Esta, de fato, foi o meu pontapé inicial por trás do meu interesse original em me aventurar na teoria dos compiladores. Pode até ser que eu nunca chegue a construí-la, simplesmente porque eu aprendi que é realmente mais simples implementar uma linguagem como KISS, que usa apenas um subconjunto das instruções da CPU. Como você sabe, a linguagem assembly pode ser bizarra e irregular ao extremo, e uma linguagem que mapeia as instruções uma-pra-uma pode ser realmente um desafio. De toda forma, eu sempre achei que a sintaxe dos montadores convencionais é boba... Diga-me por que
 
 ~~~
     MOV A, B
@@ -85,7 +85,7 @@ Recentemente, eu voltei e li alguns destes livros novamente, e até mesmo compre
 
 O que está acontecendo? Por que a coisa toda parece tão difícil nos textos, mas tão simples pra nós? Quer dizer que nós somos bem mais espertos do que [Aho, Ullman, Brinch Hansen, e todo o resto](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools)?
 
-Dificilmente. Mas nós estamos fazendo as coisas de um modo um pouco diferente, e cada vez mais eu aprecio o valor da nossa abordagem, e a maneira que ela simplifica as coisas. Além dos atalhos óbvios que descrevemos na Parte 1, como tokens mono-caracter e entrada/saída pelo console, assumimos implicitamente e fizemos algumas coisas diferentemente daqueles que projetaram compiladores no passado. Como ficou claro, nossa abordagem tornou a vida bem mais fácil.
+Dificilmente. Mas nós estamos fazendo as coisas de um modo um pouco diferente, e cada vez mais eu aprecio o valor da nossa abordagem, e a maneira que ela simplifica as coisas. Além dos atalhos óbvios que descrevemos na Parte 1, como tokens mono-caractere e entrada/saída pelo console, assumimos implicitamente e fizemos algumas coisas diferentemente daqueles que projetaram compiladores no passado. Como ficou claro, nossa abordagem tornou a vida bem mais fácil.
 
 Então porque todos aqueles caras não a usam?
 
@@ -112,16 +112,16 @@ Processamento em lote ("batch")
 
 No início, o processamento em lote era a única escolha... não havia computação interativa. Mesmo nos dias de hoje, os compiladores são executados essencialmente em lote, como uma operação de fundo.
 
-Em um compilador de mainframe assim como também em muitos compiladores de micros, esforços consideráveis foram feitos para implementar recuperação de erros... isto pode consumir quase 30-40% do tempo de compilação e pode influenciar completamente o projeto. A idéia é evitar parar no primeiro erro, e ao invés disso, continuar a todo custo, de forma que é possível dizer ao programador o máximo a respeito dos erros no programa todo.
+Em um compilador de mainframe assim como também em muitos compiladores de micros, esforços consideráveis foram feitos para implementar recuperação de erros... isto pode consumir quase 30-40% do tempo de compilação e pode influenciar completamente o projeto. A ideia é evitar parar no primeiro erro, e ao invés disso, continuar a todo custo, de forma que é possível dizer ao programador o máximo a respeito dos erros no programa todo.
 
 Tudo isso nos leva a pensar nos tempos dos primeiros mainframes, onde o tempo de resposta era medido em horas por dia, e era importante extrair o máximo possível de informações em cada execução.
 
-Nesta série, eu estive evitando cuidadosamente o problema de recuperação de erros, ao invés disso nosso compilador simplesmente é interrompido com uma mensagem de erro ao encontrar o primeiro erro. Eu admito francamente que eu fiz isto principalmente porque eu queria pegar o caminho mais fácil e permanecer com as coisas simples. Mas esta abordagem, em que a Borland foi pioneira com o Turbo Pascal, também tem muita coisa boa em si. Além de manter o compilador simples, ela também combina muito bem com a idéia de um sistema interativo. Quando a compilação é rápida, e especialmente, quando você possui um editor, como o do Turbo Pascal por exemplo, que leva você diretamente ao ponto onde foi encontrado o erro, então faz sentido parar lá, e simplesmente recomeçar a compilação depois que o erro for corrigido.
+Nesta série, eu estive evitando cuidadosamente o problema de recuperação de erros, ao invés disso nosso compilador simplesmente é interrompido com uma mensagem de erro ao encontrar o primeiro erro. Eu admito francamente que eu fiz isto principalmente porque eu queria pegar o caminho mais fácil e permanecer com as coisas simples. Mas esta abordagem, em que a Borland foi pioneira com o Turbo Pascal, também tem muita coisa boa em si. Além de manter o compilador simples, ela também combina muito bem com a ideia de um sistema interativo. Quando a compilação é rápida, e especialmente, quando você possui um editor, como o do Turbo Pascal por exemplo, que leva você diretamente ao ponto onde foi encontrado o erro, então faz sentido parar lá, e simplesmente recomeçar a compilação depois que o erro for corrigido.
 
 Programas grandes
 -----------------
 
-Os primeiros compiladores foram projetados para tratar de programas grandes... essencialmente programas infinitos. Naqueles tempos não havia muita escolha; a idéia de bibliotecas de rotinas e compilação separada ainda pareciam distantes no futuro. Novamente, esta abordagem levou a projetos de múltiplas passagens e arquivos intermediários para conter os resultados do processamento parcial.
+Os primeiros compiladores foram projetados para tratar de programas grandes... essencialmente programas infinitos. Naqueles tempos não havia muita escolha; a ideia de bibliotecas de rotinas e compilação separada ainda pareciam distantes no futuro. Novamente, esta abordagem levou a projetos de múltiplas passagens e arquivos intermediários para conter os resultados do processamento parcial.
 
 O objetivo declarado por Brinch Hansen era de que o compilador deveria ser capaz de compilar a si mesmo. Novamente, por causa da memória limitada, isto o levou a fazer um projeto de múltiplas passagens. Ele precisava do mínimo possível de código do compilador residente em memória, para que as tabelas necessárias e outras estruturas coubessem na memória.
 

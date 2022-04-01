@@ -23,7 +23,7 @@ Ensina a implementar um interpretador LISP em C.
 
 Livro excelente escrito por Robert Nystrom. O livro mostra a implementação de dois interpretadores para uma linguagem fictícia orientada a objetos chamada Lox:
 
-- A primeira implementação é feita em Java e foca em um interpretador de nível mais alto, para apresentar os conceitos básicos de análise léxica, sintática, intepretação da árvore sintática, etc.
+- A primeira implementação é feita em Java e foca em um interpretador de nível mais alto, para apresentar os conceitos básicos de análise léxica, sintática, interpretação da árvore sintática, etc.
 - A segunda é feita em C, focando em uma maquina virtual eficiente e aprofundando mais os conceitos, inclusive com a implementação de um Garbage Collector.
 
 >**Curiosidade:** Robert trabalha atualmente para a Google na linguagem [Dart](http://dart.dev/).

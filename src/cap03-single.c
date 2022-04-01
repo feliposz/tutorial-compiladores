@@ -1,5 +1,5 @@
 /*
-Mais expressões: Variáveis, funções, tokens de um caracter
+Mais expressões: Variáveis, funções, tokens de um caractere
 
 O código abaixo foi escrito por Felipo Soranz e é uma adaptação
 do código original em Pascal escrito por Jack W. Crenshaw em sua
@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 
 /* Protótipos */
 void Init();
@@ -53,7 +53,7 @@ void Init()
     NextChar();
 }
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();

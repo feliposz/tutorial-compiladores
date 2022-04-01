@@ -1,5 +1,5 @@
 /*
-Mais expressões: Variáveis, funções, tokens multi-caracter, espaços...
+Mais expressões: Variáveis, funções, tokens multi-caractere, espaços...
 
 O código abaixo foi escrito por Felipo Soranz e é uma adaptação
 do código original em Pascal escrito por Jack W. Crenshaw em sua
@@ -16,7 +16,7 @@ Este código é de livre distribuição e uso.
 #define MAXNAME 30
 #define MAXNUM 5
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 
 /* Protótipos */
 void Init();
@@ -58,7 +58,7 @@ void Init()
     SkipWhite();
 }
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();

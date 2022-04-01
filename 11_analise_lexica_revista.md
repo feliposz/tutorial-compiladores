@@ -11,7 +11,7 @@ A boa notícia é também a razão para esta seção: eu descobri uma forma de s
 Conceitos
 ---------
 
-Se vocês se lembram, já andamos muito no tópico de analisadores sintáticos na [Parte 7](07_analise_lexica.md), e eu deixei vocês com um projeto para um analisador sintático distribuído que parecia tão simples quanto possível... mais do que a maioria dos que eu já vi. Nós usamos esta idéia na [Parte 10](10_apresentando_tiny.md). A [estrutura resultante do compilador](src/cap10-tiny10.c) era simples, e fazia bem o trabalho.
+Se vocês se lembram, já andamos muito no tópico de analisadores sintáticos na [Parte 7](07_analise_lexica.md), e eu deixei vocês com um projeto para um analisador sintático distribuído que parecia tão simples quanto possível... mais do que a maioria dos que eu já vi. Nós usamos esta ideia na [Parte 10](10_apresentando_tiny.md). A [estrutura resultante do compilador](src/cap10-tiny10.c) era simples, e fazia bem o trabalho.
 
 Recentemente, porém, eu comecei a ter problemas, e este é o tipo de mensagem que diz que talvez você esteja fazendo algo errado.
 
@@ -77,11 +77,11 @@ Mas suponha que um ponto-e-vírgula seja encontrado. A rotina, como ela está ag
 
 Eu fiquei pensando por um tempo no problema e tentando arrumar alguma solução. Eu achei muitas abordagens possíveis, mas nenhuma era muito satisfatória. Eu finalmente descobri a razão.
 
-Lembre-se que quando começamos com nosso analisador sintático de caracteres simples, adotamos uma convenção de que o caracter **lookahead** seria sempre pré-carregado. Isto é, teríamos o caracter que corresponde à nossa posição atual na entrada, carregado na variável global `Look`, de forma que poderíamos examiná-lo tantas vezes quanto necessário. A regra que adotamos era que CADA reconhecedor, tendo encontrado seu token alvo, avançaria `Look` para o próximo caracter na entrada.
+Lembre-se que quando começamos com nosso analisador sintático de caracteres simples, adotamos uma convenção de que o caractere **lookahead** seria sempre pré-carregado. Isto é, teríamos o caractere que corresponde à nossa posição atual na entrada, carregado na variável global `Look`, de forma que poderíamos examiná-lo tantas vezes quanto necessário. A regra que adotamos era que CADA reconhecedor, tendo encontrado seu token alvo, avançaria `Look` para o próximo caractere na entrada.
 
-Esta convenção fixa e simples nos foi muito útil quando tínhamos tokens de um caracter, e ainda é. Faria sentido aplicar a mesma regra a tokens multi-caracter.
+Esta convenção fixa e simples nos foi muito útil quando tínhamos tokens de um caractere, e ainda é. Faria sentido aplicar a mesma regra a tokens multi-caractere.
 
-Mas quando chegamos em análise sintática, eu comecei a violar aquela regra simples. O analisador sintático da [parte 10](10_apresentando_tiny.md) de fato avançava para o próximo token se encontrasse um identificador ou palavra-chave, mas NÃO fazia isto se encontrasse um retorno de linha, um caracter de espaço, ou um operador.
+Mas quando chegamos em análise sintática, eu comecei a violar aquela regra simples. O analisador sintático da [parte 10](10_apresentando_tiny.md) de fato avançava para o próximo token se encontrasse um identificador ou palavra-chave, mas NÃO fazia isto se encontrasse um retorno de linha, um caractere de espaço, ou um operador.
 
 Agora, este tipo de operação "misturada" nos causa sérios problemas na rotina `Block()`, pois o fato da entrada ter avançado ou não depende do tipo de token encontrado. Se for uma palavra-chave ou o alvo de um comando de atribuição, o "cursor", conforme definido pelo conteúdo de `Look`, avança para o próximo token OU para o começo de um espaço em branco. Se, por outro lado, o token é um ponto-e-vírgula, ou se emitimos uma quebra de linha, o cursor NÃO avança.
 
@@ -130,9 +130,9 @@ void GetNum()
 }
 ~~~
 
-Estes dois procedimentos são funcionalmente quase idênticos aos que eu mostrei na [Parte 7](07_analise_lexica.md). Cada um carrega o token corrente, tanto um identificador como um número, na string global `TokenText`. Eles também alteram `Token` para o código apropriado. A entrada é deixada com o caracter `Look` contendo o primeiro caracter que NÃO é parte do token.
+Estes dois procedimentos são funcionalmente quase idênticos aos que eu mostrei na [Parte 7](07_analise_lexica.md). Cada um carrega o token corrente, tanto um identificador como um número, na string global `TokenText`. Eles também alteram `Token` para o código apropriado. A entrada é deixada com o caractere `Look` contendo o primeiro caractere que NÃO é parte do token.
 
-Podemos fazer o mesmo para operadores, mesmo multi-caracter, com uma rotina como:
+Podemos fazer o mesmo para operadores, mesmo multi-caractere, com uma rotina como:
 
 ~~~c
 /* Analisa e traduz um operador */
@@ -149,7 +149,7 @@ void GetOp()
 }
 ~~~
 
-Repare que `GetOp()` retorna, como seu token codificado, o PRIMEIRO caracter do operador. Isto é importante, pois significa que podemos usar este caracter para orientar o analisador, ao invés de `Look`.
+Repare que `GetOp()` retorna, como seu token codificado, o PRIMEIRO caractere do operador. Isto é importante, pois significa que podemos usar este caractere para orientar o analisador, ao invés de `Look`.
 
 Temos que juntar estas rotinas em uma rotina única que trata dos três casos. A rotina seguinte lê qualquer um dos três tipos e sempre deixa a entrada posicionada depois do token:
 
@@ -169,11 +169,11 @@ void NextToken()
 
 (Repare que eu coloquei `SkipWhite()` ANTES das chamadas ao invés de depois. Isto significa que, em geral, a variável `Look` NÃO vai conter um valor muito útil, e portanto NÃO devemos usá-la como um valor de teste na análise, como temos feito até aqui. Está é a grande diferença em relação à nossa abordagem normal.)
 
-Agora, lembre-se que antes eu estava cuidadosamente NÃO tratando a quebra de linha como um caracter de espaço. Isto porque, com `SkipWhite()` sendo chamado por último no analisador léxico, o encontro com o retorno de linha iria gerar mais um comando de leitura. Se estivéssemos na última linha do programa, não poderíamos sair até entrar com uma nova linha com no mínimo um caracter. É por isso que precisávamos da segunda rotina, `NewLine()`, para tratar das quebras de linha.
+Agora, lembre-se que antes eu estava cuidadosamente NÃO tratando a quebra de linha como um caractere de espaço. Isto porque, com `SkipWhite()` sendo chamado por último no analisador léxico, o encontro com o retorno de linha iria gerar mais um comando de leitura. Se estivéssemos na última linha do programa, não poderíamos sair até entrar com uma nova linha com no mínimo um caractere. É por isso que precisávamos da segunda rotina, `NewLine()`, para tratar das quebras de linha.
 
 Mas agora, com a chamada a `SkipWhite()` no início, é exatamente o comportamento que queremos. O compilador deve saber que há outro token em seguida ou ele não vai chamar `NextChar()`. Em outras palavras, se ele não encontrou o END final ainda, vamos insistir em ler mais dados até encontrar algo.
 
-Isto significa que podemos simplificar muito o programa e os conceitos, tratando a quebra de linha como um caracter de espaço, e eliminando `NewLine()`. Apenas trocamos o teste em `SkipWhite()`:
+Isto significa que podemos simplificar muito o programa e os conceitos, tratando a quebra de linha como um caractere de espaço, e eliminando `NewLine()`. Apenas trocamos o teste em `SkipWhite()`:
 
 ~~~c
 /* Pula caracteres em branco */
@@ -214,11 +214,11 @@ int main()
 
 Compile e verifique que é possível separar um programa em uma série de tokens, e que é possível obter a codificação correta para cada token.
 
-Isto QUASE funciona, mas não totalmente. Há dois problemas potenciais: Primeiro, em KISS/TINY quase todo operador é de um só caracter. As únicas exceções são os operadores >=, <= e <>. Parece uma vergonha tratar todo operador como strings e fazer comparação de strings, quando apenas uma comparação de caracter seria quase sempre suficiente. Segundo, e mais importante, a coisa não FUNCIONA quando dois operadores aparecem juntos, como em (a+b)*(c+d). Aqui a string depois de "b" seria interpretada como um único operador ")*(".
+Isto QUASE funciona, mas não totalmente. Há dois problemas potenciais: Primeiro, em KISS/TINY quase todo operador é de um só caractere. As únicas exceções são os operadores >=, <= e <>. Parece uma vergonha tratar todo operador como strings e fazer comparação de strings, quando apenas uma comparação de caractere seria quase sempre suficiente. Segundo, e mais importante, a coisa não FUNCIONA quando dois operadores aparecem juntos, como em (a+b)*(c+d). Aqui a string depois de "b" seria interpretada como um único operador ")*(".
 
 É possível resolver isto. Por exemplo, poderíamos dar a `GetOp()` uma lista dos caracteres válidos, e poderíamos tratar parênteses como tipos de operadores diferentes dos outros. Mas a coisa começa a virar bagunça.
 
-Felizmente, há uma forma melhor de resolver todos estes problemas. Como quase todo operador é de um único caracter, vamos simplesmente tratá-los desta forma, e permitir que `GetOp()` pegue apenas um caracter no momento. Isto não só simplifica `GetOp()`, mas também acelera as coisas um pouco. Ainda temos o problema dos operadores relacionais, mas estamos tratando deles como casos especiais de qualquer maneira.
+Felizmente, há uma forma melhor de resolver todos estes problemas. Como quase todo operador é de um único caractere, vamos simplesmente tratá-los desta forma, e permitir que `GetOp()` pegue apenas um caractere no momento. Isto não só simplifica `GetOp()`, mas também acelera as coisas um pouco. Ainda temos o problema dos operadores relacionais, mas estamos tratando deles como casos especiais de qualquer maneira.
 
 Aqui está a versão final de `GetOp()`:
 
@@ -264,9 +264,9 @@ void Scan()
 }
 ~~~
 
-Há um último detalhe. No compilador há alguns lugares onde temos que verificar o valor do token. Normalmente, isto é feito para diferenciar entre os diferentes ENDs, mas há mais alguns locais. (Eu devo lembrar que podemos sempre eliminar a necessidade de comparar caracteres END codificando cada um deles com um caracter diferente. Neste momento estamos definitivamente sendo preguiçosos.)
+Há um último detalhe. No compilador há alguns lugares onde temos que verificar o valor do token. Normalmente, isto é feito para diferenciar entre os diferentes ENDs, mas há mais alguns locais. (Eu devo lembrar que podemos sempre eliminar a necessidade de comparar caracteres END codificando cada um deles com um caractere diferente. Neste momento estamos definitivamente sendo preguiçosos.)
 
-A seguinte versão de `MatchString()` toma o lugar da versão caracter. Note que, como em `Match()`, ela AVANÇA na entrada.
+A seguinte versão de `MatchString()` toma o lugar da versão caractere. Note que, como em `Match()`, ela AVANÇA na entrada.
 
 ~~~c
 /* Compara string com texto do token atual */
@@ -281,7 +281,7 @@ void MatchString(char *s)
 Arrumando o Compilador
 ----------------------
 
-Armados com estas novas rotinas de análise léxica, podemos começar a arrumar o [compilador](src/cap10-tiny10.c) para usá-las apropriadamente. As mudanças são bem pequenas, mas há alguns lugares em que mais mudanças são necessárias. Ao invés de mostrar cada lugar, vou dar uma idéia geral e então mostrar o produto completo.
+Armados com estas novas rotinas de análise léxica, podemos começar a arrumar o [compilador](src/cap10-tiny10.c) para usá-las apropriadamente. As mudanças são bem pequenas, mas há alguns lugares em que mais mudanças são necessárias. Ao invés de mostrar cada lugar, vou dar uma ideia geral e então mostrar o produto completo.
 
 Em primeiro lugar, o código para a rotina `Block()` não muda, mas sua função sim:
 
@@ -356,7 +356,7 @@ void Add()
 As estruturas de controle são na verdade mais simples. Simplesmente chamamos `NextToken()` para avançar nas palavras-chave de controle:
 
 ~~~c
-/* Analiza e traduz um comando IF-ELSE-ENDIF */
+/* Analisa e traduz um comando IF-ELSE-ENDIF */
 void DoIf()
 {
     int l1, l2;
@@ -395,7 +395,7 @@ Esta é a extensão das mudanças NECESSÁRIAS. Na listagem de TINY Versão 1.1 
 
 7. A rotina `AddEntry()` agora tem dois parâmetros, que faz com que as coisas fiquem mais modulares.
 
-8. Repare na maneira que estou tratando operadores multi-caracter em `Relation()`. É essencialmente a mesma. Apenas trocando `Match()` por `NextToken()` onde apropriado.
+8. Repare na maneira que estou tratando operadores multi-caractere em `Relation()`. É essencialmente a mesma. Apenas trocando `Match()` por `NextToken()` onde apropriado.
 
 9. Corrigi o erro na rotina `DoRead()`... a anterior não verificava se o nome da variável era válido.
 
@@ -406,7 +406,7 @@ Conclusão
 
 O compilador resultante para TINY é dado abaixo. Ele compila (praticamente) a mesma linguagem que antes. Só está um pouco mais "limpo", e mais importante, está consideravelmente mais robusto. Eu me sinto bem com ele.
 
-O [próximo capítulo](12_miscelaneas.md) vai ser outro desvio do nosso rumo: a discussão sobre ponto-e-vírgula e outras coisas que me fizeram bagunçar as coisas anteriormente. ENTÃO partiremos para procedimentos e tipos. Contine comigo. A adição destas características vai ser uma grande melhoria fazendo com que KISS saia da categoria de "linguagem de brinquedo". Estamos chegando muito perto de estar aptos a escrever um compilador sério.
+O [próximo capítulo](12_miscelaneas.md) vai ser outro desvio do nosso rumo: a discussão sobre ponto-e-vírgula e outras coisas que me fizeram bagunçar as coisas anteriormente. ENTÃO partiremos para procedimentos e tipos. Continue comigo. A adição destas características vai ser uma grande melhoria fazendo com que KISS saia da categoria de "linguagem de brinquedo". Estamos chegando muito perto de estar aptos a escrever um compilador sério.
 
 Listagem completa de TINY Versão 1.1:
 

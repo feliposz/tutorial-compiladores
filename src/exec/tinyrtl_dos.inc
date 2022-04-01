@@ -84,12 +84,12 @@ __string_to_sint:
     je .negative
     cmp al, '+'
     jne .positive
-    inc si                   ; pula o caracter '+'
+    inc si                   ; pula o caractere '+'
 .positive:
     call __string_to_int
     ret
 .negative:
-    inc si                   ; pula o caracter '-' e converte como se fosse positivo
+    inc si                   ; pula o caractere '-' e converte como se fosse positivo
     call __string_to_int
     neg ax                   ; inverte o sinal apos conversao
     ret

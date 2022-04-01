@@ -13,13 +13,13 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 
 #define MAXTOKEN 16
 char Token; /* Código do token atual */
 char TokenText[MAXTOKEN+1]; /* Texto do token atual */
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();

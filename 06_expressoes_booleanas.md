@@ -166,7 +166,7 @@ Note que há apenas um conjunto de regras sintáticas, aplicando-se a ambos tipo
 
 são perfeitamente legais. E na verdade são mesmo... desde que o analisador concorde. Pascal não permite a mistura de variáveis aritméticas e booleanas, e coisas como estas são tratadas no nível semântico, quando é hora de gerar código para elas, ao invés de no nível sintático.
 
-Os autores da linguagem C tomaram uma abordagem diametricalmente oposta: eles tratam os operadores com diferença, e tem algo um pouco além dos nossos 7 níveis de precedência. Na verdade, em C há, nada menos que, 17 níveis! Isto ocorre pois C tem operadores como "=", "+=" e também, "<<", "++", etc. Ironicamente, apesar dos operadores C aritméticos e booleanos serem tratados separadamente, as variáveis NÃO são... não há variáveis booleanas ou lógicas em C, então um teste booleano pode ser feito em qualquer valor inteiro.
+Os autores da linguagem C tomaram uma abordagem diametralmente oposta: eles tratam os operadores com diferença, e tem algo um pouco além dos nossos 7 níveis de precedência. Na verdade, em C há, nada menos que, 17 níveis! Isto ocorre pois C tem operadores como "=", "+=" e também, "<<", "++", etc. Ironicamente, apesar dos operadores C aritméticos e booleanos serem tratados separadamente, as variáveis NÃO são... não há variáveis booleanas ou lógicas em C, então um teste booleano pode ser feito em qualquer valor inteiro.
 
 Nós vamos fazer uma coisa que está entre as duas abordagens. Eu me sinto tentado a ficar mais próximo da abordagem Pascal, pois parece mais simples do ponto de vista da implementação, mas que resulta em coisas estranhas que eu nunca gostei muito, como o fato da expressão
 
@@ -267,7 +267,7 @@ Depois, é claro, temos que expandir a definição de uma expressão booleana. N
     <b-expression> ::= <b-term> [<orop> <b-term>]*
 ~~~
 
-Eu prefiro a versão Pascal para os operadores OR e XOR. Mas como estamos mantendo a abordagem de tokens de um único caracter, vou usar `|` e `~` respectivamente. A próxima versão de `BoolExpression()` é quase uma cópia da rotina aritmética de `Expression()`:
+Eu prefiro a versão Pascal para os operadores OR e XOR. Mas como estamos mantendo a abordagem de tokens de um único caractere, vou usar `|` e `~` respectivamente. A próxima versão de `BoolExpression()` é quase uma cópia da rotina aritmética de `Expression()`:
 
 ~~~c
 /* Analisa e traduz um termo Booleano */
@@ -352,7 +352,7 @@ void BoolTerm()
 Estamos quase chegando lá. Estamos traduzindo expressões booleanas complexas, já, embora apenas para valores constantes. O próximo passo é permitir o operador NOT. Escreva esta rotina agora:
 
 ~~~c
-/* Analisa e traduz um fator booleno com NOT opcional */
+/* Analisa e traduz um fator booleano com NOT opcional */
 void NotFactor()
 {
     if (Look == '!') {
@@ -384,7 +384,7 @@ void BoolFactor()
 
 Talvez você esteja imaginando quando eu vou adicionar variáveis booleanas e expressões booleanas com parênteses. A resposta é, eu NÃO vou! Lembre-se, nós tiramos isto da gramática antes. Agora tudo o que estamos fazendo é codificar a gramática com a qual já concordamos. O compilador em si não sabe dizer a diferença de uma variável ou expressão booleana e seus equivalentes matemáticos... tudo isto vai ser tratado por `Relation()`, em ambos os casos.
 
-É claro que vai ajudar termos algum código para `Relation()`. Eu não me sinto confortável no entanto, em adicionar mais código sem antes checar o que já temos. Então vamos apenas adicionar uma versão "fantasma" de `Relation()` que não faz nada a não ser aceitar um único caracter e imprimir uma pequena mensagem:
+É claro que vai ajudar termos algum código para `Relation()`. Eu não me sinto confortável no entanto, em adicionar mais código sem antes checar o que já temos. Então vamos apenas adicionar uma versão "fantasma" de `Relation()` que não faz nada a não ser aceitar um único caractere e imprimir uma pequena mensagem:
 
 ~~~c
 /* Analisa e traduz uma relação */
@@ -395,7 +395,7 @@ void Relation()
 }
 ~~~
 
-Certo, copie este novo código e teste-o. Todas as outras coisas devem continuar funcionando, você deve conseguir gerar código para ANDs, ORs e NOTs. Além disso, se você entrar com algum outro caracter você deve ter um marcador "; relation", onde deveria estar um fator booleano. Entendeu? Muito bem, vamos passar agora para a versão completa de `Relation()`.
+Certo, copie este novo código e teste-o. Todas as outras coisas devem continuar funcionando, você deve conseguir gerar código para ANDs, ORs e NOTs. Além disso, se você entrar com algum outro caractere você deve ter um marcador "; relation", onde deveria estar um fator booleano. Entendeu? Muito bem, vamos passar agora para a versão completa de `Relation()`.
 
 Para chegarmos lá porém, precisamos de mais algum preparo primeiro. Lembre-se que a forma de uma relação é:
 
@@ -403,7 +403,7 @@ Para chegarmos lá porém, precisamos de mais algum preparo primeiro. Lembre-se 
     <relation> ::= <expression> [<relop> <expression>]
 ~~~
 
-Como temos um novo tipo de operador, também precisamos de uma nova função para reconhecê-lo. Esta função é mostrada abaixo. Por termos uma limitação de um único caracter, eu vou ficar só com os 4 operadores que podem ser codificados assim (o "diferente" vai ser codificado como "#", meio estranho mas vai servir).
+Como temos um novo tipo de operador, também precisamos de uma nova função para reconhecê-lo. Esta função é mostrada abaixo. Por termos uma limitação de um único caractere, eu vou ficar só com os 4 operadores que podem ser codificados assim (o "diferente" vai ser codificado como "#", meio estranho mas vai servir).
 
 ~~~c
 /* Reconhece operadores relacionais */
@@ -437,7 +437,7 @@ Por exemplo, para fazer a comparação "1>2", usamos algo assim:
     L2:
 ~~~
 
->**Nota de tradução:** Existe uma instrução no 80x86 SET**XX**, que tem um funcionamento parecido com os desvios, JNE, JG, etc. Ela coloca 1 no registrador passado como parâmetro ou zero, dependendo do estado dos flags. Poderia se usar SETG AX no trecho acima e evitar os desvios. Como estamos usando -1 (FFFF) para valores verdaderos, bastaria usar um NEG AX para acertar o valor depois. Eu preferi manter a forma com os desvios pois ela vai funcionar na maioria dos montadores Assembly de 16-bits, enquanto a instruçãoSET**XX** só vai dar certo em montadores de 32-bits, mas sinta-se livre para alterar da forma que você preferir.
+>**Nota de tradução:** Existe uma instrução no 80x86 SET**XX**, que tem um funcionamento parecido com os desvios, JNE, JG, etc. Ela coloca 1 no registrador passado como parâmetro ou zero, dependendo do estado dos flags. Poderia se usar SETG AX no trecho acima e evitar os desvios. Como estamos usando -1 (FFFF) para valores verdadeiros, bastaria usar um NEG AX para acertar o valor depois. Eu preferi manter a forma com os desvios pois ela vai funcionar na maioria dos montadores Assembly de 16-bits, enquanto a instruçãoSET**XX** só vai dar certo em montadores de 32-bits, mas sinta-se livre para alterar da forma que você preferir.
 
 Eu devo mencionar agora que esta área, em minha opinião, é a que representa a maior diferença entre a eficiência do código programado à mão e o gerado pelo compilador. Nós já vimos que perdemos eficiência em operações aritméticas, embora eu tenha planejado mostrar mais tarde como melhorar isto um pouco. Nós já vimos também que as estruturas de controle em si podem ser feitas de forma bem eficiente... em geral é bem difícil melhorar o código gerado para um IF ou um WHILE. Porém, virtualmente todo compilador que eu já vi gera código terrível, comparado à programação manual, para computações envolvendo funções booleanas, e principalmente para relações. A razão é justamente o que eu falei acima. Quando escrevo código assembly, eu faço o teste da maneira mais conveniente possível, e faço a construção da maneira que deveria. Na verdade eu faço uma "lapidação" do código para cada situação. O compilador não tem como fazer isto (na prática), e também não tem como saber que nós não queremos armazenar o resultado em uma variável. Então ele precisa gerar o código em uma ordem muito particular, e no fim acaba carregando o resultado em uma variável booleana que pode acabar nunca sendo usada pra nada.
 
@@ -546,7 +546,7 @@ void Relation()
 }
 ~~~
 
-Agora a chamada a `Expression()` parece familiar! É nesse momento que o editor do nosso sistema se torna útil. Nós já geramos o código para `Expression()` e seus amigos em sessões anteriores. Você poderia copiá-los em seu arquivo agora se quisesse. Lembre-se de usar as versões de um caracter apenas. Mas, apenas para ter certeza, eu dupliquei as rotinas aritméticas abaixo. Se você for observador, vai ver que fiz algumas pequenas mudanças para fazê-las corresponder à última versão da sintaxe. Estas mudanças NÃO são necessárias, então se você preferir pode manter a versão anterior até ter certeza de que tudo está funcionando. Repare que `Factor()` agora deve chamar `BoolExpression()` e não `Expression()` (consulte a gramática que definimos anteriormente).
+Agora a chamada a `Expression()` parece familiar! É nesse momento que o editor do nosso sistema se torna útil. Nós já geramos o código para `Expression()` e seus amigos em sessões anteriores. Você poderia copiá-los em seu arquivo agora se quisesse. Lembre-se de usar as versões de um caractere apenas. Mas, apenas para ter certeza, eu dupliquei as rotinas aritméticas abaixo. Se você for observador, vai ver que fiz algumas pequenas mudanças para fazê-las corresponder à última versão da sintaxe. Estas mudanças NÃO são necessárias, então se você preferir pode manter a versão anterior até ter certeza de que tudo está funcionando. Repare que `Factor()` agora deve chamar `BoolExpression()` e não `Expression()` (consulte a gramática que definimos anteriormente).
 
 ~~~c
 /* Analisa e traduz um identificador */
@@ -680,7 +680,7 @@ Eu aviso que você vai precisar fazer algumas edições bem criativas aqui, ent�
 - No programa principal, altere `BoolExpression()` para `Program()`.
 - Isto deve funcionar. Não esqueça de copiar os protótipos também.
 
-Compile o programa resultante e faça um teste. Como não usamos este programa por um temo, não se esqueça que nós estamos usando os tokens de um só caracter para IF, WHILE, etc. Então não esqueça que toda letra que não é uma palavra-chave é apenas exibida como um bloco.
+Compile o programa resultante e faça um teste. Como não usamos este programa por um temo, não se esqueça que nós estamos usando os tokens de um só caractere para IF, WHILE, etc. Então não esqueça que toda letra que não é uma palavra-chave é apenas exibida como um bloco.
 
 Tente
 
@@ -707,7 +707,7 @@ Como chegamos até aqui, e já temos as rotinas de expressões em seu devido lug
 
 Logo vamos perceber que nossos "programas" de uma só linha que escrevemos até agora vão logo destruir nosso estilo. Até o momento tivemos que conviver com isto, pois nosso analisador não reconhece o fim de uma linha. Então, antes de continuar vamos arrumar isto.
 
-Há varias formas de tratar do fim da linha. Uma (a abordagem C/Unix) é tratá-lo como um simples caracter de espaço e ignorá-lo. Não é na verdade uma abordagem ruim, mas ela produz alguns resultados estranhos para o nosso analisador como ele está agora. Se ele estivesse lendo sua entrada de um arquivo real como qualquer verdadeiro compilador de respeito faria, não haveria problema. Mas estamos lendo a entrada do teclado, e estamos condicionados a esperar alguma coisa acontecer quando pressionamos a tecla ENTER. Não vai acontecer nada se simplesmente pularmos o retorno de linha. Então eu vou usar uma abordagem diferente aqui, que não é necessariamente a melhor abordagem no geral. Considere apenas como algo temporário até que resolvamos seguir em frente.
+Há varias formas de tratar do fim da linha. Uma (a abordagem C/Unix) é tratá-lo como um simples caractere de espaço e ignorá-lo. Não é na verdade uma abordagem ruim, mas ela produz alguns resultados estranhos para o nosso analisador como ele está agora. Se ele estivesse lendo sua entrada de um arquivo real como qualquer verdadeiro compilador de respeito faria, não haveria problema. Mas estamos lendo a entrada do teclado, e estamos condicionados a esperar alguma coisa acontecer quando pressionamos a tecla ENTER. Não vai acontecer nada se simplesmente pularmos o retorno de linha. Então eu vou usar uma abordagem diferente aqui, que não é necessariamente a melhor abordagem no geral. Considere apenas como algo temporário até que resolvamos seguir em frente.
 
 Ao invés de pular o retorno de linha, vamos permitir que o analisador trate dele, então vamos introduzir uma rotina especial, análoga a `SkipWhite()`, que pula o retorno de linha apenas em pontos específicos "válidos".
 
@@ -787,7 +787,7 @@ void Assignment()
 }
 ~~~
 
-Com esta mudança, é possível agora escrever programas razoavelmente realísticos, sujeitos apenas à nossa limitação de tokens de um só caracter. Minha intenção original era livrar-me desta limitação pra você. Porém, isto iria precisar de uma mudança ainda maior do que já fizemos. Nós precisamos de um analisador léxico (lexical scanner), e isto requer algumas mudanças estruturais. NÃO são mudanças GRANDES que nos obrigam a jogar fora tudo o que fizemos até agora... com cuidado, pode ser feito com mudanças mínimas, na verdade. Mas isto requer cuidado de qualquer forma.
+Com esta mudança, é possível agora escrever programas razoavelmente realísticos, sujeitos apenas à nossa limitação de tokens de um só caractere. Minha intenção original era livrar-me desta limitação pra você. Porém, isto iria precisar de uma mudança ainda maior do que já fizemos. Nós precisamos de um analisador léxico (lexical scanner), e isto requer algumas mudanças estruturais. NÃO são mudanças GRANDES que nos obrigam a jogar fora tudo o que fizemos até agora... com cuidado, pode ser feito com mudanças mínimas, na verdade. Mas isto requer cuidado de qualquer forma.
 
 Este capítulo acabou sendo longo demais, e contém algumas coisas bem "pesadas", então eu decidi deixar este próximo passo para depois, quando você vai ter mais tempo para entender o que fizemos e esteja pronto para começar outra vez. 
 
@@ -799,6 +799,6 @@ Eis o [código completo](src/cap06-bool2.c) do nosso compilador até aqui:
 
 > Download do código fonte: [cap06-bool1.c](src/cap06-bool1.c) / [cap06-bool2.c](src/cap06-bool2.c)
 
-No [próximo capítulo](07_analise_lexica.md), vamos construir um analisador léxico e eliminar a barreira de um caracter de uma vez por todas. Nós vamos também escrever pela primeira vez nosso primeiro compilador completo, baseado no que fizemos nesta seção. Até lá!
+No [próximo capítulo](07_analise_lexica.md), vamos construir um analisador léxico e eliminar a barreira de um caractere de uma vez por todas. Nós vamos também escrever pela primeira vez nosso primeiro compilador completo, baseado no que fizemos nesta seção. Até lá!
 
 {% include footer.md %}

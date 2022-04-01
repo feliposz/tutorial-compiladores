@@ -28,7 +28,7 @@ Outro exemplo é um montador (assembler). O objetivo de um assembler, naturalmen
 
 Bem, nós poderíamos fazer isto nós mesmos. O tradutor que nós construímos no capítulo anterior vai emitir código objeto de forma "impecável" para todo tipo de expressão complicada, mesmo que todos os termos da expressão sejam constantes. Neste caso seria muito melhor se o tradutor agisse mais como um interpretador e simplesmente calculasse a constante equivalente resultante.
 
-Há um conceito em teoria de compiladores chamado "tradução preguiçosa" (lazy translation). A idéia é que você não emite código em cada ação. Em casos extremos você nem emite nada, até que você tenha certeza que precisa. Para fazer isso, as ações associadas com as rotinas de análise tipicamente não emitem código apenas. Algumas vezes elas o fazem, mas frequentemente elas apenas retornam informação para a rotina que fez a chamada. Armada com esta informação, a rotina pode então fazer uma escolha melhor sobre o que deve ser feito.
+Há um conceito em teoria de compiladores chamado "tradução preguiçosa" (lazy translation). A ideia é que você não emite código em cada ação. Em casos extremos você nem emite nada, até que você tenha certeza que precisa. Para fazer isso, as ações associadas com as rotinas de análise tipicamente não emitem código apenas. Algumas vezes elas o fazem, mas frequentemente elas apenas retornam informação para a rotina que fez a chamada. Armada com esta informação, a rotina pode então fazer uma escolha melhor sobre o que deve ser feito.
 
 Por exemplo, dado o comando:
 
@@ -55,7 +55,7 @@ O Interpretador
 
 Agora que você sabe PORQUE iremos ver tudo isso, vamos lá. Apenas para praticar vamos começar com um novo "berço" e criar o tradutor desde o começo. Desta vez podemos ir mais rápido, claro.
 
-Como desta vez vamos fazer aritmética, a primeira coisa a fazer é alterar a função `GetNum()`, pois até agora ela estava retornando um caracter (ou uma string) e agora é melhor que ela retorne um inteiro. FAÇA UMA CÓPIA do [berço](src/cap01-craddle.c) (não altere o berço em si!) e modifique `GetNum()` como segue:
+Como desta vez vamos fazer aritmética, a primeira coisa a fazer é alterar a função `GetNum()`, pois até agora ela estava retornando um caractere (ou uma string) e agora é melhor que ela retorne um inteiro. FAÇA UMA CÓPIA do [berço](src/cap01-craddle.c) (não altere o berço em si!) e modifique `GetNum()` como segue:
 
 ~~~c
 /* Recebe um número inteiro */
@@ -223,7 +223,7 @@ As razões pelas quais eu trouxe isto à tona são uma lição e um aviso. A li�
 
 O próximo passo é adicionar nomes de variáveis. Agora, porém, temos um pequeno problema. Para o compilador, não tivemos problemas em tratar do nome das variáveis... apenas deixamos o problema dos nomes para o montador e deixamos o resto do programa alocar espaço de armazenamento para elas. Aqui, por outro lado, temos que buscar os valores das variáveis e retorná-los como valores de `Factor()`. Nós temos que criar um mecanismo para armazenar estas variáveis.
 
-Nos primórdios da computação pessoal, vivia o "Tiny BASIC". Ele tinha um grande total de 26 variáveis possíveis: uma para cada letra do alfabeto. Isto encaixa-se bem no nosso conceito de tokens de um só caracter, então vamos usar o mesmo truque. No começo de nosso interpretador, após a declaração de `Look`, insira as seguintes declarações:
+Nos primórdios da computação pessoal, vivia o "Tiny BASIC". Ele tinha um grande total de 26 variáveis possíveis: uma para cada letra do alfabeto. Isto encaixa-se bem no nosso conceito de tokens de um só caractere, então vamos usar o mesmo truque. No começo de nosso interpretador, após a declaração de `Look`, insira as seguintes declarações:
 
 ~~~c
 #define MAXVAR 26
@@ -288,12 +288,12 @@ Para testar isto eu adicionei um comando temporário no programa principal pra m
 
 É claro que um interpretador que só aceita uma única linha de programa não é de muito valor. Portando vamos querer tratar de múltiplos comandos. Devemos simplesmente colocar um laço de repetição em `Assignment()`. Então vamos fazer isto, mas qual deve ser o critério de saída do laço? Ainda bem que você perguntou, porque isto nos faz reparar em algo que pudemos ignorar até agora.
 
-Uma das coisas mais complicadas de lidar em qualquer tradutor é como determinar quando sair de uma determinada construção e procurar por outra coisa. Isto não foi um problema até agora pois nós só permitimos um tipo de construção... uma expressão ou um comando de atribuição. Quando começamos a adicionar laços e outros tipos de construções, temos que tomar cuidado para que as coisas terminem apropriadamente. Se colocarmos nosso interpretador em um laço de repetição, precisamos de um método para interrompê-lo. Terminar numa nova linha não é bom, pois isso é o que nos faz ir para a próxima linha de código. Podemos também fazer com que um caracter desconhecido nos coloque pra fora, mas isso vai fazer com que cada execução termine com uma mensagem de erro, e isso não parece legal.
+Uma das coisas mais complicadas de lidar em qualquer tradutor é como determinar quando sair de uma determinada construção e procurar por outra coisa. Isto não foi um problema até agora pois nós só permitimos um tipo de construção... uma expressão ou um comando de atribuição. Quando começamos a adicionar laços e outros tipos de construções, temos que tomar cuidado para que as coisas terminem apropriadamente. Se colocarmos nosso interpretador em um laço de repetição, precisamos de um método para interrompê-lo. Terminar numa nova linha não é bom, pois isso é o que nos faz ir para a próxima linha de código. Podemos também fazer com que um caractere desconhecido nos coloque pra fora, mas isso vai fazer com que cada execução termine com uma mensagem de erro, e isso não parece legal.
 
-O que nós precisamos é de um caracter delimitador. Eu voto para o ponto final (".") do Pascal. Uma complicação menor é que a linguagem C termina cada linha com um caracter de fim-de-linha ("\n"). No fim de cada linha precisamos eliminar estes caracteres antes de processar a próxima. Uma maneira natural de fazer isso seria com a rotina "match", exceto que "match" emite uma mensagem de erro com o caracter esperado, o que não ficaria tão bom com um "\n". O que precisamos é de uma rotina especial pra isso, que nós vamos usar sem dúvida várias vezes. Aqui está ela:
+O que nós precisamos é de um caractere delimitador. Eu voto para o ponto final (".") do Pascal. Uma complicação menor é que a linguagem C termina cada linha com um caractere de fim-de-linha ("\n"). No fim de cada linha precisamos eliminar estes caracteres antes de processar a próxima. Uma maneira natural de fazer isso seria com a rotina "match", exceto que "match" emite uma mensagem de erro com o caractere esperado, o que não ficaria tão bom com um "\n". O que precisamos é de uma rotina especial pra isso, que nós vamos usar sem dúvida várias vezes. Aqui está ela:
 
 ~~~c
-/* Captura um caracter de nova linha */
+/* Captura um caractere de nova linha */
 void NewLine()
 {
     if (Look == '\n')
@@ -317,11 +317,11 @@ int main()
 }
 ~~~
 
-Note que o teste para fim de linha se foi e agora não há testes de erro na rotina `NewLine()`. Tudo bem, porém, todo caracter deixado de lado, por ser um caracter estranho, vai ser pego como erro no começo do próximo comando de atribuição.
+Note que o teste para fim de linha se foi e agora não há testes de erro na rotina `NewLine()`. Tudo bem, porém, todo caractere deixado de lado, por ser um caractere estranho, vai ser pego como erro no começo do próximo comando de atribuição.
 
 Bem, agora nós temos um interpretador funcional. Não é lá muito útil porém, uma vez que não há como ler dados do usuário ou mostrá-los. Certamente iria ajudar se tivéssemos entrada e saída!
 
-Vamos completar isso, adicionando rotinas de entrada e saída. Como estamos mantendo os tokens de um único caracter, vou usar "?" para um comando de entrada e "!" para a saída, com um caracter seguindo imediatamente funcionando como uma lista de parâmetros de um token. Aqui estão as rotinas:
+Vamos completar isso, adicionando rotinas de entrada e saída. Como estamos mantendo os tokens de um único caractere, vou usar "?" para um comando de entrada e "!" para a saída, com um caractere seguindo imediatamente funcionando como uma lista de parâmetros de um token. Aqui estão as rotinas:
 
 ~~~c
 /* Interpreta um comando de entrada */
@@ -350,7 +350,7 @@ void Output()
 
 Eles não são muito bacanas, eu admito... mas eles fazem o trabalho.
 
-As mudanças correspondentes no programa principal são mostradas abaixo. Note que estamos usando um truque comum de um comando switch baseado no caracter "lookahead" atual, para decidir o que fazer.
+As mudanças correspondentes no programa principal são mostradas abaixo. Note que estamos usando um truque comum de um comando switch baseado no caractere "lookahead" atual, para decidir o que fazer.
 
 ~~~c
 /* Programa principal */
@@ -378,7 +378,7 @@ int main()
 
 Você agora completou um verdadeiro interpretador funcional. É meio limitado, mas funciona assim como os "grandões". Ele inclui 3 tipos de comandos de programação (e consegue diferenciá-los!), 26 variáveis e comandos de entrada e saída. A única coisa que falta, realmente, são estruturas de controle, sub-rotinas, e algum tipo de função de edição de programas. A parte de edição de programas eu vou deixar passar. Afinal, não estamos aqui para construir um produto, mas para aprender as coisas. Dos comandos de controle nós vamos tratar no próximo capítulo, e as sub-rotinas em breve. Estou ansioso para começar com isso, então vamos deixar o interpretador como está por enquanto.
 
-Espero que, por enquanto, você esteja convencido de que as limitações de nomes de apenas um caracter, e o processamento de espaços em branco são fáceis de contornar, como fizemos na lição anterior. Desta vez, se quiser fazer algumas extensões, fique à vontade... elas ficam como "lições de casa para os estudantes". Até a próxima.
+Espero que, por enquanto, você esteja convencido de que as limitações de nomes de apenas um caractere, e o processamento de espaços em branco são fáceis de contornar, como fizemos na lição anterior. Desta vez, se quiser fazer algumas extensões, fique à vontade... elas ficam como "lições de casa para os estudantes". Até a próxima.
 
 O código completo até aqui:
 

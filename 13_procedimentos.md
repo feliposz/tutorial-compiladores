@@ -6,18 +6,18 @@ Parte 13: Procedimentos
 
 Finalmente chegamos na parte boa!
 
-Neste ponto estudamos quase todas as características básicas de compiladores, análise léxica e sintática. Aprendemos como traduzir expressões aritméticas, booleanas, estruturas de controle, declaração de dados, e comandos de E/S. Definimos uma linguagem (TINY 1.3) que engloba todas estas características, e escrevemos um compilador rudimentar capaz de traduzí-la. Adicionando alguma E/S em arquivos podemos ter de fato um compilador funcional que pode produzir arquivos objeto executáveis a partir de programas escritos em TINY. Com um compilador destes, podemos escrever programas simples que podem ler da entrada valores inteiros, executar cálculos e processamentos com certa complexidade, e produzir resultados de sáida.
+Neste ponto estudamos quase todas as características básicas de compiladores, análise léxica e sintática. Aprendemos como traduzir expressões aritméticas, booleanas, estruturas de controle, declaração de dados, e comandos de E/S. Definimos uma linguagem (TINY 1.3) que engloba todas estas características, e escrevemos um compilador rudimentar capaz de traduzí-la. Adicionando alguma E/S em arquivos podemos ter de fato um compilador funcional que pode produzir arquivos objeto executáveis a partir de programas escritos em TINY. Com um compilador destes, podemos escrever programas simples que podem ler da entrada valores inteiros, executar cálculos e processamentos com certa complexidade, e produzir resultados de saída.
 
-Muito bem, mas o que temos ainda é apenas uma linguagem "de brinquedo". Não podemos ler nem mesmo um único caracter de texto, e ainda não temos as sub-rotinas.
+Muito bem, mas o que temos ainda é apenas uma linguagem "de brinquedo". Não podemos ler nem mesmo um único caractere de texto, e ainda não temos as sub-rotinas.
 
-São as características que serão discutidas nos próximos capítulos que separam os homens dos meninos, por assim dizer. Linguagens "reais" tem mais de um tipo de dados, e suportam chamadas a rotinas. Mais que quaisquer outras, são estas duas características que dão a uma linguagem muito do seu caráter e personalidade. Uma vez que tenhos tratado disto, nossa linguagems, TINY e suas sucessoras, vão deixar de ser linguagens de brinquedo e vão ter um caráter de linguagem mais real, convenientes para trabalhos sérios de programação.
+São as características que serão discutidas nos próximos capítulos que separam os homens dos meninos, por assim dizer. Linguagens "reais" tem mais de um tipo de dados, e suportam chamadas a rotinas. Mais que quaisquer outras, são estas duas características que dão a uma linguagem muito do seu caráter e personalidade. Uma vez que tenhamos tratado disto, nossa linguagens, TINY e suas sucessoras, vão deixar de ser linguagens de brinquedo e vão ter um caráter de linguagem mais real, convenientes para trabalhos sérios de programação.
 
 Por várias vezes agora, estive prometendo seções tratando destes importantes assuntos. Em cada vez, assuntos novos surgiram que nos fizeram desviar do principal e tratar deles. Finalmente, fomos capazes de resolver todos estes problemas e podemos voltar ao núcleo da coisa. Neste capítulo, vou tratar de procedimentos. No próximo, vamos falar dos tipos de dados básicos.
 
 Um Último Desvio
 ----------------
 
-Este capítulo foi de uma difuldade extraordinária para eu escrever. A razão não tem nada a ver com o assunto em si... eu já sei o que eu quero dizer há algum tempo, e na verdade eu apresentei a maior parte na conferência Software Development '89, em Fevereiro. Tem mais a ver com a abordagem. Deixe-me explicar.
+Este capítulo foi de uma dificuldade extraordinária para eu escrever. A razão não tem nada a ver com o assunto em si... eu já sei o que eu quero dizer há algum tempo, e na verdade eu apresentei a maior parte na conferência Software Development '89, em Fevereiro. Tem mais a ver com a abordagem. Deixe-me explicar.
 
 Quando eu comecei esta série, eu disse que usaríamos diversos "truques" para manter as coisas simples, e permitir que os conceitos sejam apresentados sem ficarmos nos prendendo em detalhes. Um destes truques era tratar das peças individuais de um compilador de cada vez, isto é, fazer experiências baseadas no "berço". Quando estudamos expressões, por exemplo, tratamos apenas daquela parte da teoria dos compiladores. Quando estudamos estruturas de controle, fizemos um programa diferente para tratar desta parte, ainda baseado no "berço". Só fomos incorporar estes conceitos em uma linguagem completa recentemente. Mas estas técnicas nos ajudaram muito realmente, e nos levaram ao desenvolvimento de um compilador para TINY versão 1.3.
 
@@ -29,9 +29,9 @@ Você deve compreender que o que estamos fazendo aqui é algo único. Já existi
 
 Nos experimentos que estive fazendo em preparação para este artigo, eu tentei colocar as alterações no compilador TINY de forma que, em cada passo, ainda teríamos um compilador real e funcional. Em outras palavras, eu estava tentando um avanço incremental da linguagem e seu compilador, enquanto explicava a você ao mesmo tempo o que estava fazendo.
 
-Isto é algo difícil de fazer! Eu finalmente percebi que era tolice tentar. Tendo alcançado até aqui usando a idéia de experimentos simples baseados em tokens de um caracter e programas simples de propósito especial, eu abandonei tudo em troca de trabalhar com o compilador completo. Não estava funcionando.
+Isto é algo difícil de fazer! Eu finalmente percebi que era tolice tentar. Tendo alcançado até aqui usando a ideia de experimentos simples baseados em tokens de um caractere e programas simples de propósito especial, eu abandonei tudo em troca de trabalhar com o compilador completo. Não estava funcionando.
 
-Portanto, vamos voltar às nossas raízes, por assim dizer. Neste capítulo e no próximo, vou usar tokens de um só caracter novamente conforme aprendemos o conceito de procedimentos, sem ser afetados pela bagagem que acumulamos das seções anteriores. Na verdade, nem sequer vou tentar, no final desta seção, juntar as construções ao compilador TINY. Vamos deixar isto para depois.
+Portanto, vamos voltar às nossas raízes, por assim dizer. Neste capítulo e no próximo, vou usar tokens de um só caractere novamente conforme aprendemos o conceito de procedimentos, sem ser afetados pela bagagem que acumulamos das seções anteriores. Na verdade, nem sequer vou tentar, no final desta seção, juntar as construções ao compilador TINY. Vamos deixar isto para depois.
 
 Depois de todo este tempo, você não precisa de mais do que isso, portanto vamos parar de perder tempo e começar logo com isso.
 
@@ -47,7 +47,7 @@ Uma Base para as Experiências
 
 Como sempre, vamos precisar de algum software para servir de base para o que estamos fazendo. Não precisamos do compilador TINY completo, mas precisamos de um programa suficiente para algumas das outras construções apresentadas. Especificamente, temos que pelo menos estar aptos a tratar de comandos de algum tipo, e declarações de dados.
 
-O programa mostrado abaixo é esta base. É uma forma resultante de TINY, com tokens de um caracter. Ele possui declarações de dados, mas somente a forma mais simples... sem listas de inicializadores. Possui comandos de atribuição, mas apenas de um tipo:
+O programa mostrado abaixo é esta base. É uma forma resultante de TINY, com tokens de um caractere. Ele possui declarações de dados, mas somente a forma mais simples... sem listas de inicializadores. Possui comandos de atribuição, mas apenas de um tipo:
 
 ~~~ebnf
     <ident> = <ident>
@@ -63,7 +63,7 @@ A maior parte do programa são as rotinas padrão do "berço". Estou mostrando o
 
 > Download da [base](src/cap13-base.c).
 
-Repare que temos uma tabela de símbolo, e há uma lógica para verificar se o nome da variável é válido. Vale a pena notar que eu inclui o código que já foi visto antes para prover espaço em branco e quebras de linha. Finalmente, repare que o programa principal está delimitado, como de custome, por BEGIN-END.
+Repare que temos uma tabela de símbolo, e há uma lógica para verificar se o nome da variável é válido. Vale a pena notar que eu inclui o código que já foi visto antes para prover espaço em branco e quebras de linha. Finalmente, repare que o programa principal está delimitado, como de costume, por BEGIN-END.
 
 Uma vez que o programa esteja pronto, o primeiro passo é compilá-lo e rodá-lo, para ter certeza que ele funciona. Dê-lhe algumas declarações, e um bloco BEGIN. Tente algo como:
 
@@ -161,10 +161,10 @@ No entanto, a maioria das implementações de Pascal, incluindo Turbo Pascal, n�
 
 Certo, teste esta nova versão. Repare que podemos declarar quantos procedimentos quisermos (desde que não fiquemos sem nenhum identificador de uma letra livre!), e os rótulos e RETs ficam nos locais corretos.
 
-Vale a pena ressaltar aqui que eu NÃO permito procedimentos aninhados. Em TINY, todos os procedimentos devem ser declarados no nível global, da mesma forma que em C. Houve uma boa discussão sobre isto no Fórum de Linguagem de Programação da [CompuServe](https://pt.wikipedia.org/wiki/CompuServe). Acontece que há uma penalidade significativa no aumento da complexidade em troca do luxo dos procedimentos aninhados. E mais, esta penalidade ocorre em TEMPO DE EXECUÇÃO, pois código extra deve ser adicionado e executado em cada vez que um procedimento é chamado. Eu também acredito que aninhamento de procedimentos não é uma idéia muito boa, simplesmente pelo fato de eu ter visto muitos "abusos" desta característica. Antes de continuarmos com o próximo passo, vale a pena notar que o "programa principal" como está agora está incompleto, já que ele não possui o rótulo e o comando END do assembler. Vamos arrumar isto:
+Vale a pena ressaltar aqui que eu NÃO permito procedimentos aninhados. Em TINY, todos os procedimentos devem ser declarados no nível global, da mesma forma que em C. Houve uma boa discussão sobre isto no Fórum de Linguagem de Programação da [CompuServe](https://pt.wikipedia.org/wiki/CompuServe). Acontece que há uma penalidade significativa no aumento da complexidade em troca do luxo dos procedimentos aninhados. E mais, esta penalidade ocorre em TEMPO DE EXECUÇÃO, pois código extra deve ser adicionado e executado em cada vez que um procedimento é chamado. Eu também acredito que aninhamento de procedimentos não é uma ideia muito boa, simplesmente pelo fato de eu ter visto muitos "abusos" desta característica. Antes de continuarmos com o próximo passo, vale a pena notar que o "programa principal" como está agora está incompleto, já que ele não possui o rótulo e o comando END do assembler. Vamos arrumar isto:
 
 ~~~c
-/* Analiza e traduz o bloco principal do programa */
+/* Analisa e traduz o bloco principal do programa */
 void DoMain()
 {
     Match('b');
@@ -239,7 +239,7 @@ A resposta é sim, e tratando-o desta forma, podemos simplificar o código e faz
 O código também parece muito melhor, ao menos no sentido que `DoMain()` e `DoProcedure()` se parecem agora:
 
 ~~~c
-/* Analiza e traduz o bloco principal do programa */
+/* Analisa e traduz o bloco principal do programa */
 void DoMain()
 {
     char name;
@@ -254,7 +254,7 @@ void DoMain()
     AsmEpilog();
 }
 
-/* Analiza e traduz as declarações globais */
+/* Analisa e traduz as declarações globais */
 void TopDeclarations()
 {
     while (Look != '.') {
@@ -345,7 +345,7 @@ void AssignOrProc()
     }
 }
 
-/* Analiza e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void DoBlock()
 {
     while (Look != 'e') {
@@ -372,7 +372,7 @@ Bem, neste ponto temos um compilador que é capaz de tratar de procedimentos. Va
 Passagem de Parâmetros
 ----------------------
 
-Novamente, todos nós conhecemos a idéia básica da passagem de parâmetros, mas vamos revisá-la só pra ter certeza.
+Novamente, todos nós conhecemos a ideia básica da passagem de parâmetros, mas vamos revisá-la só pra ter certeza.
 
 Em geral um procedimento tem uma lista de parâmetros, por exemplo:
 
@@ -401,7 +401,7 @@ Repare que já existe uma decisão implícita nesta sintaxe. Algumas linguagens,
 
 sozinho, só pode significar uma chamada de procedimento. Nos analisadores que escrevemos até agora, fizemos um grande uso de procedimentos sem parâmetros, mas por estarmos usando linguagem C, tivemos que colocar um par de parênteses após as chamadas.
 
-Porém mais tarde, vamos fazer uso de funções também. E como funções podem aparecer no mesmo lugar que um identificador, não há como dizer a diferença entre os dois. Você precisa voltar às declarações para descobrir. Algumas pessoas consideram isto uma vantagem. Seu argumento é que um identificador é trocado por um valor, e qual a importância de saber se isto é feito por substituíção ou por uma função? Mas algumas vezes nós nos importamos, pois a função pode consumir algum tempo considerável. Se podemos incorrer em uma penalidade de tempo de execução alta, escrevendo um mero identificador em uma expressão, parece importante estar ciente disto.
+Porém mais tarde, vamos fazer uso de funções também. E como funções podem aparecer no mesmo lugar que um identificador, não há como dizer a diferença entre os dois. Você precisa voltar às declarações para descobrir. Algumas pessoas consideram isto uma vantagem. Seu argumento é que um identificador é trocado por um valor, e qual a importância de saber se isto é feito por substituição ou por uma função? Mas algumas vezes nós nos importamos, pois a função pode consumir algum tempo considerável. Se podemos incorrer em uma penalidade de tempo de execução alta, escrevendo um mero identificador em uma expressão, parece importante estar ciente disto.
 
 Afinal, Niklaus Wirth projetou Pascal e Modula-2. Eu vou dar a ele o benefício da dúvida e assumir que ele tinha uma boa razão para alterar a regra da segunda vez!
 
@@ -498,7 +498,7 @@ A Semântica dos Parâmetros
 
 Até aqui estivemos lidando com a SINTAXE da passagem de parâmetros, e criamos os mecanismos de análise para tratar dela. Na sequência, temos que dar uma olhada na SEMÂNTICA, isto é, as ações que devem ser tomadas quando encontramos parâmetros. Isto nos leva diretamente ao problema das diferentes maneiras de se passar parâmetros.
 
-Há mais de uma forma de passar parâmetros, e a maneira de fazê-lo pode ter um efeito profundo no caráter da linguagem. Então esta é outra das áreas em que eu não posso simplesmente lhe dar minha solução. É importante que apliquemos algum tempo analizando as alternativas para que você siga outra rota se preferir.
+Há mais de uma forma de passar parâmetros, e a maneira de fazê-lo pode ter um efeito profundo no caráter da linguagem. Então esta é outra das áreas em que eu não posso simplesmente lhe dar minha solução. É importante que apliquemos algum tempo analisando as alternativas para que você siga outra rota se preferir.
 
 Há duas formas principais para se passar parâmetros:
 
@@ -544,7 +544,7 @@ Para tornar os problemas mais interessantes, muitos compiladores (antigos e atua
 
 Para entender como funciona, imagine que é feita uma chamada a FOO como no exemplo acima, passando um 4 literal. Realmente, o que é passado é o endereço do literal (4), que está armazenado no poço de literais. Este endereço corresponde ao parâmetro formal K, na sub-rotina em si.
 
-Agora suponha que, sem o conhecimento do programador, a sub-rotina FOO modifica K para, digamos, -7. Subitamente, a literal 4 no poço de literais é ALTERADA, para -7. Daí em diante, toda expressão que usava 4 e cada sub-rotina que passava 4 como parâmetro vai usar o valor -7 no lugar!!! É desnecessário dizer que isto gerou um compartamento bizarro e muito difícil de achar. A coisa toda deixou com uma reputação muito ruim a passagem por referência, no entanto, como já vimos, na verdade foi uma certa combinação de decisões ruins de projeto que criou o problema.
+Agora suponha que, sem o conhecimento do programador, a sub-rotina FOO modifica K para, digamos, -7. Subitamente, a literal 4 no poço de literais é ALTERADA, para -7. Daí em diante, toda expressão que usava 4 e cada sub-rotina que passava 4 como parâmetro vai usar o valor -7 no lugar!!! É desnecessário dizer que isto gerou um comportamento bizarro e muito difícil de achar. A coisa toda deixou com uma reputação muito ruim a passagem por referência, no entanto, como já vimos, na verdade foi uma certa combinação de decisões ruins de projeto que criou o problema.
 
 Apesar do problema, a abordagem de FORTRAN tem seus pontos positivos. A maior delas é o fato de que não é necessário suportar mecanismos múltiplos. O mesmo esquema, passando o endereço do argumento, funciona para TODOS os casos, incluindo matrizes. Portanto o tamanho do compilador pode ser reduzido.
 
@@ -552,11 +552,11 @@ Em parte por conta do problema com FORTRAN, e também por causa da redução da 
 
 Isto significa que o valor é COPIADO como um valor separado usando apenas na chamada. Já que o valor passado é uma cópia, o procedimento chamado pode usá-lo como uma variável local e modificá-lo da forma que quiser. O valor na rotina que fez a chamada não é alterado.
 
-A princípo pode parecer que isto é um pouco ineficiente, por causa da necessidade de copiar o parâmetro. Mas lembre-se que vamos precisar passar um valor de qualquer forma, seja ele o parâmetro em si ou um endereço para ele. Dentro da sub-rotina usar passagem por valor é definitivamente mais eficiente, já que eliminamos um nível de indireção. Finalmente, vimos antes que em FORTRAN, era necessário fazer cópias dentro da sub-rotina de qualquer jeito, portando passagem por valor pode reduzir o número de variáveis locais. No fim das contas, passagem por valor é melhor.
+A princípio pode parecer que isto é um pouco ineficiente, por causa da necessidade de copiar o parâmetro. Mas lembre-se que vamos precisar passar um valor de qualquer forma, seja ele o parâmetro em si ou um endereço para ele. Dentro da sub-rotina usar passagem por valor é definitivamente mais eficiente, já que eliminamos um nível de indireção. Finalmente, vimos antes que em FORTRAN, era necessário fazer cópias dentro da sub-rotina de qualquer jeito, portando passagem por valor pode reduzir o número de variáveis locais. No fim das contas, passagem por valor é melhor.
 
 Excetor por um pequeno detalhe: se todos os parâmetros são passados por valor, não há como o procedimento chamado retornar um resultado para o que fez a chamada! O parâmetro passado NÃO é alterado na rotina que chamou, apenas dentro da rotina chamada. Está claro, que isto não faz todo o trabalho.
 
-Houve duas respostas para este problema, que são equivalentes. Em Pascal, Wirth criou parâmetros VAR, que são passados por referência. O que um parâmetro VAR é, de fato, não é nada além do nosso amigo, o parâmetro FORTRAN, com um novo nome disfarçado. Wirth de uma forma engenhosa evita o problema de "mudança de literais" e também o problema do "endereço de uma expressão", permitindo que apenas variáveis sejam usadas como parâmetros de chamada no caso de passagem por referência. Em outras palvras, é a mesma restrição imposta pelos primeiros compiladores FORTRAN.
+Houve duas respostas para este problema, que são equivalentes. Em Pascal, Wirth criou parâmetros VAR, que são passados por referência. O que um parâmetro VAR é, de fato, não é nada além do nosso amigo, o parâmetro FORTRAN, com um novo nome disfarçado. Wirth de uma forma engenhosa evita o problema de "mudança de literais" e também o problema do "endereço de uma expressão", permitindo que apenas variáveis sejam usadas como parâmetros de chamada no caso de passagem por referência. Em outras palavras, é a mesma restrição imposta pelos primeiros compiladores FORTRAN.
 
 C faz a mesma coisa, mas explicitamente. Em C, TODOS os parâmetros são passados por valor. No entanto, um dos tipos de variáveis suportados por C, é o ponteiro. Portanto, passar um ponteiro por valor, é o mesmo que passar uma referência. Em alguns casos isto funciona melhor ainda, pois mesmo que você possa alterar a variável apontada da forma que você quiser, ainda assim você NÃO pode alterar o ponteiro em si. Em uma função como `strcpy()`, por exemplo, onde os ponteiros são incrementados conforme a string é copiada, estamos na verdade incrementando apenas cópias dos ponteiros, portanto os valores destes ponteiros no procedimento que fez a chamado permanecem os mesmos. Para modificar um ponteiro, é preciso passar um ponteiro para o ponteiro.
 
@@ -823,7 +823,7 @@ void Assignment(char name)
 
 Como você pode ver, estes procedimentos vão tratar de cada nome de variável encontrado como um parâmetro formal ou como uma variável global, dependendo do fato de ele constar ou não na tabela de símbolos de parâmetros. Lembre-se que estamos usando apenas uma forma reduzida de `Expression()`. No programa final, a alteração mostrada aqui deve ser adicionada em `Factor()`, não em `Expression()`.
 
-O resto é fácil. Só temos que adicionar a semântica para a chamade de procedimento, o que podemos fazer apenas com uma nova linha de código:
+O resto é fácil. Só temos que adicionar a semântica para a chamada de procedimento, o que podemos fazer apenas com uma nova linha de código:
 
 ~~~c
 /* Processa um parâmetro de chamada */
@@ -834,7 +834,7 @@ void Param()
 }
 ~~~
 
-É só isto. Adicione estas mudanças ao seu programa e faça um teste. Experimente declarar um ou dois procedimentos, cada um com uma lista de parâmetros formais. Então faça algumas atribuições, usando combinações de variáveis globais e parâmetros formais. Você pode chamar um procedimento dentro do outro, mas você não pode DECLARAR procedimentos aninhados. Você pode até mesmo passar parâmetros formais de um procedimento para outro. Se tivessemos a sintaxe completa da linguagem agora, seria possível fazer coisas como ler e alterar parâmetros formais ou usá-los em expressões complexas.
+É só isto. Adicione estas mudanças ao seu programa e faça um teste. Experimente declarar um ou dois procedimentos, cada um com uma lista de parâmetros formais. Então faça algumas atribuições, usando combinações de variáveis globais e parâmetros formais. Você pode chamar um procedimento dentro do outro, mas você não pode DECLARAR procedimentos aninhados. Você pode até mesmo passar parâmetros formais de um procedimento para outro. Se tivéssemos a sintaxe completa da linguagem agora, seria possível fazer coisas como ler e alterar parâmetros formais ou usá-los em expressões complexas.
 
 O Que Está Errado?
 ------------------
@@ -918,7 +918,7 @@ O código gerado por um analisador simplístico poderia ser:
         RET
 ~~~
 
-Isto seria errado. Quando colocamos o primeito argumento da expressão na pilha, o deslocamento dos dois parâmetros formais não é mais 2 e 4, mas 4 e 6. Então o segundo acesso `MOV AX, [SP+2]` iria acessar A novamente, e não B como desejaríamos.
+Isto seria errado. Quando colocamos o primeiro argumento da expressão na pilha, o deslocamento dos dois parâmetros formais não é mais 2 e 4, mas 4 e 6. Então o segundo acesso `MOV AX, [SP+2]` iria acessar A novamente, e não B como desejaríamos.
 
 Porém, isto não é o fim do mundo. Eu acho que você percebe que tudo o que devemos fazer é alterar o deslocamento cada vez que colocamos algo na pilha, e de fato é o que é feito quando a CPU não suporta outros métodos.
 
@@ -1142,7 +1142,7 @@ void AsmStoreParam(int pos)
 }
 ~~~
 
-Isto deve ser o suficiente. Faça alguns testes e veja que estamos gerando código razoávelmente bom. Como você pode ver, o código é difícilmente ótimo, já que precisamos recarregar o endereço toda vez que um parâmetro é necessário. Mas pelo menos isto é consistente com nossa abordagem KISS, de gerar código que funciona. Vamos fazer apenas uma anotação aqui, que este é outro candidato a otimização, e continuar.
+Isto deve ser o suficiente. Faça alguns testes e veja que estamos gerando código razoavelmente bom. Como você pode ver, o código está longe de ser ótimo, já que precisamos recarregar o endereço toda vez que um parâmetro é necessário. Mas pelo menos isto é consistente com nossa abordagem KISS, de gerar código que funciona. Vamos fazer apenas uma anotação aqui, que este é outro candidato a otimização, e continuar.
 
 Agora aprendemos a processar parâmetros usando passagem por valor e por referência. No mundo real, é claro, gostaríamos de tratar dos dois métodos. Não podemos fazer isto ainda, porém, pois ainda não tratamos de tipos, e isto deve vir antes.
 
@@ -1157,21 +1157,21 @@ Variáveis Locais
 
 Até agora, não falamos nada sobre variáveis locais, e nossa definição de procedimentos atual não permite o uso delas. Nem é necessário falar que isto é uma grande falha da nossa linguagem, a qual deve ser corrigida.
 
-Novamente nos deparamos com uma escolha: alocamento estático ou dinâmico?
+Novamente nos deparamos com uma escolha: alocação estática ou dinâmica?
 
-Nos antigos programas FORTRAN, as variáveis locais possuiam alocamento estático da mesma forma que as globais. Isto é, cada variável local possuia um nome e um endereço alocado, como qualquer outra variável, e era referenciada por este nome.
+Nos antigos programas FORTRAN, as variáveis locais possuíam alocação estática da mesma forma que as globais. Isto é, cada variável local possuía um nome e um endereço alocado, como qualquer outra variável, e era referenciada por este nome.
 
 Para nós, isto é algo fácil de fazer, usando os mecanismos de alocação que já possuímos. Lembre-se, porém, que variáveis locais podem ter o mesmo nome das globais. Portanto precisamos de alguma técnica para designar nomes únicos para estas variáveis.
 
-A característica do alocamento estático, é claro, é que os dados sobrevivem entre uma chamada de procedimento e o retorno. Quando o procedimento é chamado novamente, os dados ainda estão lá. Isto pode ser uma vantagem em algumas aplicações. Nos dias de FORTRAN costumávamos usar alguns truques como inicializar um flag, para saber se o procedimento estava sendo chamado pela primeira vez e fazer as inicializações da primeira vez quando necessário.
+A característica da alocação estática, é claro, é que os dados sobrevivem entre uma chamada de procedimento e o retorno. Quando o procedimento é chamado novamente, os dados ainda estão lá. Isto pode ser uma vantagem em algumas aplicações. Nos dias de FORTRAN costumávamos usar alguns truques como inicializar um flag, para saber se o procedimento estava sendo chamado pela primeira vez e fazer as inicializações da primeira vez quando necessário.
 
 É claro, essa mesma "característica" é também o que torna a "recursão" impossível com armazenamento estático. Qualquer nova chamada ao procedimento iria sobrescrever os dados que já estavam nas variáveis locais.
 
 A alternativa é o armazenamento dinâmico, no qual o armazenamento é alocado na pilha da mesma forma que os parâmetros passados. Nós já possuímos até o mecanismo para fazer isto. Na verdade, as mesmas rotinas que tratam dos parâmetros passados (por valor) na pilha podem ser adaptadas para lidar com variáveis locais também... o código a ser gerado é praticamente o mesmo. Tudo o que temos que fazer é ajustar o ponteiro da pilha (SP) para alocar espaço para as variáveis locais. A alocação dinâmica suporta a recursão inerentemente.
 
-Quando eu comecei a planejar TINY, eu devo admitir que eu tive um preconceito em favor da alocação estática. Isto porque os velhos programas FORTRAN eram muito eficientes... os antigos compiladores FORTRAN produziam código com qualidade que é difícilmente equiparável aos compiladores modernos. Mesmo nos dias de hoje, um dado programa escrito em FORTRAN pode ter um desempenho melhor que o mesmo programa escrito em C ou Pascal, às vezes com uma vantagem grande. (UAU! Eu vou ser xingado por esta declaração!)
+Quando eu comecei a planejar TINY, eu devo admitir que eu tive um preconceito em favor da alocação estática. Isto porque os velhos programas FORTRAN eram muito eficientes... os antigos compiladores FORTRAN produziam código com qualidade que é dificilmente equiparável aos compiladores modernos. Mesmo nos dias de hoje, um dado programa escrito em FORTRAN pode ter um desempenho melhor que o mesmo programa escrito em C ou Pascal, às vezes com uma vantagem grande. (UAU! Eu vou ser xingado por esta declaração!)
 
-Eu sempre acreditei que a razão tinha a ver com as duas diferenças principais entre as implementações de FORTRAN e dos outros: armazenamenteo estático e passagem por referência. Eu sei que armazenamento dinâmico suporta recursão, mas eu sempre achei um pouco peculiar aceitar código mais lento nos 95% dos casos em que não é necessária a recursão, apenas para ter esta característica quando for necessária. A idéia é que, com armazenamento estático, é possível usar endereçamento absoluto ao invés de endereçamento indireto, o que deveria resultar em código mais rápido.
+Eu sempre acreditei que a razão tinha a ver com as duas diferenças principais entre as implementações de FORTRAN e dos outros: armazenamento estático e passagem por referência. Eu sei que armazenamento dinâmico suporta recursão, mas eu sempre achei um pouco peculiar aceitar código mais lento nos 95% dos casos em que não é necessária a recursão, apenas para ter esta característica quando for necessária. A ideia é que, com armazenamento estático, é possível usar endereçamento absoluto ao invés de endereçamento indireto, o que deveria resultar em código mais rápido.
 
 Mais recentemente porém, algumas pessoas me disseram que realmente não há uma grande penalidade na performance associada à alocação dinâmica. Uma instrução
 
@@ -1189,7 +1189,7 @@ Portanto, estou convencido de que não há uma boa razão para NÃO usar alocaç
 
 Já que este uso de variáveis locais se encaixa tão bem no esquema de parâmetros passados por valor, vamos usar aquela versão do tradutor para ilustrá-la. (Eu realmente espero que você tenha mantido [uma cópia](src/cap13-byval.c)!)
 
-A idéia geral é saber quantas variáveis locais existem. Então alteramos o valor do ponteiro da pilha para baixo para abrir espaço para elas. Parâmetros formais são endereçados como deslocamentos positivos em relação ao ponteiro de base (BP) da pilha, e as variáveis locais como deslocamentos negativos. Com muito pouco  trabalho, as rotinas que já criamos podem tomar conta da coisa toda.
+A ideia geral é saber quantas variáveis locais existem. Então alteramos o valor do ponteiro da pilha para baixo para abrir espaço para elas. Parâmetros formais são endereçados como deslocamentos positivos em relação ao ponteiro de base (BP) da pilha, e as variáveis locais como deslocamentos negativos. Com muito pouco  trabalho, as rotinas que já criamos podem tomar conta da coisa toda.
 
 Vamos começar criando uma nova variável, `BaseParam`:
 
@@ -1212,7 +1212,7 @@ int AsmOffsetParam(int par)
 }
 ~~~
 
-A idéia é que o valor de `BaseParam` será congelado depois que processarmos os parâmetros formais, e não irá mais aumentar quando as variáveis locais forem inseridas na tabela de símbolos. Isto é tratado no final de `FormalList()`:
+A ideia é que o valor de `BaseParam` será congelado depois que processarmos os parâmetros formais, e não irá mais aumentar quando as variáveis locais forem inseridas na tabela de símbolos. Isto é tratado no final de `FormalList()`:
 
 ~~~c
 /* Processa a lista de parâmetros formais de um procedimento */
@@ -1337,7 +1337,7 @@ Segue o código completo da nossa implementação com variáveis locais (e passa
 Conclusão
 ---------
 
-Neste ponto, você sabe como compilar declarações e chamadas de procedimentos, com parâmetros passados por referência e por valor. Você já sabe também como é possível tratar de variáveis locais alocadas estática e dinâmicamente. Como é possível observar, a parte difícil não é prover os mecanismos, mas sim decidir quais mecanismos usar. Uma vez tomadas as decisões, o código para traduzir as construções não é realmente tão difícil. Eu não mostrei como tratar da combinação de variáveis locais e parâmetros passados por referência, mas esta é uma extensão simples em relação ao que você já viu. As coisas só ficam um pouco mais bagunçadas, já que precisamos suportar os dois mecanismos ao mesmo tempo. Eu prefiro deixar isto para depois, quando tivermos uma forma de tratar de tipos de variáveis diferentes.
+Neste ponto, você sabe como compilar declarações e chamadas de procedimentos, com parâmetros passados por referência e por valor. Você já sabe também como é possível tratar de variáveis locais alocadas estática e dinamicamente. Como é possível observar, a parte difícil não é prover os mecanismos, mas sim decidir quais mecanismos usar. Uma vez tomadas as decisões, o código para traduzir as construções não é realmente tão difícil. Eu não mostrei como tratar da combinação de variáveis locais e parâmetros passados por referência, mas esta é uma extensão simples em relação ao que você já viu. As coisas só ficam um pouco mais bagunçadas, já que precisamos suportar os dois mecanismos ao mesmo tempo. Eu prefiro deixar isto para depois, quando tivermos uma forma de tratar de tipos de variáveis diferentes.
 
 Este será o [próximo capítulo](14_tipos.md), até lá!
 

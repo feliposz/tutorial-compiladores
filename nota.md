@@ -1,5 +1,7 @@
 # Prólogo
 
+> **Autor:** Felipo Soranz (20/06/2002) [atualizado em 23/03/2022]
+
 Esta série tem uma abordagem muito diferente da maioria dos textos sobre compiladores. Ela trata dos aspectos práticos de sua construção, sem poluir o texto com excesso de teoria.
 
 Não que a teoria não seja importante, pelo contrário, ela é muito importante. Mas eu creio que você terá um aproveitamento muito melhor dos textos teóricos, depois de conhecer a maior parte dos aspectos práticos da implementação de um compilador e, quem sabe, depois de ter criado um ou mais de sua própria autoria.
@@ -20,22 +22,17 @@ Eu comecei a tradução deste tutorial como um projeto pessoal, apenas para obte
 
 Esta já é a terceira vez que publico o tutorial. Ele já foi disponibilizado:
 
-1. Inicialmente no [Geocities](https://web.archive.org/web/20090724192500/http://br.geocities.com/feliposz/compiladores/crenshaw/index.html) de 2002 a 2009 (fim do serviço)
+1. Inicialmente no [Geocities](https://web.archive.org/web/20090724192500/http://br.geocities.com/feliposz/compiladores/crenshaw/index.html) de 2002 a 2009 (fim do serviço Geocities)
 2. Depois em formato de [wiki](http://tutorialcompiladores.pbworks.com/) de [2009 a 2021](https://web.archive.org/web/20211101000000*/http://tutorialcompiladores.pbworks.com/)
 3. E finalmente no [GitHub Pages](https://feliposz.github.io/tutorial-compiladores/) a partir de 2022
 
-Fiz poucas alterações no conteúdo do texto em si. Algumas (poucas) partes são de minha própria autoria e poucos trechos foram cortados. Quase todas as alterações durante a tradução, tem a ver com a adaptação do texto. O original fazia uso da linguagem Pascal e a plataforma alvo do compilador era um computador com processador Motorola 68000.
+Ao traduzir, fiz poucas alterações no conteúdo do texto em si. Algumas (poucas) partes são de minha própria autoria e poucos trechos foram cortados.
 
-Eu decidi adaptar o tutorial para usar linguagem C e processadores 80x86, pois C é uma linguagem bem mais popular (em especial na criação de compiladores) e a plataforma Intel/AMD 80x86 é a mesma da maioria dos PCs encontrados hoje em dia.
+Quase todas as alterações durante a tradução, tem a ver com a adaptação do texto. O original fazia uso da linguagem Pascal e a plataforma alvo do compilador era um computador com processador Motorola 68000. Eu decidi adaptar o tutorial para usar linguagem C e processadores 80x86, pois C é uma linguagem bem mais popular (em especial na criação de compiladores) e a plataforma Intel/AMD 80x86 é a mesma da maioria dos PCs encontrados hoje em dia.
 
 Foram portanto **três** "traduções", por assim dizer:
 - Do texto: de inglês para português
 - Da implementação: de Pascal para C
-- Das instruções em assembly geradas: do Motorola 68000 para Intel 8086 (16-bits, modo real)
+- Das instruções em assembly geradas: do Motorola 68000 para Intel x86 (16-bits)
 
-Da mesma forma que eu fui capaz de adaptar o código de Pascal/Motorola 68000 para C/80x86 você deve ser capaz de adaptá-lo para a linguagem e/ou processador da sua preferência, mesmo sem conhecer a linguagem assembly do 80x86.
-
----
-
-> Por: Felipo Soranz <br>
-> Em: 20/06/2002 [atualizado em 23/03/2022]
+Da mesma forma que eu fui capaz de adaptar o código de Pascal/Motorola 68000 para C/x86 você deve ser capaz de adaptá-lo para a linguagem e/ou processador da sua preferência, mesmo sem conhecer a linguagem assembly do 80x86.

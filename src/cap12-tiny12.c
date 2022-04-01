@@ -19,7 +19,7 @@ char *SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
 char SymbolType[SYMBOLTABLE_SIZE]; /* Tabela de tipos de símbolos */
 int SymbolCount; /* Número de entradas na tabela de símbolos */
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 #define KEYWORDLIST_SIZE 9
@@ -35,7 +35,7 @@ char *KeywordCode = "ileweRWve";
 char TokenText[MAXTOKEN+1]; /* Texto do token atual */
 char Token; /* Código do token atual */
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();
@@ -797,7 +797,7 @@ void Statement()
     }
 }
 
-/* Analiza e traduz um bloco de comandos estilo "Pascal" */
+/* Analisa e traduz um bloco de comandos estilo "Pascal" */
 void Block()
 {
     Statement();

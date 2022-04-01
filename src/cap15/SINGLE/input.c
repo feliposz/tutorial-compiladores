@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "input.h"
 
-char Look; /* Caracter "lookahead */
+char Look; /* Caractere "lookahead */
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();

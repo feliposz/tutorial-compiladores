@@ -13,7 +13,7 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 
 #define MAXVAR 26
 int VarTable[MAXVAR];
@@ -77,13 +77,13 @@ void InitVar()
         VarTable[i] = 0;
 }
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();
 }
 
-/* Captura um caracter de nova linha */
+/* Captura um caractere de nova linha */
 void NewLine()
 {
     if (Look == '\n')

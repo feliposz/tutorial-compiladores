@@ -13,12 +13,12 @@ Este código é de livre distribuição e uso.
 #include <stdarg.h>
 #include <ctype.h>
 
-int Look; /* O caracter lido "antecipadamente" (lookahead) */
+int Look; /* O caractere lido "antecipadamente" (lookahead) */
 char CurrentClass; /* Classe atual lida por getClass */
 char CurrentType; /* Tipo atual lido por getType */
 char CurrentSigned; /* Indica se tipo atual é com ou sem sinal */
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();

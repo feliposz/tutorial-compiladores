@@ -6,7 +6,7 @@ Parte 16: Construção dos Módulos
 
 Esta série de tutoriais promete ser talvez uma das mais extensas mini-séries da história, rivalizada apenas pelo atraso do Volume IV d'[A Arte da Programação de Computadores](https://pt.wikipedia.org/wiki/The_Art_of_Computer_Programming) de [Donald Knuth](https://pt.wikipedia.org/wiki/Donald_Knuth). Começando em 1988, a série teve uma pausa de 4 anos em 1990 quando as "preocupações deste mundo", me fizeram mudar as prioridades e interesses, e a necessidade de sobreviver fez com que parássemos no [capítulo 14](14_tipos.md). Aqueles de vocês com muita paciência foram finalmente recompensados, no começo do ano passado, com o muito esperado [capítulo 15](15_de_volta_para_o_futuro.md). Nele eu comecei a colocar a série novamente no caminho, para que fosse mais fácil continuar até o objetivo final, que não só é prover-lhes entendimento suficiente das dificuldades no ramo da teoria dos compiladores, mas também as ferramentes, na forma de sub-rotinas e conceitos para que você fosse capaz de continuar por conta própria e se tornar proficientes o suficiente para construir seus próprios analisadores sintáticos e tradutores. Por causa desta longa pausa, eu decidi que era apropriado voltar e rever os conceitos que cobrimos até agora, e refazer parte do software, também. No passado, nós nunca nos preocupamos muito com o desenvolvimento de ferramentas com qualidade de produção... afinal de contas, eu estava tentando lhes ensinar (e aprender) conceitos, e não prática de produção. Para fazer isto, eu tentei lhes dar, não compiladores ou analisadores completos, mas apenas os fragmentos de código que ilustravam o ponto particular que estava sendo considerado no momento.
 
-Eu ainda acho que esta é uma boa forma de aprender qualquer assunto; ninguém gosta de ter que fazer mudanças em programas de 100.000 linhas apenas para tentar uma idéia nova. Mas a idéia de tratar apenas de fragmentos de código, ao invés de programas completos, também tem seus pontos negativos pois parece que estamos reescrevendo o mesmo código toda vez. Apesar da repetição ser comprovadamente uma boa forma de aprender novas idéias, também é provado que o excesso de uma coisa boa é ruim. No momento em que eu completei o capítulo 14 eu achei que havia atingido o limite das minhas habilidades para tratar de múltiplos arquivos e múltiplas versões das mesmas funções do software. Quem sabe foi esta uma das razões de eu ter perdido o fôlego neste ponto.
+Eu ainda acho que esta é uma boa forma de aprender qualquer assunto; ninguém gosta de ter que fazer mudanças em programas de 100.000 linhas apenas para tentar uma ideia nova. Mas a ideia de tratar apenas de fragmentos de código, ao invés de programas completos, também tem seus pontos negativos pois parece que estamos reescrevendo o mesmo código toda vez. Apesar da repetição ser comprovadamente uma boa forma de aprender novas ideias, também é provado que o excesso de uma coisa boa é ruim. No momento em que eu completei o capítulo 14 eu achei que havia atingido o limite das minhas habilidades para tratar de múltiplos arquivos e múltiplas versões das mesmas funções do software. Quem sabe foi esta uma das razões de eu ter perdido o fôlego neste ponto.
 
 Felizmente, podemos manter módulos separados para manter nosso programa principal pequeno e simples enquanto testamos coisas novas. Mas, uma vez que o código tenha sido escrito ele sempre estará lá, e adicioná-los aos nossos programas é indolor e transparente.
 
@@ -25,22 +25,22 @@ scanner | Rotinas do analisador léxico
 parser  | Implementação da sintaxe da linguagem propriamente dita
 codegen | Rotinas de geração de código assembly
 
-Cada uma destas unidades possui uma função diferente, e mantém encapsuladas áreas específicas de funcionalidade. Por exemplo, as unidades de entrada e saída, como seus nomes já dizem, provêem o tratamento de E/S e o importante caracter "lookahead" sobre o qual se baseia nosso analisador preditivo.
+Cada uma destas unidades possui uma função diferente, e mantém encapsuladas áreas específicas de funcionalidade. Por exemplo, as unidades de entrada e saída, como seus nomes já dizem, provêem o tratamento de E/S e o importante caractere "lookahead" sobre o qual se baseia nosso analisador preditivo.
 
-As duas unidades com que mais vamos trabalhar, e as que representam a maior parte da personalidade do compilador, são a do analisador sintático e a de geração de código. Teoricamente, o analisador sintático deveria encapsular todos os aspectos do compilador que dependem da sintaxe da linguagem compilada (contudo, como vimos da ultima vez, parte desta sintaxe acaba indo no próprio analisador léxico). De forma similar, a únidade de geração de código contém todo o código dependente da máquina-alvo. Neste capítulo, vamos continuar com o desenvolvimento das funções nestas duas unidades tão importantes.
+As duas unidades com que mais vamos trabalhar, e as que representam a maior parte da personalidade do compilador, são a do analisador sintático e a de geração de código. Teoricamente, o analisador sintático deveria encapsular todos os aspectos do compilador que dependem da sintaxe da linguagem compilada (contudo, como vimos da ultima vez, parte desta sintaxe acaba indo no próprio analisador léxico). De forma similar, a unidade de geração de código contém todo o código dependente da máquina-alvo. Neste capítulo, vamos continuar com o desenvolvimento das funções nestas duas unidades tão importantes.
 
 De volta ao clássico?
 ---------------------
 
-Contudo, antes de continuarmos, eu acho que eu deveria esclarecer a relação entre as unidades e a funcionalidade delas. É claro que, aqueles de vocês que estão familiarizados com a teoria de compiladores ensinada nas universidades, reconhecem os nomes analisador léxico (*scanner*), analisador sintático (*parser*), e gerador de código (*code generator*), os quais são componentes da implementação clássica dos compiladores. Vocês devem estar pensando que eu abandonei o meu compromisso de manter a filosofia KISS, e preferi usar uma abordagem mais convencional. Porém, uma observação mais atenta, deve convecê-los de que, embora os nomes sejam similares, as funcionalidades são bem diferentes.
+Contudo, antes de continuarmos, eu acho que eu deveria esclarecer a relação entre as unidades e a funcionalidade delas. É claro que, aqueles de vocês que estão familiarizados com a teoria de compiladores ensinada nas universidades, reconhecem os nomes analisador léxico (*scanner*), analisador sintático (*parser*), e gerador de código (*code generator*), os quais são componentes da implementação clássica dos compiladores. Vocês devem estar pensando que eu abandonei o meu compromisso de manter a filosofia KISS, e preferi usar uma abordagem mais convencional. Porém, uma observação mais atenta, deve convencê-los de que, embora os nomes sejam similares, as funcionalidades são bem diferentes.
 
 Juntas, as implementações clássicas dos analisadores léxico e sintático caracterizam o *front-end* ou "vanguarda" e o gerador de código, o *back-end* ou "retaguarda" de um compilador. As rotinas de vanguarda processam a parte dependente da linguagem, relacionadas à sintaxe, enquanto o gerador de código, ou retaguarda, trata da parte dependente da máquina-alvo do problema. Em compiladores clássicos, as duas partes se comunicam através de um arquivo de instruções escritas em uma linguagem intermediária (IL).
 
-Tipicamente, um analisador léxico clássico é um procedimento único, operando como um coprocedimento com o analisador sintático. Ele "tokeniza" o arquivo fonte, lendo-o caracter por caracter, reconhecendo os elementos da linguagem, e traduzindo-os em tokens, e depois passando-os para o analisador sintático. Você pode pensar no analisador sintático como uma máquina abstrata, executando os códigos de operação, que são os tokens. De forma similar, o analisador gera códigos de operação de uma segunda máquina abstrata, que é alimentada pela linguagem intermediária. Tipicamente, o arquivo intermediário é gerado pelo analisador sintático, e lido pelo gerador de código.
+Tipicamente, um analisador léxico clássico é um procedimento único, operando como um co-procedimento com o analisador sintático. Ele "tokeniza" o arquivo fonte, lendo-o caractere por caractere, reconhecendo os elementos da linguagem, e traduzindo-os em tokens, e depois passando-os para o analisador sintático. Você pode pensar no analisador sintático como uma máquina abstrata, executando os códigos de operação, que são os tokens. De forma similar, o analisador gera códigos de operação de uma segunda máquina abstrata, que é alimentada pela linguagem intermediária. Tipicamente, o arquivo intermediário é gerado pelo analisador sintático, e lido pelo gerador de código.
 
-Nossa organização é bem diferente. Nós não temos analisador léxico, no sentido clássico; nossa unidade "scanner", apesar de ter um nome similar, não é um procedimento único ou coprocedimento, mas um conjunto de sub-rotinas separadas que são chamadas pelo analisador sintático conforme necessárias.
+Nossa organização é bem diferente. Nós não temos analisador léxico, no sentido clássico; nossa unidade "scanner", apesar de ter um nome similar, não é um procedimento único ou co-procedimento, mas um conjunto de sub-rotinas separadas que são chamadas pelo analisador sintático conforme necessárias.
 
-De forma similar, o gerador de código clássico, a retaguarda, é um tradutor por si só, lendo o arquivo "fonte" na linguagem intermediátia, e emitindo um arquivo-objeto. Nosso gerador de código não funciona desta forma. Em nosso compilador, não há linguagem intermediária; cada construção na sintaxe da linguagem fonte é convertida em linguagem assembly conforme é reconhecida pelo analisador sintático. Assim como o módulo "scanner", o módulo "codegen" consiste de procedimentos individuais cada um chamado pelo analisador sintático conforme necessário.
+De forma similar, o gerador de código clássico, a retaguarda, é um tradutor por si só, lendo o arquivo "fonte" na linguagem intermediária, e emitindo um arquivo-objeto. Nosso gerador de código não funciona desta forma. Em nosso compilador, não há linguagem intermediária; cada construção na sintaxe da linguagem fonte é convertida em linguagem assembly conforme é reconhecida pelo analisador sintático. Assim como o módulo "scanner", o módulo "codegen" consiste de procedimentos individuais cada um chamado pelo analisador sintático conforme necessário.
 
 Esta filosofia "codifique conforme necessário" pode não produzir o código mais eficiente do mundo -- por exemplo, ainda não construíamos (ainda!) um lugar conveniente para que o otimizador faça sua mágica -- mas certamente simplifica o compilador, não simplifica?
 
@@ -67,7 +67,7 @@ Eu vou terminar esta nota filosófica com uma observação da noção de uma lin
 Expandindo o Analisador Sintático
 ---------------------------------
 
-Apesar de ter prometido que, em algum lugar do capítulo 14, que nós nunca mais iríamos ter que refazer cada função novamente, eu acabei começando a fazer isto outra vez no capítulo 15. A razão: a longa pausa entre os dois capítulos fez com que a revisão fosse justificada... para você e para mim. Mais importante do que isso, a decisão de coletar os procedimento em módulos (unidades), nos forçou a revisar tudo novamente, querendo ou não. E, finalmente e francamente, eu tive algumas idéias novas nos últimos quatro anos que garantiram uma nova olhada em alguns dos velhos amigos. Quando eu comecei esta série, eu francamente fiquei espantado, e ao mesmo tempo satisfeito, em saber quão simples as rotinas de análise podem ser. Mas desta vez, eu me surpreendi novamente, sendo capaz de fazê-las ainda mais simples.
+Apesar de ter prometido que, em algum lugar do capítulo 14, que nós nunca mais iríamos ter que refazer cada função novamente, eu acabei começando a fazer isto outra vez no capítulo 15. A razão: a longa pausa entre os dois capítulos fez com que a revisão fosse justificada... para você e para mim. Mais importante do que isso, a decisão de coletar os procedimento em módulos (unidades), nos forçou a revisar tudo novamente, querendo ou não. E, finalmente e francamente, eu tive algumas ideias novas nos últimos quatro anos que garantiram uma nova olhada em alguns dos velhos amigos. Quando eu comecei esta série, eu francamente fiquei espantado, e ao mesmo tempo satisfeito, em saber quão simples as rotinas de análise podem ser. Mas desta vez, eu me surpreendi novamente, sendo capaz de fazê-las ainda mais simples.
 
 Apesar de toda esta reescrita do módulo de análise, eu só consegui incluir uma parte no último capítulo. Por causa disto, nosso herói, o analisador sintático, quando visto pela última vez, era apenas uma sombra de sua versão anterior, consistindo apenas de código suficiente para analisar e processar fatores consistindo de uma variável ou constante. O principal objetivo deste capítulo será ajudar o analisador a alcançar sua glória inicial. No processo, eu espero que você me acompanhe enquanto cobrimos um território que já foi tratado há muito tempo.
 
@@ -109,7 +109,7 @@ Sim, eu sei que o código não é muito eficiente. Se colocarmos um número, com
 
 o que é realmente estúpido. Podemos fazer melhor, é claro, simplesmente adicionando um sinal de menos à string passada para `AsmLoadConst()`, mas isto adiciona algumas linhas de código a `SignedFactor()`, e eu estou aplicando a filosofia KISS muito agressivamente aqui. Além disso, pra falar a verdade, eu acho que eu estou de forma subconsciente gostando de gerar código "realmente estúpido", para que eu tenha o prazer de vê-lo ficar dramaticamente melhor quando chegarmos aos métodos de otimização.
 
-Creio que a maioria de vocês nunca ouviu falar de John Spray, então permitam-me apresentá-lo. John é da Nova Zelândia, e costumava ensinar ciência da computação em uma das universidades de lá. John escreveu um compilador para o processador Motorola 6809, baseado em uma fantástica linguagem que ele mesmo criou, parecida com Pascal, chamada "Whimsical". Mais tarde ele portou o compilador para o 68000, e por um tempo este foi o único compilador que eu possuia em meu sistema doméstico.
+Creio que a maioria de vocês nunca ouviu falar de John Spray, então permitam-me apresentá-lo. John é da Nova Zelândia, e costumava ensinar ciência da computação em uma das universidades de lá. John escreveu um compilador para o processador Motorola 6809, baseado em uma fantástica linguagem que ele mesmo criou, parecida com Pascal, chamada "Whimsical". Mais tarde ele portou o compilador para o 68000, e por um tempo este foi o único compilador que eu possuía em meu sistema doméstico.
 
 Por curiosidade, um dos meus testes padrão para qualquer novo compilador é ver como o programa trata de um programa vazio como:
 
@@ -300,7 +300,7 @@ void Expression()
 }
 ~~~
 
-Se não me falha a memória, antes nós tinhamos tanto `SignedFactor()` quanto `SignedTerm()`. Eu tinha razões para manter as duas daquela vez... tinha a ver com o tratamento da álgebra booleana e, em particular, a função booleana "NOT". Mas certamente, para operações aritméticas, a duplicação não é necessária. Em uma expressão como:
+Se não me falha a memória, antes nós tínhamos tanto `SignedFactor()` quanto `SignedTerm()`. Eu tinha razões para manter as duas daquela vez... tinha a ver com o tratamento da álgebra booleana e, em particular, a função booleana "NOT". Mas certamente, para operações aritméticas, a duplicação não é necessária. Em uma expressão como:
 
     -x*y
 
@@ -384,7 +384,7 @@ O próximo passo, como já vimos diversas vezes antes, é adicionar álgebra boo
 
 Em retrospecto, isto não parece uma razão muito boa para adicionar diversas camadas de complexidade ao compilador. Além disso, eu não estava sequer certo se poderia ou não evitar os parênteses.
 
-Vamos começar tudo outra vez, usando uma abordagem mais próxima do Pascal, tratando os operadores booleaos com o mesmo nível de precedência dos aritméticos. Vamos ver até onde chegamos. Se parecer algo muito estranho podemos voltar à abordagem anterior.
+Vamos começar tudo outra vez, usando uma abordagem mais próxima do Pascal, tratando os operadores booleanos com o mesmo nível de precedência dos aritméticos. Vamos ver até onde chegamos. Se parecer algo muito estranho podemos voltar à abordagem anterior.
 
 Vamos começar modificando `IsAddOp()` para incluir os dois operadores extra: `|` para OU e `~` para OU-exclusivo:
 
@@ -484,7 +484,7 @@ Ou a função de valor absoluto (DEFINITAMENTE estranha!):
 
     x*(1+2*(x<0))
 
-Por favor, entenda. Eu não estou tentando dizer que este tipo de programação é um estilo de vida. Eu certamente escreveria estas funções em formas mais legíveis, usando IFs, apenas para evitar confundir programadores que venham a manter os programas. Porém, uma questão moral surge: nós temos o direito de IMPOR nossas idéias de boa prática de programação ao programador, escrevendo a linguagem de forma que ele não tenha saída? Foi isto que Niklaus Wirth fez, em muitos partes de Pascal, e Pascal foi muito criticado por isto -- por não ser tão "permissível" quanto C.
+Por favor, entenda. Eu não estou tentando dizer que este tipo de programação é um estilo de vida. Eu certamente escreveria estas funções em formas mais legíveis, usando IFs, apenas para evitar confundir programadores que venham a manter os programas. Porém, uma questão moral surge: nós temos o direito de IMPOR nossas ideias de boa prática de programação ao programador, escrevendo a linguagem de forma que ele não tenha saída? Foi isto que Niklaus Wirth fez, em muitos partes de Pascal, e Pascal foi muito criticado por isto -- por não ser tão "permissível" quanto C.
 
 Um paralelo interessante no exemplo do projeto do processador Motorola 68000. Por exemplo, é possível ler uma variável a partir de seu endereço:
 
@@ -497,14 +497,14 @@ Porém, não é possível fazer o inverso, isto é, é preciso carregar em um re
     LEA X(PC), A0
     MOVE D0, (A0)
 
-O mesmo vale para endereçamente relativo ao contador de programa:
+O mesmo vale para endereçamento relativo ao contador de programa:
 
     MOVE X(PC), D0 (válido)
     MOVE D0, X(PC) (inválido)
 
 Quando você começa a se perguntar como um comportamento não-ortogonal surgiu, você descobre que alguém na Motorola tinha algumas teorias a respeito de como o software deveria ser escrito. Especificamente, neste caso, eles decidiram que código auto-modificável, que pode ser implementado usando escritas relativas ao contador de programa (PC) é uma *Coisa Má*. Portanto, eles projetaram o processador para proibir isto. Infelizmente, no processo eles também proibiram TODAS as instruções de escrita no formato mostrado acima, não importa quão benignas. Repare que isto não foi algo feito por padrão. Trabalho extra foi adicionado ao projeto, e portas extras foram adicionadas, para destruir a ortogonalidade natural do conjunto de instruções.
 
-Uma das lições que eu aprendi com a vida: se você tem duas escolhas, e não consegue decidir qual tomar, algumas vezes a melhor coisa a fazer é nada. Por que adicionar portas lógicas extras a um processador para forçar algumas idéias estranhas a respeito de boa prática de programação? Deixe as instruções lá, e deixe que os programadores discutam o que é boa prática de programação. De forma similar, por que deveríamos adicionar código extra ao nosso compilador, para testar e prevenir condições que o usuário preferiria fazer de qualquer jeito? Eu prefiro manter o compilador simples, e deixar que os especialistas do software discutam se a prática deve ser usada ou não.
+Uma das lições que eu aprendi com a vida: se você tem duas escolhas, e não consegue decidir qual tomar, algumas vezes a melhor coisa a fazer é nada. Por que adicionar portas lógicas extras a um processador para forçar algumas ideias estranhas a respeito de boa prática de programação? Deixe as instruções lá, e deixe que os programadores discutam o que é boa prática de programação. De forma similar, por que deveríamos adicionar código extra ao nosso compilador, para testar e prevenir condições que o usuário preferiria fazer de qualquer jeito? Eu prefiro manter o compilador simples, e deixar que os especialistas do software discutam se a prática deve ser usada ou não.
 
 Tudo isto serve como uma explicação para a minha decisão a respeito de prevenir ou não aritmética de tipos misturados: eu não vou! Para uma linguagem cujo objetivo é programação de sistemas, quanto menos regras, melhor. Se você não concordar, e preferir testar tais condições, podemos fazê-lo uma vez que tenhamos uma tabela de símbolos.
 
@@ -568,7 +568,7 @@ void AsmPopAnd()
 
 Seu analisador deve a esta altura estar apto a processar quase todo tipo de expressões lógicas, e expressões misturadas também.
 
-Por que não "todo tipo de expressões lógicas"? Por que, até aqui, não tratamos do operador lógico NOT, e é aí que as coisas começam a fica complicadas. O operador lógico NOT parece, numa primeira olhada, ser idêntico em comportamento ao menos unário. Portanto, minha primeira idéia foi permitir que o operador OU-exclusivo `~`, fizesse o papel do NOT, quando operador unário. Isto não funcionou. Na minha primeira tentativa, o procedimento "signedTerm" simplesmente ignorou o `~`, pois o caracter passou o teste de "isAddOp", mas "signedTerm" ignora qualquer coisa exceto "-". Seria fácil adicionar outro teste a "signedTerm", mas isto ainda não resolveria o problema, pois, note que "expression" só aceita um termo com sinal para o PRIMEIRO argumento.
+Por que não "todo tipo de expressões lógicas"? Por que, até aqui, não tratamos do operador lógico NOT, e é aí que as coisas começam a fica complicadas. O operador lógico NOT parece, numa primeira olhada, ser idêntico em comportamento ao menos unário. Portanto, minha primeira ideia foi permitir que o operador OU-exclusivo `~`, fizesse o papel do NOT, quando operador unário. Isto não funcionou. Na minha primeira tentativa, o procedimento "signedTerm" simplesmente ignorou o `~`, pois o caractere passou o teste de "isAddOp", mas "signedTerm" ignora qualquer coisa exceto "-". Seria fácil adicionar outro teste a "signedTerm", mas isto ainda não resolveria o problema, pois, note que "expression" só aceita um termo com sinal para o PRIMEIRO argumento.
 
 Matematicamente, uma expressão como:
 
@@ -588,13 +588,13 @@ Se permitirmos que NOT se aplique ao termo inteiro, o último termo entre parên
 
 que não é a mesma coisa. Portanto está claro que o NOT lógico deve ser considerado conectado ao FATOR, não ao termo.
 
-A idéia de sobrecarregar (overload) o operador "~" também não faz sentido do ponto de vista matemático. A implicação do menos unário é equivalente a uma subtração de zero:
+A ideia de sobrecarregar (overload) o operador "~" também não faz sentido do ponto de vista matemático. A implicação do menos unário é equivalente a uma subtração de zero:
 
     -x  equivale a  0-x
 
 De fato, em uma das minhas versões mais simplistas de "expression", eu reagi a um operador aditivo simplesmente pré-carregando um zero, e então processado o operador como se ele fosse um operador binário. Mas um NOT não é equivalente a um OU-exclusivo com zero... isto só daria como resultado o próprio número. Ao invés disto, seria um OU-exclusivo com FFFFh, ou -1.
 
-Em resumo, o paralelo entre o NOT e o menos unário é falso. NOT modifica o fator, não o termo, e não está relacionando ao sinal de menos e nem ao OU-exclusivo. Portanto, ele merece um símbolo próprio. Que símbolo seria melhor que o mais óbvio de todos: o caracter "!" da linguagem C? Usando as regras da forma como achamos que o NOT deveria ser, poderíamos codificar o OU-exclusivo (se é que um dia vamos precisar fazer isto), na forma natural:
+Em resumo, o paralelo entre o NOT e o menos unário é falso. NOT modifica o fator, não o termo, e não está relacionando ao sinal de menos e nem ao OU-exclusivo. Portanto, ele merece um símbolo próprio. Que símbolo seria melhor que o mais óbvio de todos: o caractere "!" da linguagem C? Usando as regras da forma como achamos que o NOT deveria ser, poderíamos codificar o OU-exclusivo (se é que um dia vamos precisar fazer isto), na forma natural:
 
     a & !b | !a & b
 
@@ -679,9 +679,9 @@ Se olharmos na BNF que criamos, vamos descobrir que nossa algebra booleana adici
 <assignment>      ::= <variable> '=' <expression>
 ~~~
 
-Esta é uma grande melhoria em relação às tentativas passadas. Nossa sorte vai continuar quando tratarmos de operadores relacionais? Nós vamos descobrir em breve, mas isto terá que esperar pelo próximo capítulo. Chegamos num bom ponto de parada por enquanto, e estou ansioso para que este capítulo chegue às suas mãos logo. Já se passou um ano desde o [capítulo 15](15_de_volta_para_o_futuro.md). Eu devo admitir que parte destes capítulos atuais estiveram prontos por muito tomepo, com a exceção dos operadores relacionais. Mas a informação não tem valor algum, enquanto permanecer no meu disco rígido, e segurá-la até que os operadores relacionais estivessem prontos iria atrasar demais as coisas. Está na hora de liberá-la para que você possa tirar algum valor dela. Além disso, há uma série de questões filosóficas associadas aos operadores relacionais, também, e eu gostaria de deixá-las para um capítulo posterior, onde eu possa fazer justiça a elas.
+Esta é uma grande melhoria em relação às tentativas passadas. Nossa sorte vai continuar quando tratarmos de operadores relacionais? Nós vamos descobrir em breve, mas isto terá que esperar pelo próximo capítulo. Chegamos num bom ponto de parada por enquanto, e estou ansioso para que este capítulo chegue às suas mãos logo. Já se passou um ano desde o [capítulo 15](15_de_volta_para_o_futuro.md). Eu devo admitir que parte destes capítulos atuais estiveram prontos por muito tempo, com a exceção dos operadores relacionais. Mas a informação não tem valor algum, enquanto permanecer no meu disco rígido, e segurá-la até que os operadores relacionais estivessem prontos iria atrasar demais as coisas. Está na hora de liberá-la para que você possa tirar algum valor dela. Além disso, há uma série de questões filosóficas associadas aos operadores relacionais, também, e eu gostaria de deixá-las para um capítulo posterior, onde eu possa fazer justiça a elas.
 
-Divita-se com o novo analisador lógico e aritmético, e quem sabe em breve estaremos tratando dos operadores relacionais.
+Divirta-se com o novo analisador lógico e aritmético, e quem sabe em breve estaremos tratando dos operadores relacionais.
 
 ## Conclusão
 

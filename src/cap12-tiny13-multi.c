@@ -19,7 +19,7 @@ char *SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
 char SymbolType[SYMBOLTABLE_SIZE]; /* Tabela de tipos de símbolos */
 int SymbolCount; /* Número de entradas na tabela de símbolos */
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 #define KEYWORDLIST_SIZE 9
@@ -37,13 +37,13 @@ char Token; /* Código do token atual */
 
 char TempChar = ' ';
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextCharX()
 {
     Look = getchar();
 }
 
-/* Lê próximo caracter e intercepta início de comentário*/
+/* Lê próximo caractere e intercepta início de comentário*/
 void NextChar()
 {
     if (TempChar != ' ') {
@@ -833,7 +833,7 @@ void Statement()
     }
 }
 
-/* Analiza e traduz um bloco de comandos estilo "Pascal" */
+/* Analisa e traduz um bloco de comandos estilo "Pascal" */
 void Block()
 {
     Statement();

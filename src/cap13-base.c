@@ -14,7 +14,7 @@ Este código é de livre distribuição e uso.
 #include <string.h>
 #include <ctype.h>
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 
 #define SYMBOLTABLE_SIZE 26
 char SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
@@ -81,7 +81,7 @@ void Init()
     SkipWhite();
 }
 
-/* Lê próximo caracter da entrada em lookahead */
+/* Lê próximo caractere da entrada em lookahead */
 void NextChar()
 {
     Look = getchar();
@@ -226,7 +226,7 @@ void NewLine()
         NextChar();
 }
 
-/* Verifica se Look combina com caracter esperado */
+/* Verifica se Look combina com caractere esperado */
 void Match(char c)
 {
     if (Look != c)
@@ -302,7 +302,7 @@ void Assignment()
     AsmStoreVar(name);
 }
 
-/* Analiza e traduz um bloco de comandos */
+/* Analisa e traduz um bloco de comandos */
 void DoBlock()
 {
     while (Look != 'e') {
@@ -311,7 +311,7 @@ void DoBlock()
     }
 }
 
-/* Analiza e traduz um bloco begin */
+/* Analisa e traduz um bloco begin */
 void BeginBlock()
 {
     Match('b');
@@ -321,14 +321,14 @@ void BeginBlock()
     NewLine();
 }
 
-/* Analiza e traduz uma declaração de variável */
+/* Analisa e traduz uma declaração de variável */
 void Declaration()
 {
     Match('v');
     AsmAllocVar(GetName());
 }
 
-/* Analiza e traduz as declarações globais */
+/* Analisa e traduz as declarações globais */
 void TopDeclarations()
 {
     while (Look != 'b') {

@@ -18,7 +18,7 @@ Este código é de livre distribuição e uso.
 char *SymbolTable[SYMBOLTABLE_SIZE]; /* Tabela de símbolos */
 int SymbolCount; /* Número de entradas na tabela de símbolos */
 
-char Look; /* O caracter lido "antecipadamente" (lookahead) */
+char Look; /* O caractere lido "antecipadamente" (lookahead) */
 int LabelCount; /* Contador usado pelo gerador de rótulos */
 
 
@@ -35,7 +35,7 @@ char *KeywordCode = "ileweRWvbep";
 char TokenText[MAXTOKEN+1]; /* Texto do token atual */
 char Token; /* Código do token atual */
 
-/* Lê próximo caracter da entrada */
+/* Lê próximo caractere da entrada */
 void NextChar()
 {
     Look = getchar();
