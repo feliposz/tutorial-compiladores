@@ -1,0 +1,2676 @@
+
+=================
+Testes de Sucesso
+=================
+
+
+echo ""| ./cap01-craddle
+
+echo "0"| ./cap02-expr
+	MOV AX, 0
+echo "-1"| ./cap02-expr
+	XOR AX, AX
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+echo "2+3"| ./cap02-expr
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	ADD AX, BX
+echo "4-5"| ./cap02-expr
+	MOV AX, 4
+	PUSH AX
+	MOV AX, 5
+	POP BX
+	SUB AX, BX
+	NEG AX
+echo "6*7"| ./cap02-expr
+	MOV AX, 6
+	PUSH AX
+	MOV AX, 7
+	POP BX
+	IMUL BX
+echo "8/9"| ./cap02-expr
+	MOV AX, 8
+	PUSH AX
+	MOV AX, 9
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+echo "2+3*4"| ./cap02-expr
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	IMUL BX
+	POP BX
+	ADD AX, BX
+echo "1+2-3*4/5"| ./cap02-expr
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 5
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+echo "2*(3+4)"| ./cap02-expr
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	ADD AX, BX
+	POP BX
+	IMUL BX
+echo "1+(2-(3+(4-5)))"| ./cap02-expr
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	MOV AX, 5
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	ADD AX, BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	ADD AX, BX
+echo "(1+2)/((3+4)+(5-6))"| ./cap02-expr
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 6
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	ADD AX, BX
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+echo "-(3-2)"| ./cap02-expr
+	XOR AX, AX
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+echo "d=b*b-4*a*c"| ./cap03-single
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	MOV AX, [A]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, [C]
+	POP BX
+	IMUL BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [D], AX
+echo "x=f()+g()"| ./cap03-single
+	CALL F
+	PUSH AX
+	CALL G
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+
+echo "nota=(prova1+prova2*2)/3"| ./cap03-multi
+	MOV AX, [PROVA1]
+	PUSH AX
+	MOV AX, [PROVA2]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	IMUL BX
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	MOV [NOTA], AX
+echo "nota = (prova1 + prova2 * 2) / 3"| ./cap03-multi
+	MOV AX, [PROVA1]
+	PUSH AX
+	MOV AX, [PROVA2]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	IMUL BX
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	MOV [NOTA], AX
+echo "x = 2 * y + 3"| ./cap03-multi
+	MOV AX, 2
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+echo "x = x + 3 - 2 - (5 - 4)"| ./cap03-multi
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 3
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	SUB AX, BX
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [X], AX
+echo "delta  =  (b * b  )  -(  4*a*c   )"| ./cap03-multi
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	MOV AX, [A]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, [C]
+	POP BX
+	IMUL BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [DELTA], AX
+echo "resultado = funcao () + outra(  )"| ./cap03-multi
+	CALL FUNCAO
+	PUSH AX
+	CALL OUTRA
+	POP BX
+	ADD AX, BX
+	MOV [RESULTADO], AX
+
+echo "a=1
+b=2
+c=3
+d=b*b-4*a*c
+!d
+."| ./cap04-interp
+D -> -8
+
+echo "iee"| ./cap05-control
+	; condition
+	JZ L0
+L0:
+	; END
+echo "AiBeCe"| ./cap05-control
+	; A
+	; condition
+	JZ L0
+	; B
+L0:
+	; C
+	; END
+echo "AiBiCeDeFe"| ./cap05-control
+	; A
+	; condition
+	JZ L0
+	; B
+	; condition
+	JZ L1
+	; C
+L1:
+	; D
+L0:
+	; F
+	; END
+echo "AiBlCeDe"| ./cap05-control
+	; A
+	; condition
+	JZ L0
+	; B
+	JMP L1
+L0:
+	; C
+L1:
+	; D
+	; END
+echo "wXee"| ./cap05-control
+L0:
+	; condition
+	JZ L1
+	; X
+	JMP L0
+L1:
+	; END
+echo "pXee"| ./cap05-control
+L0:
+	; X
+	JMP L0
+L1:
+	; END
+echo "rXue"| ./cap05-control
+L0:
+	; X
+	; condition
+	JZ L0
+L1:
+	; END
+echo "fI=ee"| ./cap05-control
+	; expression
+	DEC AX
+	MOV [I], AX
+	; expression
+	PUSH AX
+L0:
+	MOV AX, [I]
+	INC AX
+	MOV [I], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L1
+	JMP L0
+L1:
+	POP AX
+	; END
+echo "AfI=BeCe"| ./cap05-control
+	; A
+	; expression
+	DEC AX
+	MOV [I], AX
+	; expression
+	PUSH AX
+L0:
+	MOV AX, [I]
+	INC AX
+	MOV [I], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L1
+	; B
+	JMP L0
+L1:
+	POP AX
+	; C
+	; END
+echo "dee"| ./cap05-control
+	; expression
+	MOV CX, AX
+L0:
+	PUSH CX
+	POP CX
+	LOOP L0
+	PUSH CX
+L1:
+	POP CX
+	; END
+echo "pABCbDEFee"| ./cap05-control
+L0:
+	; A
+	; B
+	; C
+	JMP L1
+	; D
+	; E
+	; F
+	JMP L0
+L1:
+	; END
+echo "pwXepYbZeiAlberCfI=Deuee"| ./cap05-control
+L0:
+L2:
+	; condition
+	JZ L3
+	; X
+	JMP L2
+L3:
+L4:
+	; Y
+	JMP L5
+	; Z
+	JMP L4
+L5:
+	; condition
+	JZ L6
+	; A
+	JMP L7
+L6:
+	JMP L1
+L7:
+L8:
+	; C
+	; expression
+	DEC AX
+	MOV [I], AX
+	; expression
+	PUSH AX
+L10:
+	MOV AX, [I]
+	INC AX
+	MOV [I], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L11
+	; D
+	JMP L10
+L11:
+	POP AX
+	; condition
+	JZ L8
+L9:
+	JMP L0
+L1:
+	; END
+
+echo "a*(-b)"| ./cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NEG AX
+	POP BX
+	IMUL BX
+echo "a-(-b)"| ./cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+echo "a&!b"| ./cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NOT AX
+	POP BX
+	AND AX, BX
+echo "T"| ./cap06-bool1
+	MOV AX, -1
+echo "F"| ./cap06-bool1
+	MOV AX, 0
+echo "!T"| ./cap06-bool1
+	MOV AX, -1
+	NOT AX
+echo "T&F"| ./cap06-bool1
+	MOV AX, -1
+	PUSH AX
+	MOV AX, 0
+	POP BX
+	AND AX, BX
+echo "T|F"| ./cap06-bool1
+	MOV AX, -1
+	PUSH AX
+	MOV AX, 0
+	POP BX
+	OR AX, BX
+echo "T~F"| ./cap06-bool1
+	MOV AX, -1
+	PUSH AX
+	MOV AX, 0
+	POP BX
+	XOR AX, BX
+echo "1>2"| ./cap06-bool1
+	MOV AX, 1
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	CMP BX, AX
+	JG L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+echo "3<4"| ./cap06-bool1
+	MOV AX, 3
+	PUSH AX
+	MOV AX, 4
+	POP BX
+	CMP BX, AX
+	JL L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+echo "5=6"| ./cap06-bool1
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 6
+	POP BX
+	CMP BX, AX
+	JE L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+echo "5#6"| ./cap06-bool1
+	MOV AX, 5
+	PUSH AX
+	MOV AX, 6
+	POP BX
+	CMP BX, AX
+	JNE L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+echo "x()"| ./cap06-bool1
+	CALL X
+echo "((x()+1)>(5*y()))|(a#b&c<d)"| ./cap06-bool1
+	CALL X
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, 5
+	PUSH AX
+	CALL Y
+	POP BX
+	IMUL BX
+	POP BX
+	CMP BX, AX
+	JG L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	PUSH AX
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	CMP BX, AX
+	JNE L2
+	MOV AX, 0
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	PUSH AX
+	MOV AX, [C]
+	PUSH AX
+	MOV AX, [D]
+	POP BX
+	CMP BX, AX
+	JL L4
+	MOV AX, 0
+	JMP L5
+L4:
+	MOV AX, -1
+L5:
+	POP BX
+	AND AX, BX
+	POP BX
+	OR AX, BX
+
+echo "iA=BX=1lX=2ee"| ./cap06-bool2
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	CMP BX, AX
+	JE L0
+	MOV AX, 0
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, 1
+	MOV [X], AX
+	JMP L3
+L2:
+	MOV AX, 2
+	MOV [X], AX
+L3:
+	; END
+echo "X=1fA=1t9Y=2eZ=3e"| ./cap06-bool2
+	MOV AX, 1
+	MOV [X], AX
+	MOV AX, 1
+	DEC AX
+	MOV [A], AX
+	MOV AX, 9
+	PUSH AX
+L0:
+	MOV AX, [A]
+	INC AX
+	MOV [A], AX
+	POP BX
+	PUSH BX
+	CMP AX, BX
+	JG L1
+	MOV AX, 2
+	MOV [Y], AX
+	JMP L0
+L1:
+	POP AX
+	MOV AX, 3
+	MOV [Z], AX
+	; END
+
+echo "1 23 456 a bc def = # . : ; ! ? + - * / if else endif end"| ./cap07-lex-enum
+Number: 1
+Number: 23
+Number: 456
+Ident: A
+Ident: BC
+Ident: DEF
+Operator: =
+Operator: #
+Operator: .
+Operator: :
+Operator: ;
+Operator: !
+Operator: ?
+Operator: +
+Operator: -
+Operator: *
+Operator: /
+Keyword: IF
+Keyword: ELSE
+Keyword: ENDIF
+Keyword: END
+echo "1 23 456 a bc def = # . : ; ! ? + - * / if else endif end"| ./cap07-lex-char
+Number: 1
+Number: 23
+Number: 456
+Ident: A
+Ident: BC
+Ident: DEF
+Operator: =
+Operator: #
+Operator: .
+Operator: :
+Operator: ;
+Operator: !
+Operator: ?
+Operator: +
+Operator: -
+Operator: *
+Operator: /
+Keyword: IF
+Keyword: ELSE
+Keyword: ENDIF
+Keyword: END
+echo "ia=1lb=2ee "| ./cap07-subset
+	; condition
+	JZ L0
+	MOV AX, 1
+	MOV [A], AX
+	JMP L1
+L0:
+	MOV AX, 2
+	MOV [B], AX
+L1:
+	; END
+echo "if a = 1 else b = 2 endif end "| ./cap07-lex-subset
+	; condition
+	JZ L0
+	MOV AX, 1
+	MOV [A], AX
+	JMP L1
+L0:
+	MOV AX, 2
+	MOV [B], AX
+L1:
+	; END
+
+echo "pXbe."| ./cap09-top-pascal
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+echo "pXlcltcvtpvfvlbXYZe."| ./cap09-top-pascal
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+echo ""| ./cap09-top-c
+echo "iI,J;g(){}uU;iS;f(){}cC,D;"| ./cap09-top-c
+Class: a, Sign: s, Type: i, Data: I
+Class: a, Sign: s, Type: i, Data: J
+Class: a, Sign: s, Type: i, Function: G
+Class: a, Sign: u, Type: i, Data: U
+Class: a, Sign: s, Type: i, Data: S
+Class: a, Sign: s, Type: i, Function: F
+Class: a, Sign: s, Type: c, Data: C
+Class: a, Sign: s, Type: c, Data: D
+echo "auiX,Y;xiZ;"| ./cap09-top-c
+Class: a, Sign: u, Type: i, Data: X
+Class: a, Sign: u, Type: i, Data: Y
+Class: x, Sign: s, Type: i, Data: Z
+
+echo "pbe."| ./cap10-tiny01
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+echo "pvXvYvZbe."| ./cap10-tiny01
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+echo "pvX,Y,ZvM,NvObe."| ./cap10-tiny01
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+echo "pvX=1,Y=2,Z=3vM,NvO=9be."| ./cap10-tiny01
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 3
+M	dw 0
+N	dw 0
+O	dw 9
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+echo "pvX=-1,Y=23,Z=456vM,NvO=-7890be."| ./cap10-tiny01
+org 100h
+section .data
+X	dw -1
+Y	dw 23
+Z	dw 456
+M	dw 0
+N	dw 0
+O	dw -7890
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+echo "pbXYZe."| ./cap10-tiny01
+Error: '=' expected!
+org 100h
+section .data
+section .text
+_start:
+echo "pvX=1,Y=2,ZbZ=X-Y+(-X*Y)/10e."| ./cap10-tiny01
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 0
+section .text
+_start:
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	MOV AX, [X]
+	NEG AX
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 10
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	ADD AX, BX
+	MOV [Z], AX
+	MOV AX, 4C00h
+	INT 21h
+echo "pvX,Y,ZbX=Z>Ye."| ./cap10-tiny01
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [Z]
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	CMP BX, AX
+	JG L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	MOV [X], AX
+	MOV AX, 4C00h
+	INT 21h
+echo "pvXbX=0wX<9X=X+1ee."| ./cap10-tiny01
+org 100h
+section .data
+X	dw 0
+section .text
+_start:
+	MOV AX, 0
+	MOV [X], AX
+L0:
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 9
+	POP BX
+	CMP BX, AX
+	JL L2
+	XOR AX, AX
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	JZ L1
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+	JMP L0
+L1:
+	MOV AX, 4C00h
+	INT 21h
+echo "pvX,YbX=1iX=1Y=Y-1lY=Y+2ee."| ./cap10-tiny01
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
+	MOV AX, 1
+	MOV [X], AX
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [Y]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [Y], AX
+	JMP L3
+L2:
+	MOV AX, [Y]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [Y], AX
+L3:
+	MOV AX, 4C00h
+	INT 21h
+
+echo "Program Begin End ."| ./cap10-tiny10
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x Var y Var z Begin End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x,Y,z Var M , N Var O Begin End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x = 1 , y = 2 , z = 3 Var M , N Var O = 9 Begin End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 3
+M	dw 0
+N	dw 0
+O	dw 9
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x = - 1 , y = 23 , z = 456 Var M , N Var O = - 7890 Begin End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw -1
+Y	dw 23
+Z	dw 456
+M	dw 0
+N	dw 0
+O	dw -7890
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x = 1 , y = 2 , z Begin z = x - y + ( - x * y ) / 10 End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw 1
+Y	dw 2
+Z	dw 0
+section .text
+_start:
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	MOV AX, [X]
+	NEG AX
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 10
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	ADD AX, BX
+	MOV [Z], AX
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x , y , z Begin x = z >= y End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [Z]
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	MOV [X], AX
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x Begin x = 0 While x <= 9 x = x + 1 EndWhile End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw 0
+section .text
+_start:
+	MOV AX, 0
+	MOV [X], AX
+L0:
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 9
+	POP BX
+	CMP BX, AX
+	JLE L2
+	XOR AX, AX
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	JZ L1
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+	JMP L0
+L1:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x , y Begin x = 1 If x = 1 y = y - 1 Else y = y + 2 EndIf End ."| ./cap10-tiny10
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
+	MOV AX, 1
+	MOV [X], AX
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [Y]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [Y], AX
+	JMP L3
+L2:
+	MOV AX, [Y]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [Y], AX
+L3:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var alfa, beta Begin alfa = 1 If alfa <> 1 beta = beta - 1 Else beta = beta + 2 EndIf End ."| ./cap10-tiny10
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
+	MOV AX, 1
+	MOV [ALFA], AX
+	MOV AX, [ALFA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JNE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [BETA], AX
+	JMP L3
+L2:
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [BETA], AX
+L3:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var alfa, beta Begin Read(alfa, beta) If alfa >= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End . "| ./cap10-tiny10
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
+	CALL READ
+	MOV [ALFA], AX
+	CALL READ
+	MOV [BETA], AX
+	MOV AX, [ALFA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [BETA], AX
+	JMP L3
+L2:
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [BETA], AX
+L3:
+	MOV AX, [ALFA]
+	CALL WRITE
+	MOV AX, [BETA]
+	CALL WRITE
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+
+echo "a bc def 1 23 456 + - * / = >= <= ."| ./cap11-lex
+Token: x Value: A
+Token: x Value: BC
+Token: x Value: DEF
+Token: # Value: 1
+Token: # Value: 23
+Token: # Value: 456
+Token: + Value: +
+Token: - Value: -
+Token: * Value: *
+Token: / Value: /
+Token: = Value: =
+Token: > Value: >
+Token: = Value: =
+Token: < Value: <
+Token: = Value: =
+Token: . Value: .
+
+echo "Program Begin End ."| ./cap11-tiny11
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x Var y Var z Begin End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x,Y,z Var M , N Var O Begin End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x , y , z Var M , N Var O Begin End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x , y , z Var M , N Var O Begin End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+M	dw 0
+N	dw 0
+O	dw 0
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x , y , z Begin z = x - y + ( - x * y ) / 10 End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	XOR AX, AX
+	PUSH AX
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	IMUL BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	PUSH AX
+	MOV AX, 10
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	ADD AX, BX
+	MOV [Z], AX
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x , y , z Begin x = z >= y End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+Z	dw 0
+section .text
+_start:
+	MOV AX, [Z]
+	PUSH AX
+	MOV AX, [Y]
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	MOV [X], AX
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x Begin x = 0 While x <= 9 x = x + 1 EndWhile End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+section .text
+_start:
+	MOV AX, 0
+	MOV [X], AX
+L0:
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 9
+	POP BX
+	CMP BX, AX
+	JLE L2
+	XOR AX, AX
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	JZ L1
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+	JMP L0
+L1:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var x , y Begin x = 1 If x = 1 y = y - 1 Else y = y + 2 EndIf End ."| ./cap11-tiny11
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
+	MOV AX, 1
+	MOV [X], AX
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [Y]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [Y], AX
+	JMP L3
+L2:
+	MOV AX, [Y]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [Y], AX
+L3:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var alfa, beta Begin alfa = 1 If alfa <> 1 beta = beta - 1 Else beta = beta + 2 EndIf End ."| ./cap11-tiny11
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
+	MOV AX, 1
+	MOV [ALFA], AX
+	MOV AX, [ALFA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JNE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [BETA], AX
+	JMP L3
+L2:
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [BETA], AX
+L3:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+echo "Program Var alfa, beta Begin Read(alfa, beta) If alfa >= 1 beta = beta - 1 Else beta = beta + 2 EndIf Write(alfa, beta) End . "| ./cap11-tiny11
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
+	CALL READ
+	MOV [ALFA], AX
+	CALL READ
+	MOV [BETA], AX
+	MOV AX, [ALFA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [BETA], AX
+	JMP L3
+L2:
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [BETA], AX
+L3:
+	MOV AX, [ALFA]
+	CALL WRITE
+	MOV AX, [BETA]
+	CALL WRITE
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+
+echo "Program; Var x, y; Begin x = 0; y = 10; While !(x = 10) x = x + 1; y = y - 1; EndWhile; End ."| ./cap12-tiny12
+org 100h
+section .data
+X	dw 0
+Y	dw 0
+section .text
+_start:
+	MOV AX, 0
+	MOV [X], AX
+	MOV AX, 10
+	MOV [Y], AX
+L0:
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 10
+	POP BX
+	CMP BX, AX
+	JE L2
+	XOR AX, AX
+	JMP L3
+L2:
+	MOV AX, -1
+L3:
+	NOT AX
+	JZ L1
+	MOV AX, [X]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	ADD AX, BX
+	MOV [X], AX
+	MOV AX, [Y]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [Y], AX
+	JMP L0
+L1:
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+
+echo "{x}Program{x};{x}{}Var{x} alfa, beta; Begin{x}   Read(alfa,{x} beta);   If alfa {x}>= 1{x}     beta {x}= beta - 1  {x{y}z} Else     beta{x} = beta + 2;{ }  EndIf{x};   Write(alfa{x}, beta){ }End{x}"| ./cap12-tiny13
+org 100h
+section .data
+ALFA	dw 0
+BETA	dw 0
+section .text
+_start:
+	CALL READ
+	MOV [ALFA], AX
+	CALL READ
+	MOV [BETA], AX
+	MOV AX, [ALFA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	CMP BX, AX
+	JGE L0
+	XOR AX, AX
+	JMP L1
+L0:
+	MOV AX, -1
+L1:
+	JZ L2
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 1
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [BETA], AX
+	JMP L3
+L2:
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	ADD AX, BX
+	MOV [BETA], AX
+L3:
+	MOV AX, [ALFA]
+	CALL WRITE
+	MOV AX, [BETA]
+	CALL WRITE
+	MOV AX, 4C00h
+	INT 21h
+
+%include "tinyrtl_dos.inc"
+
+echo "va vb vc b a=b c=b e."| ./cap13-base
+A	dw 0
+B	dw 0
+C	dw 0
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, [B]
+	MOV [C], AX
+echo "va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e."| ./cap13-byval
+org 100h
+section .text
+	JMP _start
+section .data
+A	dw 0
+section .text
+X:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, [BP+4]
+	MOV [A], AX
+	POP BP
+	RET
+section .data
+B	dw 0
+section .text
+Y:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, [BP+6]
+	MOV [B], AX
+	MOV AX, [A]
+	MOV [BP+4], AX
+	MOV AX, [B]
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	POP BP
+	RET
+section .data
+C	dw 0
+section .text
+Z:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, [B]
+	MOV [BP+6], AX
+	MOV AX, [BP+8]
+	MOV [C], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [BP+6]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	POP BP
+	RET
+section .text
+_start:
+	MOV AX, [A]
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, [B]
+	MOV [C], AX
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [C]
+	PUSH AX
+	CALL Z
+	ADD SP, 6
+	MOV AX, 4C00h
+	INT 21h
+echo "va px(m) b a=m e vb py(m,n) b b=m n=a x(b) e vc pz(m,n,o) b n=b c=m y(b,n) e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e."| ./cap13-byref
+org 100h
+section .text
+	JMP _start
+section .data
+A	dw 0
+section .text
+X:
+	PUSH BP
+	MOV BP, SP
+	MOV BX, [BP+4]
+	MOV AX, [BX]
+	MOV [A], AX
+	POP BP
+	RET
+section .data
+B	dw 0
+section .text
+Y:
+	PUSH BP
+	MOV BP, SP
+	MOV BX, [BP+6]
+	MOV AX, [BX]
+	MOV [B], AX
+	MOV AX, [A]
+	MOV BX, [BP+4]
+	MOV [BX], AX
+	MOV AX, B
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	POP BP
+	RET
+section .data
+C	dw 0
+section .text
+Z:
+	PUSH BP
+	MOV BP, SP
+	MOV AX, [B]
+	MOV BX, [BP+6]
+	MOV [BX], AX
+	MOV BX, [BP+8]
+	MOV AX, [BX]
+	MOV [C], AX
+	MOV AX, B
+	PUSH AX
+	MOV AX, [BP+6]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	POP BP
+	RET
+section .text
+_start:
+	MOV AX, A
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, A
+	PUSH AX
+	MOV AX, B
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, [B]
+	MOV [C], AX
+	MOV AX, A
+	PUSH AX
+	MOV AX, B
+	PUSH AX
+	MOV AX, C
+	PUSH AX
+	CALL Z
+	ADD SP, 6
+	MOV AX, 4C00h
+	INT 21h
+echo "va px(m) b a=m e vb py(m,n) vi b b=m n=a i=b x(i) e vc pz(m,n,o) vi vj b n=b c=m y(b,n) i=j e Pp b x(a) a=b y(a,b) c=b z(a,b,c) e."| ./cap13-locals
+org 100h
+section .text
+	JMP _start
+section .data
+A	dw 0
+section .text
+X:
+	PUSH BP
+	MOV BP, SP
+	SUB SP, 0
+	MOV AX, [BP+4]
+	MOV [A], AX
+	MOV SP, BP
+	POP BP
+	RET
+section .data
+B	dw 0
+section .text
+Y:
+	PUSH BP
+	MOV BP, SP
+	SUB SP, 2
+	MOV AX, [BP+6]
+	MOV [B], AX
+	MOV AX, [A]
+	MOV [BP+4], AX
+	MOV AX, [B]
+	MOV [BP-2], AX
+	MOV AX, [BP-2]
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV SP, BP
+	POP BP
+	RET
+section .data
+C	dw 0
+section .text
+Z:
+	PUSH BP
+	MOV BP, SP
+	SUB SP, 4
+	MOV AX, [B]
+	MOV [BP+6], AX
+	MOV AX, [BP+8]
+	MOV [C], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [BP+6]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, [BP-4]
+	MOV [BP-2], AX
+	MOV SP, BP
+	POP BP
+	RET
+section .text
+_start:
+	MOV AX, [A]
+	PUSH AX
+	CALL X
+	ADD SP, 2
+	MOV AX, [B]
+	MOV [A], AX
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	PUSH AX
+	CALL Y
+	ADD SP, 4
+	MOV AX, [B]
+	MOV [C], AX
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [C]
+	PUSH AX
+	CALL Z
+	ADD SP, 6
+	MOV AX, 4C00h
+	INT 21h
+
+echo ""| ./cap14-base
+Symbol table dump:
+A = ?
+B = ?
+C = ?
+D = ?
+E = ?
+F = ?
+G = ?
+H = ?
+I = ?
+J = ?
+K = ?
+L = ?
+M = ?
+N = ?
+O = ?
+P = ?
+Q = ?
+R = ?
+S = ?
+T = ?
+U = ?
+V = ?
+W = ?
+X = ?
+Y = ?
+Z = ?
+echo "ba wb lc B . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=a a=b a=c b=a b=b b=c c=a c=b c=c . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, [A]
+	MOV [A], AL
+	MOV AX, [B]
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
+	MOV [A], AL
+	MOV AL, [A]
+	CBW
+	MOV [B], AX
+	MOV AX, [B]
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	MOV [B], AX
+	MOV AL, [A]
+	CBW
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=42 b=1999 c=999999 a=888888 b=77 c=666 . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, 42
+	MOV [A], AL
+	MOV AX, 1999
+	MOV [B], AX
+	MOV DX, 15
+	MOV AX, 16959
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV DX, 13
+	MOV AX, 36920
+	MOV [A], AL
+	MOV AL, 77
+	CBW
+	MOV [B], AX
+	MOV AX, 666
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=a+a a=a-a b=b+b b=b-b c=c+c c=c-c . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	ADD AL, BL
+	MOV [A], AL
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	XCHG AL, BL
+	SUB AL, BL
+	MOV [A], AL
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	ADD AX, BX
+	MOV [B], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	XCHG AX, BX
+	SUB AX, BX
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	POP CX
+	ADD AX, BX
+	ADC DX, CX
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	POP CX
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=b+c a=c+b b=a+c b=c+b c=a+b c=b+a . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, [B]
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV [A], AL
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	ADD AX, BX
+	ADC DX, CX
+	MOV [B], AX
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	XCHG AX, BX
+	CBW
+	ADD AX, BX
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	CBW
+	ADD AX, BX
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=b-c a=c-b b=a-c b=c-b c=a-b c=b-a . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, [B]
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	SUB AX, BX
+	SBB DX, CX
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV [A], AL
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	SUB AX, BX
+	SBB DX, CX
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV [B], AX
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	XCHG AX, BX
+	CBW
+	SUB AX, BX
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	CBW
+	XCHG AX, BX
+	SUB AX, BX
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=a*a a=a/a b=b*b b=b/b c=c*c c=c/c . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	IMUL BL
+	MOV [A], AL
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	XCHG AL, BL
+	CBW
+	IDIV BL
+	MOV [A], AL
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	IMUL BX
+	MOV [B], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	POP CX
+	CALL MUL32
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	POP CX
+	XCHG AX, BX
+	XCHG DX, CX
+	CALL DIV32
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=b*c a=c*b b=a*c b=c*b c=a*b c=b*a . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, [B]
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	CALL MUL32
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	CALL MUL32
+	MOV [A], AL
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	CALL MUL32
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	CALL MUL32
+	MOV [B], AX
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	XCHG AX, BX
+	CBW
+	IMUL BX
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	CBW
+	IMUL BX
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc B a=b/c a=c/b b=a/c b=c/b c=a/b c=b/a . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+	MOV AX, [B]
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	CALL DIV32
+	MOV [A], AL
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	CALL DIV32
+	MOV [A], AL
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CBW
+	CWD
+	CALL DIV32
+	CBW
+	MOV [B], AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	PUSH DX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	POP CX
+	CWD
+	XCHG AX, BX
+	XCHG DX, CX
+	CALL DIV32
+	MOV [B], AX
+	MOV AL, [A]
+	CBW
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	XCHG AX, BX
+	CBW
+	CWD
+	IDIV BX
+	CBW
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+	MOV AX, [B]
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	XCHG AX, BX
+	IDIV BL
+	CWD
+	MOV [C+2], DX
+	MOV [C], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+echo "ba wb lc ld B d=(b*b)-(4*a*c) . "| ./cap14-types
+A db 0
+B dw 0
+C dd 0
+D dd 0
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	IMUL BX
+	PUSH DX
+	PUSH AX
+	MOV AL, 4
+	CBW
+	PUSH AX
+	MOV AL, [A]
+	POP BX
+	IMUL BL
+	PUSH AX
+	MOV DX, [C+2]
+	MOV AX, [C]
+	POP BX
+	XCHG AX, BX
+	XCHG DX, CX
+	CWD
+	CALL MUL32
+	POP BX
+	POP CX
+	XCHG AX, BX
+	XCHG DX, CX
+	SUB AX, BX
+	SBB DX, CX
+	MOV [D+2], DX
+	MOV [D], AX
+Symbol table dump:
+A = b
+B = w
+C = l
+D = l
+
+echo "1 "| ./cap15-single
+	MOV AX, 1
+echo "x "| ./cap15-single
+	MOV AX, [X]
+
+echo "12345 "| ./cap15-multi
+	MOV AX, 12345
+echo "alfa "| ./cap15-multi
+	MOV AX, [ALFA]
+
+echo "a=-1 "| ./cap16-single
+	MOV AX, 1
+	NEG AX
+	MOV [A], AX
+echo "a=-x "| ./cap16-single
+	MOV AX, [X]
+	NEG AX
+	MOV [A], AX
+echo "d=b*b-4*a*c/2 "| ./cap16-single
+	MOV AX, [B]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	MOV AX, [A]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, [C]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 2
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [D], AX
+echo "s=o|n~s "| ./cap16-single
+	MOV AX, [O]
+	PUSH AX
+	MOV AX, [N]
+	POP BX
+	OR AX, BX
+	PUSH AX
+	MOV AX, [S]
+	POP BX
+	XOR AX, BX
+	MOV [S], AX
+echo "b=(a|b)&(c~d) "| ./cap16-single
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	OR AX, BX
+	PUSH AX
+	MOV AX, [C]
+	PUSH AX
+	MOV AX, [D]
+	POP BX
+	XOR AX, BX
+	POP BX
+	AND AX, BX
+	MOV [B], AX
+echo "x=a&!b|!a&b "| ./cap16-single
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NOT AX
+	POP BX
+	AND AX, BX
+	PUSH AX
+	MOV AX, [A]
+	NOT AX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	AND AX, BX
+	POP BX
+	OR AX, BX
+	MOV [X], AX
+
+echo "a=-123 "| ./cap16-multi
+	MOV AX, 123
+	NEG AX
+	MOV [A], AX
+echo "a=-alfa "| ./cap16-multi
+	MOV AX, [ALFA]
+	NEG AX
+	MOV [A], AX
+echo "delta=beta*beta-412*alfa*cappa/2121 "| ./cap16-multi
+	MOV AX, [BETA]
+	PUSH AX
+	MOV AX, [BETA]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 412
+	PUSH AX
+	MOV AX, [ALFA]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, [CAPPA]
+	POP BX
+	IMUL BX
+	PUSH AX
+	MOV AX, 2121
+	POP BX
+	XCHG AX, BX
+	CWD
+	IDIV BX
+	POP BX
+	SUB AX, BX
+	NEG AX
+	MOV [DELTA], AX
+echo "ser=ou|nao~ser "| ./cap16-multi
+	MOV AX, [OU]
+	PUSH AX
+	MOV AX, [NAO]
+	POP BX
+	OR AX, BX
+	PUSH AX
+	MOV AX, [SER]
+	POP BX
+	XOR AX, BX
+	MOV [SER], AX
+echo "bool=(a|b)&(c~d) "| ./cap16-multi
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	OR AX, BX
+	PUSH AX
+	MOV AX, [C]
+	PUSH AX
+	MOV AX, [D]
+	POP BX
+	XOR AX, BX
+	POP BX
+	AND AX, BX
+	MOV [BOOL], AX
+echo "myxor=a&!b|!a&b "| ./cap16-multi
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NOT AX
+	POP BX
+	AND AX, BX
+	PUSH AX
+	MOV AX, [A]
+	NOT AX
+	PUSH AX
+	MOV AX, [B]
+	POP BX
+	AND AX, BX
+	POP BX
+	OR AX, BX
+	MOV [MYXOR], AX
+
+set +v
+
+=================
+Testes de Falha
+=================
+
+
+echo ""| ./cap02-expr
+Error: Integer expected!
+echo "x"| ./cap02-expr
+Error: Integer expected!
+echo "1+"| ./cap02-expr
+Error: Integer expected!
+	MOV AX, 1
+	PUSH AX
+echo "*1"| ./cap02-expr
+Error: Integer expected!
+
+echo "1+2 3+4"| ./cap03-single
+Error: Name expected!
+echo "x=f("| ./cap03-single
+Error: ')' expected!
+
+echo ""| ./cap03-multi
+Error: Name expected!
+
+echo ""| ./cap04-interp
+Error: Name expected!
+
+echo ""| ./cap05-control
+Error: Name expected!
+
+echo ""| ./cap06-bool1
+Error: Integer expected!
+echo "a*-b"| ./cap06-bool1
+Error: Integer expected!
+	MOV AX, [A]
+	PUSH AX
+echo "a--b"| ./cap06-bool1
+	MOV AX, [A]
+	PUSH AX
+	MOV AX, [B]
+	NEG AX
+	POP BX
+	SUB AX, BX
+	NEG AX
+
+echo ""| ./cap06-bool2
+Error: Name expected!
+echo ""| ./cap07-lex-subset
+Error: Name expected!
+echo ""| ./cap07-subset
+Error: Name expected!
+echo ""| ./cap09-top-pascal
+Error: 'p' expected!
+
+echo "."| ./cap10-tiny01
+Error: 'p' expected!
+echo "p"| ./cap10-tiny01
+Error: Unrecognized keyword.
+Error: BEGIN expected!
+org 100h
+section .data
+echo "pb"| ./cap10-tiny01
+Error: Name expected!
+org 100h
+section .data
+section .text
+_start:
+echo "pbe"| ./cap10-tiny01
+Error: '.' expected!
+org 100h
+section .data
+section .text
+_start:
+	MOV AX, 4C00h
+	INT 21h
+echo "pe."| ./cap10-tiny01
+Error: Unrecognized keyword.
+Error: BEGIN expected!
+org 100h
+section .data
+echo "pvavavabe."| ./cap10-tiny01
+Error: Duplicate variable name: A
+org 100h
+section .data
+A	dw 0
+
+echo "? "| ./cap15-single
+Error: Unrecognized character: '?'
+echo "? "| ./cap15-multi
+Error: Unrecognized character: '?'
+echo "999999 "| ./cap15-multi
+Error: Integer too large.
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx "| ./cap15-multi
+Error: Identifier too long.
+
+set +v

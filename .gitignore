@@ -17,5 +17,7 @@ a.out
 exemplo_elf32
 exemplo_elf64
 src/test.out
+bin/cap*
+bin/test.out
 test_div32.asm
 test_mul32.asm
